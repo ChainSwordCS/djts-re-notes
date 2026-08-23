@@ -1,0 +1,3 @@
+[NuTek::MemoryProfiler] Resource container 0x272BE3AB: 1248 bytes.
+[NuTek::MemoryProfiler] Agent instance 0xB07869BA: 2128 bytes.
+[NuTek::MemoryProfiler] Agent instance 0xE430573E: 616 bytes.

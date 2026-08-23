@@ -1,0 +1,35 @@
+
+
+void* ParseCMDFile_FUN_0207bf70(u32* param_1, s32* param_2, s16* param_3) {
+	piVar3 = FUN_0207deb4(param_1);
+	iVar4 = FUN_0207df08(piVar3);
+	if (iVar4 != 0) {
+		/* snip */
+		if (acVar5 != (u32)"CMDF") {
+			do {
+				if (acVar5 == (u32)"IRTC") {
+					
+				}
+				else if (acVar5 == (u32)"HPSC") {
+					
+				}
+				else if (acVar5 == (u32)"PSSC") {
+					
+				}
+				else if (acVar5 == (u32)"PACC") {
+					
+				}
+				else if (acVar5 == (u32)"XOBC") {
+					
+				}
+				else if (acVar5 == (u32)"DQAC") {
+					
+				}
+				
+				FUN_0207db6c(&local_27c);
+				acVar5 = *local_27c;
+			} while (acVar5 != (u32)"CMDF");
+		}
+	}
+	return piVar3;
+}

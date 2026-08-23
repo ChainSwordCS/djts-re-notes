@@ -1,0 +1,2 @@
+[NuTek::MemoryProfiler] Agent instance 0xB07869BA: 1836 bytes.
+[NuTek::MemoryProfiler] Agent instance 0x83B88A25: 32 bytes.

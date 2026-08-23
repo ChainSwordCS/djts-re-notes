@@ -1,0 +1,3769 @@
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_archive.c"
+ 
+#line 16: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_archive.c"
+ 
+#line 17: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_archive.c"
+ 
+#line 19: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_archive.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/util.h"
+///+ #if NITRO_FS_UTIL_H_ ===true
+///+ #define NITRO_FS_UTIL_H_ ===DEFINED
+ 
+#line 20: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/util.h"
+ 
+#line 21: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/util.h"
+ 
+#line 22: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/util.h"
+///+ #ifdef __cplusplus ===false
+///- extern "C" {
+///+ #endif ===false
+///+ #if SDK_ARM7 ===true
+///+ #define FS_IMPLEMENT ===DEFINED
+///+ #endif ===true
+///+ #define BIT_MASK([n])  ((1 << (n)) - 1) ===DEFINED
+///+ #define ALIGN_MASK([a])  ((a) - 1) ===DEFINED
+///+ #define ALIGN_BYTE([n, a])  (((u32)(n) + ALIGN_MASK(a)) & ~ALIGN_MASK(a)) ===DEFINED
+///+ #if SDK_FINALROM ===true
+extern const char *fsi_assert_fs_format;
+extern const char *fsi_assert_is_init;
+extern const char *fsi_assert_is_valid_arg;
+extern const char *fsi_assert_is_valid_dma_channel;
+extern const char *fsi_assert_is_empty;
+extern const char *fsi_assert_is_handle;
+extern const char *fsi_assert_is_file;
+extern const char *fsi_assert_is_dir;
+extern const char *fsi_assert_is_idle;
+extern const char *fsi_assert_irq_enabled;
+
+extern const char *fsi_assert_arc_free;
+extern const char *fsi_assert_arc_unloaded;
+extern const char *fsi_assert_arc_not_rom;
+
+
+///+ #define FS_ASSERT_INIT([ret])  if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init) ===DEFINED
+///+ #define FS_ASSERT_ARG([e, ret])  if(!(e))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg) ===DEFINED
+///+ #define FS_ASSERT_DMA_CHANNEL([dma, ret])  if(dma == 0)	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_dma_channel) ===DEFINED
+///+ #define FS_ASSERT_EMPTY([p_file, ret])  if(FS_IsFile(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_empty) ===DEFINED
+///+ #define FS_ASSERT_HANDLE([p_file, ret])  if(!FS_IsFile(p_file) && !FS_IsDir(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_handle) ===DEFINED
+///+ #define FS_ASSERT_FILE([p_file, ret])  if(!FS_IsFile(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_file) ===DEFINED
+///+ #define FS_ASSERT_DIR([p_file, ret])  if(!FS_IsDir(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_dir) ===DEFINED
+///+ #define FS_ASSERT_IDLE([p_file, ret])  if(FS_IsBusy(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_idle) ===DEFINED
+///+ #define FS_ASSERT_IRQ_ENABLED([ret])  if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled) ===DEFINED
+///+ #define FS_ASSERT_ARC_FREE([p_arc, ret])  if(p_arc->name.pack)	OS_TPanic(fsi_assert_fs_format, fsi_assert_arc_free) ===DEFINED
+///+ #define FS_ASSERT_ARC_UNLOADED([p_arc, ret])  if(FS_IsArchiveLoaded(p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_arc_unloaded) ===DEFINED
+///+ #define FS_ASSERT_ARC_NOT_ROM([p_arc, ret])  if(p_arc == arc_list)	OS_TPanic(fsi_assert_fs_format, fsi_assert_arc_not_rom) ===DEFINED
+///+ #else ===false
+///+ #endif ===false
+///+ #if FS_IMPLEMENT ===true
+static inline void FSi_CutFromListCore(FSFileLink *trg)
+{
+    FSFile *const pr = trg->prev;
+    FSFile *const nx = trg->next;
+    if (pr)
+        pr->link.next = nx;
+    if (nx)
+        nx->link.prev = pr;
+}
+
+
+
+static inline void FSi_CutFromList(FSFile *elem)
+{
+    FSFileLink *const trg = &elem->link;
+    FSi_CutFromListCore(trg);
+    trg->next = trg->prev = NULL;
+}
+
+
+
+static inline void FSi_AppendToList(FSFile *elem, FSFile *list)
+{
+    FSFileLink *const trg = &elem->link;
+    FSi_CutFromListCore(trg);
+    {
+        while (list->link.next)
+            list = list->link.next;
+        list->link.next = elem;
+        trg->prev = list;
+        trg->next = NULL;
+    }
+}
+
+///+ #endif ===true
+static inline BOOL FSi_IsSlash(u32 c)
+{
+    return (c == '/') || (c == '\\');
+}
+
+
+
+static inline BOOL FSi_IsArchiveRunning(const volatile FSArchive *p_arc)
+{
+    return ((p_arc->flag & FS_ARCHIVE_FLAG_RUNNING) != 0);
+}
+
+
+
+static inline BOOL FSi_IsArchiveCanceling(const volatile FSArchive *p_arc)
+{
+    return ((p_arc->flag & FS_ARCHIVE_FLAG_CANCELING) != 0);
+}
+
+
+
+static inline BOOL FSi_IsArchiveSuspending(const volatile FSArchive *p_arc)
+{
+    return ((p_arc->flag & FS_ARCHIVE_FLAG_SUSPENDING) != 0);
+}
+
+
+
+static inline BOOL FSi_IsArchiveAsync(const volatile FSArchive *p_arc)
+{
+    return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_ASYNC) != 0);
+}
+
+
+
+static inline BOOL FSi_IsArchiveSync(const volatile FSArchive *p_arc)
+{
+    return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_SYNC) != 0);
+}
+
+
+
+
+
+///+ #ifdef __cplusplus ===false
+///- } 
+///+ #endif ===false
+///+ #endif ===true
+ 
+#line 21: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_archive.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/command.h"
+///+ #if NITRO_FS_COMMAND_H_ ===true
+///+ #define NITRO_FS_COMMAND_H_ ===DEFINED
+ 
+#line 19: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/command.h"
+ 
+#line 20: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/command.h"
+ 
+#line 21: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/command.h"
+///+ #ifdef __cplusplus ===false
+///- extern "C" {
+///+ #endif ===false
+extern FSResult (*const (fsi_default_command[])) (FSFile *);
+
+
+
+
+
+extern FSDirPos current_dir_pos;
+
+
+
+
+
+
+int     FSi_StrNICmp(const char *str1, const char *str2, u32 len);
+
+
+BOOL    FSi_SendCommand(FSFile *p_file, FSCommandType command);
+
+
+FSResult FSi_TranslateCommand(FSFile *p_file, FSCommandType command);
+
+
+void    FSi_ReleaseCommand(FSFile *p_file, FSResult ret);
+
+
+FSFile *FSi_NextCommand(FSArchive *p_arc);
+
+
+void    FSi_ExecuteAsyncCommand(FSFile *p_file);
+
+
+BOOL    FSi_ExecuteSyncCommand(FSFile *p_file);
+
+
+///+ #ifdef __cplusplus ===false
+///- } 
+///+ #endif ===false
+///+ #endif ===true
+ 
+#line 22: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_archive.c"
+///+ #if FS_IMPLEMENT ===true
+static FSArchive *arc_list = NULL;
+
+
+FSDirPos current_dir_pos;
+
+
+
+
+
+
+static u32 FSi_GetPackedName(const char *name, int name_len)
+{
+    u32     ret = 0;
+    if (name_len <= FS_ARCHIVE_NAME_LEN_MAX)
+    {
+        int     i = 0;
+        for (; i < name_len; ++i)
+        {
+            u32     c = (u32)MI_ReadByte(name + i);
+            if (!c)
+                break;
+            c = (u32)(c - 'A');
+            if (c <= (u32)('Z' - 'A'))
+                c = (u32)(c + 'a');
+            else
+                c = (u32)(c + 'A');
+            ret |= (u32)(c << (i * 8));
+        }
+    }
+    return ret;
+}
+
+
+static FSResult FSi_ReadMemCallback(FSArchive *p_arc, void *dst, u32 pos, u32 size)
+{
+    MI_CpuCopy8((const void *)FS_GetArchiveOffset(p_arc, pos), dst, size);
+    return FS_RESULT_SUCCESS;
+}
+
+
+static FSResult FSi_WriteMemCallback(FSArchive *p_arc, const void *src, u32 pos, u32 size)
+{
+    MI_CpuCopy8(src, (void *)FS_GetArchiveOffset(p_arc, pos), size);
+    return FS_RESULT_SUCCESS;
+}
+
+
+static FSResult FSi_ReadMemoryCore(FSArchive *p_arc, void *dst, u32 pos, u32 size)
+{
+    (void)p_arc;
+    MI_CpuCopy8((const void *)pos, dst, size);
+    return FS_RESULT_SUCCESS;
+}
+
+
+FSFile *FSi_NextCommand(FSArchive *p_arc)
+{
+
+    OSIntrMode bak_psr = OS_DisableInterrupts();
+
+
+    if (FSi_IsArchiveCanceling(p_arc))
+    {
+        FSFile *p, *q;
+        p_arc->flag &= ~FS_ARCHIVE_FLAG_CANCELING;
+        for (p = p_arc->list.next; p; p = q)
+        {
+            q = p->link.next;
+            if (FS_IsCanceling(p))
+            {
+                if (p_arc->list.next == p)
+                    p_arc->list.next = q;
+                FSi_ReleaseCommand(p, FS_RESULT_CANCELED);
+                if (!q)
+                    q = p_arc->list.next;
+            }
+        }
+    }
+
+
+    if (!FSi_IsArchiveSuspending(p_arc) && !FS_IsArchiveSuspended(p_arc) && p_arc->list.next)
+    {
+        FSFile *p_file = p_arc->list.next;
+        const BOOL is_start = !FSi_IsArchiveRunning(p_arc);
+        if (is_start)
+            p_arc->flag |= FS_ARCHIVE_FLAG_RUNNING;
+        (void)OS_RestoreInterrupts(bak_psr);
+        if (is_start)
+        {
+
+            if ((p_arc->proc_flag & FS_ARCHIVE_PROC_ACTIVATE) != 0)
+                (void)(*p_arc->proc) (p_file, FS_COMMAND_ACTIVATE);
+        }
+        bak_psr = OS_DisableInterrupts();
+        p_file->stat |= FS_FILE_STATUS_OPERATING;
+
+        if (FS_IsFileSyncMode(p_file))
+        {
+            OS_WakeupThread(p_file->queue);
+            (void)OS_RestoreInterrupts(bak_psr);
+            return NULL;
+        }
+
+        else
+        {
+            (void)OS_RestoreInterrupts(bak_psr);
+            return p_file;
+        }
+    }
+
+
+    if (FSi_IsArchiveRunning(p_arc))
+    {
+        p_arc->flag &= ~FS_ARCHIVE_FLAG_RUNNING;
+        if ((p_arc->proc_flag & FS_ARCHIVE_PROC_IDLE) != 0)
+        {
+            FSFile  tmp;
+            FS_InitFile(&tmp);
+            tmp.arc = p_arc;
+
+            (void)(*p_arc->proc) (&tmp, FS_COMMAND_IDLE);
+        }
+    }
+
+
+    if (FSi_IsArchiveSuspending(p_arc))
+    {
+        p_arc->flag &= ~FS_ARCHIVE_FLAG_SUSPENDING;
+        p_arc->flag |= FS_ARCHIVE_FLAG_SUSPEND;
+        OS_WakeupThread(&p_arc->stat_q);
+    }
+    (void)OS_RestoreInterrupts(bak_psr);
+
+    return NULL;
+}
+
+
+void FSi_ExecuteAsyncCommand(FSFile *p_file)
+{
+    FSArchive *const p_arc = p_file->arc;
+    while (p_file)
+    {
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+
+        p_file->stat |= FS_FILE_STATUS_OPERATING;
+        if (FS_IsFileSyncMode(p_file))
+        {
+            OS_WakeupThread(p_file->queue);
+            (void)OS_RestoreInterrupts(bak_psr);
+            break;
+        }
+
+        else
+        {
+            p_file->stat |= FS_FILE_STATUS_ASYNC;
+        }
+        (void)OS_RestoreInterrupts(bak_psr);
+
+        if (FSi_TranslateCommand(p_file, p_file->command) == FS_RESULT_PROC_ASYNC)
+            break;
+
+        p_file = FSi_NextCommand(p_arc);
+    }
+}
+
+
+BOOL FSi_ExecuteSyncCommand(FSFile *p_file)
+{
+    FSFile *p_target;
+    FSResult ret = FSi_TranslateCommand(p_file, p_file->command);
+    FSi_ReleaseCommand(p_file, ret);
+    p_target = FSi_NextCommand(p_file->arc);
+    if (p_target)
+        FSi_ExecuteAsyncCommand(p_target);
+    return FS_IsSucceeded(p_file);
+}
+
+
+BOOL FSi_SendCommand(FSFile *p_file, FSCommandType command)
+{
+    FSArchive *const p_arc = p_file->arc;
+    const int bit = (1 << command);
+
+
+    p_file->command = command;
+    p_file->error = FS_RESULT_BUSY;
+    p_file->stat |= FS_FILE_STATUS_BUSY;
+
+    {
+
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+
+
+        if (p_arc->flag & FS_ARCHIVE_FLAG_UNLOADING)
+        {
+            FSi_ReleaseCommand(p_file, FS_RESULT_CANCELED);
+            (void)OS_RestoreInterrupts(bak_psr);
+            return FALSE;
+        }
+
+
+        if ((bit & FS_ARCHIVE_PROC_SYNC) != 0)
+            p_file->stat |= FS_FILE_STATUS_SYNC;
+        FSi_AppendToList(p_file, (FSFile *)&p_arc->list);
+
+
+        if (!FS_IsArchiveSuspended(p_arc) && !FSi_IsArchiveRunning(p_arc))
+        {
+            p_arc->flag |= FS_ARCHIVE_FLAG_RUNNING;
+            (void)OS_RestoreInterrupts(bak_psr);
+
+            if ((p_arc->proc_flag & FS_ARCHIVE_PROC_ACTIVATE) != 0)
+                (void)(*p_arc->proc) (p_file, FS_COMMAND_ACTIVATE);
+
+            bak_psr = OS_DisableInterrupts();
+            p_file->stat |= FS_FILE_STATUS_OPERATING;
+            if (!FS_IsFileSyncMode(p_file))
+            {
+                (void)OS_RestoreInterrupts(bak_psr);
+                FSi_ExecuteAsyncCommand(p_file);
+                return TRUE;
+            }
+            (void)OS_RestoreInterrupts(bak_psr);
+        }
+
+
+        else if (!FS_IsFileSyncMode(p_file))
+        {
+            (void)OS_RestoreInterrupts(bak_psr);
+            return TRUE;
+        }
+
+
+        else
+        {
+            do
+            {
+                OS_SleepThread(p_file->queue);
+            }
+            while (!(p_file->stat & FS_FILE_STATUS_OPERATING));
+            (void)OS_RestoreInterrupts(bak_psr);
+        }
+
+    }
+
+
+    return FSi_ExecuteSyncCommand(p_file);
+}
+
+
+void FSi_EndArchive(void)
+{
+    OSIntrMode bak_psr = OS_DisableInterrupts();
+    FSArchive *volatile *p_list = &arc_list;
+    for (;;)
+    {
+        FSArchive *p_arc = arc_list;
+        if (!p_arc)
+            break;
+        arc_list = arc_list->next;
+        (void)FS_UnloadArchive(p_arc);
+        FS_ReleaseArchiveName(p_arc);
+    }
+    (void)OS_RestoreInterrupts(bak_psr);
+}
+
+
+void FS_InitArchive(FSArchive *p_arc)
+{
+    if(!(p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    MI_CpuClear8(p_arc, sizeof(FSArchive));
+///+ #if SDK_NO_THREAD ===true
+    OS_InitThreadQueue(&p_arc->sync_q);
+    OS_InitThreadQueue(&p_arc->stat_q);
+///+ #endif ===true
+}
+
+
+FSArchive *FS_FindArchive(const char *name, int name_len)
+{
+    u32     pack = FSi_GetPackedName(name, name_len);
+    OSIntrMode bak_psr = OS_DisableInterrupts();
+    FSArchive *p_arc = arc_list;
+    while (p_arc && (p_arc->name.pack != pack))
+        p_arc = p_arc->next;
+    (void)OS_RestoreInterrupts(bak_psr);
+
+    return p_arc;
+}
+
+
+BOOL FS_RegisterArchiveName(FSArchive *p_arc, const char *name, u32 name_len)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_arc && name))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(p_arc->name.pack)	OS_TPanic(fsi_assert_fs_format, fsi_assert_arc_free);
+
+    {
+        BOOL    ret = FALSE;
+        OSIntrMode bak_intr = OS_DisableInterrupts();
+        if (!FS_FindArchive(name, (s32)name_len))
+        {
+            FSArchive *p_tail = arc_list;
+            if (!p_tail)
+            {
+                arc_list = p_arc;
+                current_dir_pos.arc = p_arc;
+                current_dir_pos.pos = 0;
+                current_dir_pos.index = 0;
+                current_dir_pos.own_id = 0;
+            }
+            else
+            {
+                while (p_tail->next)
+                    p_tail = p_tail->next;
+                p_tail->next = p_arc;
+                p_arc->prev = p_tail;
+            }
+            p_arc->name.pack = FSi_GetPackedName(name, (s32)name_len);
+            p_arc->flag |= FS_ARCHIVE_FLAG_REGISTER;
+            ret = TRUE;
+        }
+        (void)OS_RestoreInterrupts(bak_intr);
+        return ret;
+    }
+}
+
+
+void FS_ReleaseArchiveName(FSArchive *p_arc)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(p_arc == arc_list)	OS_TPanic(fsi_assert_fs_format, fsi_assert_arc_not_rom);
+    if (p_arc->name.pack)
+    {
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+
+        if (p_arc->next)
+            p_arc->next->prev = p_arc->prev;
+        if (p_arc->prev)
+            p_arc->prev->next = p_arc->next;
+        p_arc->name.pack = 0;
+        p_arc->next = p_arc->prev = NULL;
+        p_arc->flag &= ~FS_ARCHIVE_FLAG_REGISTER;
+
+
+        if (current_dir_pos.arc == p_arc)
+        {
+            current_dir_pos.arc = arc_list;
+            current_dir_pos.pos = 0;
+            current_dir_pos.index = 0;
+            current_dir_pos.own_id = 0;
+        }
+        (void)OS_RestoreInterrupts(bak_psr);
+    }
+}
+
+
+BOOL FS_LoadArchive(FSArchive *p_arc, u32 base,
+                    u32 fat, u32 fat_size,
+                    u32 fnt, u32 fnt_size,
+                    FS_ARCHIVE_READ_FUNC read_func, FS_ARCHIVE_WRITE_FUNC write_func)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(FS_IsArchiveLoaded(p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_arc_unloaded);
+
+
+    p_arc->base = base;
+    p_arc->fat_size = fat_size;
+    p_arc->fat = p_arc->fat_bak = fat;
+    p_arc->fnt_size = fnt_size;
+    p_arc->fnt = p_arc->fnt_bak = fnt;
+
+    p_arc->read_func = read_func ? read_func : FSi_ReadMemCallback;
+    p_arc->write_func = write_func ? write_func : FSi_WriteMemCallback;
+
+    p_arc->table_func = p_arc->read_func;
+    p_arc->load_mem = NULL;
+
+    p_arc->flag |= FS_ARCHIVE_FLAG_LOADED;
+    return TRUE;
+}
+
+
+BOOL FS_UnloadArchive(FSArchive *p_arc)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+
+    {
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+
+        if (FS_IsArchiveLoaded(p_arc))
+        {
+
+            if (FS_IsArchiveTableLoaded(p_arc))
+            {
+                OS_TWarning("memory may leak. preloaded-table of archive \"%s\" (0x%08X)",
+                            p_arc->name.ptr, p_arc->load_mem);
+            }
+            {
+                FSFile *p, *q;
+
+                BOOL    bak_state = FS_SuspendArchive(p_arc);
+
+                p_arc->flag |= FS_ARCHIVE_FLAG_UNLOADING;
+                for (p = p_arc->list.next; p; p = q)
+                {
+                    q = p->link.next;
+                    FSi_ReleaseCommand(p, FS_RESULT_CANCELED);
+                }
+                p_arc->list.next = NULL;
+
+                if (bak_state)
+                    (void)FS_ResumeArchive(p_arc);
+            }
+
+            p_arc->base = 0;
+            p_arc->fat = 0;
+            p_arc->fat_size = 0;
+            p_arc->fnt = 0;
+            p_arc->fnt_size = 0;
+            p_arc->fat_bak = p_arc->fnt_bak = 0;
+            p_arc->flag &= ~(FS_ARCHIVE_FLAG_CANCELING |
+                             FS_ARCHIVE_FLAG_LOADED | FS_ARCHIVE_FLAG_UNLOADING);
+        }
+        (void)OS_RestoreInterrupts(bak_psr);
+    }
+    return TRUE;
+}
+
+
+u32 FS_LoadArchiveTables(FSArchive *p_arc, void *p_mem, u32 max_size)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+
+    {
+
+        u32     total_size = (((u32)(p_arc->fat_size + p_arc->fnt_size + 32) + ((32) - 1)) & ~((32) - 1));
+        if (total_size <= max_size)
+        {
+
+            u8     *p_cache = (u8 *)(((u32)((u32)p_mem) + ((32) - 1)) & ~((32) - 1));
+            FSFile  tmp;
+            FS_InitFile(&tmp);
+
+
+            if (FS_OpenFileDirect(&tmp, p_arc, p_arc->fat, p_arc->fat + p_arc->fat_size, (u32)~0))
+            {
+                if (FS_ReadFile(&tmp, p_cache, (s32)p_arc->fat_size) < 0)
+                {
+                    MI_CpuFill8(p_cache, 0x00, p_arc->fat_size);
+                }
+                (void)FS_CloseFile(&tmp);
+            }
+            p_arc->fat = (u32)p_cache;
+            p_cache += p_arc->fat_size;
+
+            if (FS_OpenFileDirect(&tmp, p_arc, p_arc->fnt, p_arc->fnt + p_arc->fnt_size, (u32)~0))
+            {
+                if (FS_ReadFile(&tmp, p_cache, (s32)p_arc->fnt_size) < 0)
+                {
+                    MI_CpuFill8(p_cache, 0x00, p_arc->fnt_size);
+                }
+                (void)FS_CloseFile(&tmp);
+            }
+            p_arc->fnt = (u32)p_cache;
+
+            p_arc->load_mem = p_mem;
+
+            p_arc->table_func = FSi_ReadMemoryCore;
+            p_arc->flag |= FS_ARCHIVE_FLAG_TABLE_LOAD;
+        }
+        return total_size;
+    }
+}
+
+
+void   *FS_UnloadArchiveTables(FSArchive *p_arc)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+
+    {
+        void   *ret = NULL;
+        if (FS_IsArchiveLoaded(p_arc))
+        {
+            BOOL    bak_stat = FS_SuspendArchive(p_arc);
+            if (FS_IsArchiveTableLoaded(p_arc))
+            {
+                p_arc->flag &= ~FS_ARCHIVE_FLAG_TABLE_LOAD;
+                ret = p_arc->load_mem;
+                p_arc->load_mem = NULL;
+                p_arc->fat = p_arc->fat_bak;
+                p_arc->fnt = p_arc->fnt_bak;
+                p_arc->table_func = p_arc->read_func;
+            }
+            if (bak_stat)
+                (void)FS_ResumeArchive(p_arc);
+        }
+        return ret;
+    }
+}
+
+
+BOOL FS_SuspendArchive(FSArchive *p_arc)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+
+    {
+
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+        const BOOL bak_stat = !FS_IsArchiveSuspended(p_arc);
+        if (bak_stat)
+        {
+
+            if (FSi_IsArchiveRunning(p_arc))
+            {
+                p_arc->flag |= FS_ARCHIVE_FLAG_SUSPENDING;
+                do
+                    OS_SleepThread(&p_arc->stat_q);
+                while (FSi_IsArchiveSuspending(p_arc));
+            }
+
+            else
+            {
+                p_arc->flag |= FS_ARCHIVE_FLAG_SUSPEND;
+            }
+        }
+        (void)OS_RestoreInterrupts(bak_psr);
+        return bak_stat;
+    }
+}
+
+
+BOOL FS_ResumeArchive(FSArchive *p_arc)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+
+    {
+        FSFile *p_target = NULL;
+
+        OSIntrMode bak_irq = OS_DisableInterrupts();
+        const BOOL bak_stat = !FS_IsArchiveSuspended(p_arc);
+        if (!bak_stat)
+        {
+            p_arc->flag &= ~FS_ARCHIVE_FLAG_SUSPEND;
+
+            p_target = FSi_NextCommand(p_arc);
+        }
+        (void)OS_RestoreInterrupts(bak_irq);
+        if (p_target)
+            FSi_ExecuteAsyncCommand(p_target);
+        return bak_stat;
+    }
+}
+
+
+void FS_SetArchiveProc(struct FSArchive *p_arc, FS_ARCHIVE_PROC_FUNC proc, u32 flags)
+{
+    if (!flags)
+        proc = NULL;
+    else if (!proc)
+        flags = 0;
+    p_arc->proc = proc;
+    p_arc->proc_flag = flags;
+}
+
+
+void FS_NotifyArchiveAsyncEnd(FSArchive *p_arc, FSResult ret)
+{
+
+    if (FSi_IsArchiveAsync(p_arc))
+    {
+        FSFile *p_file = p_arc->list.next;
+        p_arc->flag &= ~FS_ARCHIVE_FLAG_IS_ASYNC;
+        FSi_ReleaseCommand(p_file, ret);
+
+        p_file = FSi_NextCommand(p_arc);
+        if (p_file)
+            FSi_ExecuteAsyncCommand(p_file);
+    }
+
+    else
+    {
+        FSFile *p_file = p_arc->list.next;
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+        p_file->error = ret;
+        p_arc->flag &= ~FS_ARCHIVE_FLAG_IS_SYNC;
+///+ #if SDK_NO_THREAD ===true
+        OS_WakeupThread(&p_arc->sync_q);
+///+ #endif ===true
+        (void)OS_RestoreInterrupts(bak_psr);
+    }
+}
+
+
+///+ #endif ===true
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_command.c"
+ 
+#line 15: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_command.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/util.h"
+///+ #if NITRO_FS_UTIL_H_ ===false
+///- #include "20"
+///- #include "21"
+///- #include "22"
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- #if SDK_ARM7
+///- #endif
+///- #if SDK_FINALROM
+///- extern const char *fsi_assert_fs_format;
+///- extern const char *fsi_assert_is_init;
+///- extern const char *fsi_assert_is_valid_arg;
+///- extern const char *fsi_assert_is_valid_dma_channel;
+///- extern const char *fsi_assert_is_empty;
+///- extern const char *fsi_assert_is_handle;
+///- extern const char *fsi_assert_is_file;
+///- extern const char *fsi_assert_is_dir;
+///- extern const char *fsi_assert_is_idle;
+///- extern const char *fsi_assert_irq_enabled;
+///- 
+///- extern const char *fsi_assert_arc_free;
+///- extern const char *fsi_assert_arc_unloaded;
+///- extern const char *fsi_assert_arc_not_rom;
+///- 
+///- 
+///- #else
+///- #endif
+///- #if FS_IMPLEMENT
+///- static inline void FSi_CutFromListCore(FSFileLink *trg)
+///- {
+///-     FSFile *const pr = trg->prev;
+///-     FSFile *const nx = trg->next;
+///-     if (pr)
+///-         pr->link.next = nx;
+///-     if (nx)
+///-         nx->link.prev = pr;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_CutFromList(FSFile *elem)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     trg->next = trg->prev = NULL;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_AppendToList(FSFile *elem, FSFile *list)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     {
+///-         while (list->link.next)
+///-             list = list->link.next;
+///-         list->link.next = elem;
+///-         trg->prev = list;
+///-         trg->next = NULL;
+///-     }
+///- }
+///- 
+///- #endif
+///- static inline BOOL FSi_IsSlash(u32 c)
+///- {
+///-     return (c == '/') || (c == '\\');
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveRunning(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_RUNNING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveCanceling(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_CANCELING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSuspending(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_SUSPENDING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveAsync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_ASYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_SYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 17: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_command.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/command.h"
+///+ #if NITRO_FS_COMMAND_H_ ===false
+///- #include "19"
+///- #include "20"
+///- #include "21"
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- extern FSResult (*const (fsi_default_command[])) (FSFile *);
+///- 
+///- 
+///- 
+///- 
+///- 
+///- extern FSDirPos current_dir_pos;
+///- 
+///- 
+///- 
+///- 
+///- 
+///- 
+///- int     FSi_StrNICmp(const char *str1, const char *str2, u32 len);
+///- 
+///- 
+///- BOOL    FSi_SendCommand(FSFile *p_file, FSCommandType command);
+///- 
+///- 
+///- FSResult FSi_TranslateCommand(FSFile *p_file, FSCommandType command);
+///- 
+///- 
+///- void    FSi_ReleaseCommand(FSFile *p_file, FSResult ret);
+///- 
+///- 
+///- FSFile *FSi_NextCommand(FSArchive *p_arc);
+///- 
+///- 
+///- void    FSi_ExecuteAsyncCommand(FSFile *p_file);
+///- 
+///- 
+///- BOOL    FSi_ExecuteSyncCommand(FSFile *p_file);
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 18: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_command.c"
+///+ #if FS_IMPLEMENT ===true
+void FSi_ReleaseCommand(FSFile *p_file, FSResult ret)
+{
+    SDK_ASSERT(FS_IsBusy(p_file));
+    {
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+        FSi_CutFromList(p_file);
+        p_file->stat &= ~(FS_FILE_STATUS_CANCEL | FS_FILE_STATUS_BUSY |
+                          FS_FILE_STATUS_SYNC | FS_FILE_STATUS_ASYNC | FS_FILE_STATUS_OPERATING);
+        p_file->error = ret;
+        OS_WakeupThread(p_file->queue);
+        (void)OS_RestoreInterrupts(bak_psr);
+    }
+}
+
+
+FSResult FSi_TranslateCommand(FSFile *p_file, FSCommandType command)
+{
+    FSResult ret;
+
+    FSArchive *const p_arc = p_file->arc;
+    const int bit = (1 << command);
+
+
+    if (FS_IsFileSyncMode(p_file))
+        p_arc->flag |= FS_ARCHIVE_FLAG_IS_SYNC;
+    else
+        p_arc->flag |= FS_ARCHIVE_FLAG_IS_ASYNC;
+
+
+    if ((p_arc->proc_flag & bit) != 0)
+    {
+        switch (ret = (*p_arc->proc) (p_file, command))
+        {
+        case FS_RESULT_SUCCESS:
+        case FS_RESULT_FAILURE:
+        case FS_RESULT_UNSUPPORTED:
+
+            p_file->error = ret;
+            break;
+        case FS_RESULT_PROC_ASYNC:
+
+            break;
+        case FS_RESULT_PROC_UNKNOWN:
+
+            ret = FS_RESULT_PROC_DEFAULT;
+            p_arc->proc_flag &= ~bit;
+            break;
+        }
+    }
+    else
+    {
+        ret = FS_RESULT_PROC_DEFAULT;
+    }
+
+    if (ret == FS_RESULT_PROC_DEFAULT)
+    {
+        ret = (*fsi_default_command[command]) (p_file);
+    }
+
+    if (ret == FS_RESULT_PROC_ASYNC)
+    {
+        if (FS_IsFileSyncMode(p_file))
+        {
+            OSIntrMode bak_psr = OS_DisableInterrupts();
+            while (FSi_IsArchiveSync(p_arc))
+                OS_SleepThread(&p_arc->sync_q);
+            ret = p_file->error;
+            (void)OS_RestoreInterrupts(bak_psr);
+        }
+    }
+
+    else if (!FS_IsFileSyncMode(p_file))
+    {
+        p_arc->flag &= ~FS_ARCHIVE_FLAG_IS_ASYNC;
+        FSi_ReleaseCommand(p_file, ret);
+    }
+
+    else
+    {
+        p_arc->flag &= ~FS_ARCHIVE_FLAG_IS_SYNC;
+        p_file->error = ret;
+    }
+
+    return ret;
+}
+
+
+///+ #endif ===true
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_command_default.c"
+ 
+#line 16: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_command_default.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/util.h"
+///+ #if NITRO_FS_UTIL_H_ ===false
+///- #include "20"
+///- #include "21"
+///- #include "22"
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- #if SDK_ARM7
+///- #endif
+///- #if SDK_FINALROM
+///- extern const char *fsi_assert_fs_format;
+///- extern const char *fsi_assert_is_init;
+///- extern const char *fsi_assert_is_valid_arg;
+///- extern const char *fsi_assert_is_valid_dma_channel;
+///- extern const char *fsi_assert_is_empty;
+///- extern const char *fsi_assert_is_handle;
+///- extern const char *fsi_assert_is_file;
+///- extern const char *fsi_assert_is_dir;
+///- extern const char *fsi_assert_is_idle;
+///- extern const char *fsi_assert_irq_enabled;
+///- 
+///- extern const char *fsi_assert_arc_free;
+///- extern const char *fsi_assert_arc_unloaded;
+///- extern const char *fsi_assert_arc_not_rom;
+///- 
+///- 
+///- #else
+///- #endif
+///- #if FS_IMPLEMENT
+///- static inline void FSi_CutFromListCore(FSFileLink *trg)
+///- {
+///-     FSFile *const pr = trg->prev;
+///-     FSFile *const nx = trg->next;
+///-     if (pr)
+///-         pr->link.next = nx;
+///-     if (nx)
+///-         nx->link.prev = pr;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_CutFromList(FSFile *elem)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     trg->next = trg->prev = NULL;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_AppendToList(FSFile *elem, FSFile *list)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     {
+///-         while (list->link.next)
+///-             list = list->link.next;
+///-         list->link.next = elem;
+///-         trg->prev = list;
+///-         trg->next = NULL;
+///-     }
+///- }
+///- 
+///- #endif
+///- static inline BOOL FSi_IsSlash(u32 c)
+///- {
+///-     return (c == '/') || (c == '\\');
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveRunning(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_RUNNING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveCanceling(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_CANCELING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSuspending(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_SUSPENDING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveAsync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_ASYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_SYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 18: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_command_default.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/command.h"
+///+ #if NITRO_FS_COMMAND_H_ ===false
+///- #include "19"
+///- #include "20"
+///- #include "21"
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- extern FSResult (*const (fsi_default_command[])) (FSFile *);
+///- 
+///- 
+///- 
+///- 
+///- 
+///- extern FSDirPos current_dir_pos;
+///- 
+///- 
+///- 
+///- 
+///- 
+///- 
+///- int     FSi_StrNICmp(const char *str1, const char *str2, u32 len);
+///- 
+///- 
+///- BOOL    FSi_SendCommand(FSFile *p_file, FSCommandType command);
+///- 
+///- 
+///- FSResult FSi_TranslateCommand(FSFile *p_file, FSCommandType command);
+///- 
+///- 
+///- void    FSi_ReleaseCommand(FSFile *p_file, FSResult ret);
+///- 
+///- 
+///- FSFile *FSi_NextCommand(FSArchive *p_arc);
+///- 
+///- 
+///- void    FSi_ExecuteAsyncCommand(FSFile *p_file);
+///- 
+///- 
+///- BOOL    FSi_ExecuteSyncCommand(FSFile *p_file);
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 19: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_command_default.c"
+///+ #if FS_IMPLEMENT ===true
+typedef struct
+{
+    FSArchive *arc;                    
+    u32     pos;                       
+}
+FSiSyncReadParam;
+
+static FSResult FSi_ReadFileCommand(FSFile *p_file);
+static FSResult FSi_WriteFileCommand(FSFile *p_file);
+static FSResult FSi_SeekDirCommand(FSFile *p_dir);
+static FSResult FSi_ReadDirCommand(FSFile *p_dir);
+static FSResult FSi_FindPathCommand(FSFile *p_dir);
+static FSResult FSi_GetPathCommand(FSFile *p_file);
+static FSResult FSi_OpenFileFastCommand(FSFile *p_file);
+static FSResult FSi_OpenFileDirectCommand(FSFile *p_file);
+static FSResult FSi_CloseFileCommand(FSFile *p_file);
+
+
+
+
+
+FSResult (*const (fsi_default_command[])) (FSFile *) =
+{
+FSi_ReadFileCommand,
+        FSi_WriteFileCommand,
+        FSi_SeekDirCommand,
+        FSi_ReadDirCommand,
+        FSi_FindPathCommand,
+        FSi_GetPathCommand,
+        FSi_OpenFileFastCommand, FSi_OpenFileDirectCommand, FSi_CloseFileCommand,};
+
+
+
+
+
+
+int FSi_StrNICmp(const char *str1, const char *str2, u32 len)
+{
+    int     i;
+    for (i = 0; i < len; ++i)
+    {
+        u32     c = (u32)(MI_ReadByte(str1 + i) - 'A');
+        u32     d = (u32)(MI_ReadByte(str2 + i) - 'A');
+        if (c <= 'Z' - 'A')
+            c += 'a' - 'A';
+        if (d <= 'Z' - 'A')
+            d += 'a' - 'A';
+        if (c != d)
+            return (int)(c - d);
+    }
+    return 0;
+}
+
+
+static FSResult FSi_ReadTable(FSiSyncReadParam * p, void *dst, u32 len)
+{
+    FSResult result;
+    FSArchive *const p_arc = p->arc;
+
+
+    p_arc->flag |= FS_ARCHIVE_FLAG_IS_SYNC;
+    result = (*p_arc->table_func) (p_arc, dst, p->pos, len);
+    switch (result)
+    {
+    case FS_RESULT_SUCCESS:
+    case FS_RESULT_FAILURE:
+        p_arc->flag &= ~FS_ARCHIVE_FLAG_IS_SYNC;
+        break;
+    case FS_RESULT_PROC_ASYNC:
+///+ #if SDK_NO_THREAD ===true
+        {
+
+            OSIntrMode bak_psr = OS_DisableInterrupts();
+            while (FSi_IsArchiveSync(p_arc))
+                OS_SleepThread(&p_arc->sync_q);
+            (void)OS_RestoreInterrupts(bak_psr);
+        }
+///+ #else ===false
+///-         while (FSi_IsArchiveSync(p_arc))
+///-             ;
+///+ #endif ===false
+        result = p_arc->list.next->error;
+        break;
+    }
+    p->pos += len;
+    return result;
+}
+
+
+static void FSi_SeekDirDirect(FSFile *p_dir, u32 id)
+{
+    p_dir->stat |= FS_FILE_STATUS_SYNC;
+    p_dir->arg.seekdir.pos.arc = p_dir->arc;
+    p_dir->arg.seekdir.pos.pos = 0;
+    p_dir->arg.seekdir.pos.index = 0;
+    p_dir->arg.seekdir.pos.own_id = (u16)id;
+    (void)FSi_TranslateCommand(p_dir, FS_COMMAND_SEEKDIR);
+}
+
+
+static FSResult FSi_ReadFileCommand(FSFile *p_file)
+{
+    FSArchive *const p_arc = p_file->arc;
+    const u32 pos = p_file->prop.file.pos;
+    const u32 len = p_file->arg.readfile.len;
+    void   *const dst = p_file->arg.readfile.dst;
+    p_file->prop.file.pos += len;
+    return (*p_arc->read_func) (p_arc, dst, pos, len);
+}
+
+
+static FSResult FSi_WriteFileCommand(FSFile *p_file)
+{
+    FSArchive *const p_arc = p_file->arc;
+    const u32 pos = p_file->prop.file.pos;
+    const u32 len = p_file->arg.writefile.len;
+    const void *const src = p_file->arg.writefile.src;
+    p_file->prop.file.pos += len;
+    return (*p_arc->write_func) (p_arc, src, pos, len);
+}
+
+
+static FSResult FSi_SeekDirCommand(FSFile *p_dir)
+{
+    FSResult result;
+    FSArchive *const p_arc = p_dir->arc;
+    const FSDirPos *const arg = &p_dir->arg.seekdir.pos;
+
+
+    FSArchiveFNT fnt_entry;
+    FSiSyncReadParam param;
+    param.arc = p_arc;
+    param.pos = p_arc->fnt + arg->own_id * sizeof(fnt_entry);
+    result = FSi_ReadTable(&param, &fnt_entry, sizeof(fnt_entry));
+    if (result == FS_RESULT_SUCCESS)
+    {
+        p_dir->prop.dir.pos = *arg;
+
+        if ((arg->index == 0) && (arg->pos == 0))
+        {
+            p_dir->prop.dir.pos.index = fnt_entry.index;
+            p_dir->prop.dir.pos.pos = p_arc->fnt + fnt_entry.start;
+        }
+        p_dir->prop.dir.parent = (u32)(fnt_entry.parent & ((1 << (12)) - 1));
+    }
+    return result;
+}
+
+
+static FSResult FSi_ReadDirCommand(FSFile *p_dir)
+{
+    FSResult result;
+    FSDirEntry *p_entry = p_dir->arg.readdir.p_entry;
+    u8      len;
+
+
+    FSiSyncReadParam param;
+    param.arc = p_dir->arc;
+    param.pos = p_dir->prop.dir.pos.pos;
+
+
+    result = FSi_ReadTable(&param, &len, sizeof(len));
+    if (result != FS_RESULT_SUCCESS)
+    {
+        return result;
+    }
+    p_entry->name_len = (u32)(len & ((1 << (7)) - 1));
+    p_entry->is_directory = (u32)((len >> 7) & 1);
+
+    if (p_entry->name_len == 0)
+    {
+        result = FS_RESULT_FAILURE;
+        return result;
+    }
+
+
+    if (!p_dir->arg.readdir.skip_string)
+    {
+        result = FSi_ReadTable(&param, p_entry->name, p_entry->name_len);
+        if (result != FS_RESULT_SUCCESS)
+        {
+            return result;
+        }
+        MI_WriteByte((u8 *)p_entry->name + p_entry->name_len, (u8)'\0');
+    }
+    else
+    {
+        param.pos += p_entry->name_len;
+    }
+
+    if (p_entry->is_directory)
+    {
+
+        u16     id;
+        result = FSi_ReadTable(&param, &id, sizeof(id));
+        if (result != FS_RESULT_SUCCESS)
+        {
+            return result;
+        }
+        p_entry->dir_id.arc = p_dir->arc;
+        p_entry->dir_id.own_id = (u16)(id & ((1 << (12)) - 1));
+        p_entry->dir_id.index = 0;
+        p_entry->dir_id.pos = 0;
+    }
+    else
+    {
+
+        p_entry->file_id.arc = p_dir->arc;
+        p_entry->file_id.file_id = p_dir->prop.dir.pos.index;
+        ++p_dir->prop.dir.pos.index;
+    }
+
+    p_dir->prop.dir.pos.pos = param.pos;
+
+    return result;
+}
+
+
+static FSResult FSi_FindPathCommand(FSFile *p_dir)
+{
+    const char *path = p_dir->arg.findpath.path;
+    const BOOL is_dir = p_dir->arg.findpath.find_directory;
+
+
+    p_dir->arg.seekdir.pos = p_dir->arg.findpath.pos;
+    (void)FSi_TranslateCommand(p_dir, FS_COMMAND_SEEKDIR);
+    for (; MI_ReadByte(path); path += (MI_ReadByte(path) ? 1 : 0))
+    {
+        u32     is_directory;
+        int     name_len = 0;
+        while ((is_directory = MI_ReadByte(path + name_len)),
+               (is_directory && !FSi_IsSlash(is_directory)))
+            ++name_len;
+        if (is_directory || is_dir)
+            is_directory = 1;
+
+
+        if (name_len == 0)
+        {
+            return FS_RESULT_FAILURE;
+        }
+
+        else if (MI_ReadByte(path) == '.')
+        {
+
+            if (name_len == 1)
+            {
+                path += 1;
+                continue;
+            }
+
+            else if ((name_len == 2) & (MI_ReadByte(path + 1) == '.'))
+            {
+                if (p_dir->prop.dir.pos.own_id != 0)
+                    FSi_SeekDirDirect(p_dir, p_dir->prop.dir.parent);
+                path += 2;
+                continue;
+            }
+        }
+
+        if (name_len > FS_FILE_NAME_MAX)
+        {
+            return FS_RESULT_FAILURE;
+        }
+
+        else
+        {
+            FSDirEntry etr;
+            p_dir->arg.readdir.p_entry = &etr;
+            p_dir->arg.readdir.skip_string = FALSE;
+            for (;;)
+            {
+
+                if (FSi_TranslateCommand(p_dir, FS_COMMAND_READDIR) != FS_RESULT_SUCCESS)
+                    return FS_RESULT_FAILURE;
+
+                if ((is_directory != etr.is_directory) ||
+                    (name_len != etr.name_len) || FSi_StrNICmp(path, etr.name, (u32)name_len))
+                    continue;
+
+                if (is_directory)
+                {
+                    path += name_len;
+                    p_dir->arg.seekdir.pos = etr.dir_id;
+                    (void)FSi_TranslateCommand(p_dir, FS_COMMAND_SEEKDIR);
+                    break;
+                }
+
+                else if (is_dir)
+                {
+                    return FS_RESULT_FAILURE;
+                }
+
+                else
+                {
+                    *p_dir->arg.findpath.result.file = etr.file_id;
+                    return FS_RESULT_SUCCESS;
+                }
+
+            }
+        }
+    }
+
+    if (!is_dir)
+        return FS_RESULT_FAILURE;
+
+    *p_dir->arg.findpath.result.dir = p_dir->prop.dir.pos;
+    return FS_RESULT_SUCCESS;
+}
+
+
+static FSResult FSi_GetPathCommand(FSFile *p_file)
+{
+    FSArchive *const p_arc = p_file->arc;
+
+    FSGetPathInfo *p_info = &p_file->arg.getpath;
+
+    FSDirEntry entry;
+    FSFile  tmp;
+    u32     dir_id;
+    u32     file_id;
+    u32     id;
+    u32     len;
+
+    enum
+    { INVALID_ID = 0x10000 };
+
+    FS_InitFile(&tmp);
+    tmp.arc = p_file->arc;
+
+    if (FS_IsDir(p_file))
+    {
+
+        dir_id = p_file->prop.dir.pos.own_id;
+        file_id = INVALID_ID;
+    }
+    else
+    {
+
+        file_id = p_file->prop.file.own_id;
+        if (p_info->total_len != 0)
+        {
+
+            dir_id = p_info->dir_id;
+        }
+        else
+        {
+
+            u32     pos = 0;
+            u32     num_dir = 0;
+            dir_id = INVALID_ID;
+            do
+            {
+
+                FSi_SeekDirDirect(&tmp, pos);
+                if (!pos)
+                    num_dir = tmp.prop.dir.parent;
+
+                tmp.arg.readdir.p_entry = &entry;
+                tmp.arg.readdir.skip_string = TRUE;
+                while (FSi_TranslateCommand(&tmp, FS_COMMAND_READDIR) == FS_RESULT_SUCCESS)
+                {
+                    if (!entry.is_directory && (entry.file_id.file_id == file_id))
+                    {
+                        dir_id = tmp.prop.dir.pos.own_id;
+                        break;
+                    }
+                }
+            }
+            while ((dir_id == INVALID_ID) && (++pos < num_dir));
+        }
+    }
+
+    if (dir_id == INVALID_ID)
+    {
+        p_info->total_len = 0;
+        return FS_RESULT_FAILURE;
+    }
+
+    if (p_info->total_len == 0)
+    {
+        len = 0;
+
+        if (p_arc->name.pack <= 0x000000FF)
+            len += 1;
+        else if (p_arc->name.pack <= 0x0000FF00)
+            len += 2;
+        else
+            len += 3;
+        len += 1 + 1;                  
+
+        if (file_id != INVALID_ID)
+            len += entry.name_len;
+
+        id = dir_id;
+        if (id != 0)
+        {
+            FSi_SeekDirDirect(&tmp, id);
+            do
+            {
+
+                FSi_SeekDirDirect(&tmp, tmp.prop.dir.parent);
+                tmp.arg.readdir.p_entry = &entry;
+                tmp.arg.readdir.skip_string = TRUE;
+                while (FSi_TranslateCommand(&tmp, FS_COMMAND_READDIR) == FS_RESULT_SUCCESS)
+                {
+                    if (entry.is_directory && (entry.dir_id.own_id == id))
+                    {
+                        len += entry.name_len + 1;
+                        break;
+                    }
+                }
+                id = tmp.prop.dir.pos.own_id;
+            }
+            while (id != 0);
+        }
+
+        p_info->total_len = (u16)(len + 1);
+        p_info->dir_id = (u16)dir_id;
+    }
+
+    if (!p_info->buf)
+        return FS_RESULT_SUCCESS;
+
+    if (p_info->buf_len < p_info->total_len)
+        return FS_RESULT_FAILURE;
+
+    else
+    {
+        u8     *dst = p_info->buf;
+        u32     total = p_info->total_len;
+        u32     pos = 0;
+
+        if (p_arc->name.pack <= 0x000000FF)
+            len = 1;
+        else if (p_arc->name.pack <= 0x0000FF00)
+            len = 2;
+        else
+            len = 3;
+        MI_CpuCopy8(p_arc->name.ptr, dst + pos, len);
+        pos += len;
+        MI_CpuCopy8(":/", dst + pos, 2);
+        pos += 2;
+
+        id = dir_id;
+        FSi_SeekDirDirect(&tmp, id);
+        if (file_id != INVALID_ID)
+        {
+
+            tmp.arg.readdir.p_entry = &entry;
+            tmp.arg.readdir.skip_string = FALSE;
+            while (FSi_TranslateCommand(&tmp, FS_COMMAND_READDIR) == FS_RESULT_SUCCESS)
+            {
+                if (!entry.is_directory && (entry.file_id.file_id == file_id))
+                    break;
+            }
+            len = entry.name_len + 1;
+            MI_CpuCopy8(entry.name, dst + total - len, len);
+            total -= len;
+        }
+        else
+        {
+
+            MI_WriteByte(dst + total - 1, '\0');
+            total -= 1;
+        }
+
+        if (id != 0)
+        {
+            do
+            {
+
+                FSi_SeekDirDirect(&tmp, tmp.prop.dir.parent);
+                tmp.arg.readdir.p_entry = &entry;
+                tmp.arg.readdir.skip_string = FALSE;
+
+                MI_WriteByte(dst + total - 1, '/');
+                total -= 1;
+
+                while (FSi_TranslateCommand(&tmp, FS_COMMAND_READDIR) == FS_RESULT_SUCCESS)
+                {
+                    if (entry.is_directory && (entry.dir_id.own_id == id))
+                    {
+                        len = entry.name_len;
+                        MI_CpuCopy8(entry.name, dst + total - len, len);
+                        total -= len;
+                        break;
+                    }
+                }
+                id = tmp.prop.dir.pos.own_id;
+            }
+            while (id != 0);
+        }
+        SDK_ASSERT(pos == total);
+    }
+
+    return FS_RESULT_SUCCESS;
+}
+
+
+static FSResult FSi_OpenFileFastCommand(FSFile *p_file)
+{
+    FSResult result;
+    FSArchive *const p_arc = p_file->arc;
+    const FSFileID *p_id = &p_file->arg.openfilefast.id;
+    const u32 index = p_id->file_id;
+
+    {
+
+        u32     pos = (u32)(index * sizeof(FSArchiveFAT));
+        if (pos >= p_arc->fat_size)
+        {
+            result = FS_RESULT_FAILURE;
+        }
+        else
+        {
+
+            FSArchiveFAT fat;
+            FSiSyncReadParam param;
+            param.arc = p_arc;
+            param.pos = p_arc->fat + pos;
+            result = FSi_ReadTable(&param, &fat, sizeof(fat));
+            if (result == FS_RESULT_SUCCESS)
+            {
+
+                p_file->arg.openfiledirect.top = fat.top;
+                p_file->arg.openfiledirect.bottom = fat.bottom;
+                p_file->arg.openfiledirect.index = index;
+                result = FSi_TranslateCommand(p_file, FS_COMMAND_OPENFILEDIRECT);
+            }
+        }
+    }
+    return result;
+}
+
+
+static FSResult FSi_OpenFileDirectCommand(FSFile *p_file)
+{
+
+    p_file->prop.file.top = p_file->arg.openfiledirect.top;
+    p_file->prop.file.pos = p_file->arg.openfiledirect.top;
+    p_file->prop.file.bottom = p_file->arg.openfiledirect.bottom;
+    p_file->prop.file.own_id = p_file->arg.openfiledirect.index;
+
+    return FS_RESULT_SUCCESS;
+}
+
+
+static FSResult FSi_CloseFileCommand(FSFile *p_file)
+{
+    (void)p_file;
+    return FS_RESULT_SUCCESS;
+}
+
+
+///+ #endif ===true
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_file.c"
+ 
+#line 192: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_file.c"
+ 
+#line 193: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_file.c"
+ 
+#line 194: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_file.c"
+ 
+#line 196: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_file.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/rom.h"
+///+ #if NITRO_FS_ROM_H_ ===true
+///+ #define NITRO_FS_ROM_H_ ===DEFINED
+ 
+#line 19: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/rom.h"
+ 
+#line 20: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/rom.h"
+ 
+#line 21: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/rom.h"
+ 
+#line 22: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/rom.h"
+extern s32 fsi_card_lock_id;
+
+
+extern CARDRomRegion fsi_ovt9;
+extern CARDRomRegion fsi_ovt7;
+
+///+ #if FS_IMPLEMENT ===true
+extern FSArchive fsi_arc_rom;
+///+ #endif ===true
+///+ #ifdef __cplusplus ===false
+///- extern "C" {
+///+ #endif ===false
+void    FSi_InitRom(u32 default_dma_no);
+
+
+BOOL    FSi_LoadOverlayInfoCore(FSOverlayInfo *p_ovi, MIProcessor target, FSOverlayID id,
+                                FSArchive *p_arc,
+                                u32 offset_arm9, u32 len_arm9, u32 offset_arm7, u32 len_arm7);
+
+
+///+ #ifdef __cplusplus ===false
+///- } 
+///+ #endif ===false
+///+ #endif ===true
+ 
+#line 198: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_file.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/util.h"
+///+ #if NITRO_FS_UTIL_H_ ===false
+///- #include "20"
+///- #include "21"
+///- #include "22"
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- #if SDK_ARM7
+///- #endif
+///- #if SDK_FINALROM
+///- extern const char *fsi_assert_fs_format;
+///- extern const char *fsi_assert_is_init;
+///- extern const char *fsi_assert_is_valid_arg;
+///- extern const char *fsi_assert_is_valid_dma_channel;
+///- extern const char *fsi_assert_is_empty;
+///- extern const char *fsi_assert_is_handle;
+///- extern const char *fsi_assert_is_file;
+///- extern const char *fsi_assert_is_dir;
+///- extern const char *fsi_assert_is_idle;
+///- extern const char *fsi_assert_irq_enabled;
+///- 
+///- extern const char *fsi_assert_arc_free;
+///- extern const char *fsi_assert_arc_unloaded;
+///- extern const char *fsi_assert_arc_not_rom;
+///- 
+///- 
+///- #else
+///- #endif
+///- #if FS_IMPLEMENT
+///- static inline void FSi_CutFromListCore(FSFileLink *trg)
+///- {
+///-     FSFile *const pr = trg->prev;
+///-     FSFile *const nx = trg->next;
+///-     if (pr)
+///-         pr->link.next = nx;
+///-     if (nx)
+///-         nx->link.prev = pr;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_CutFromList(FSFile *elem)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     trg->next = trg->prev = NULL;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_AppendToList(FSFile *elem, FSFile *list)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     {
+///-         while (list->link.next)
+///-             list = list->link.next;
+///-         list->link.next = elem;
+///-         trg->prev = list;
+///-         trg->next = NULL;
+///-     }
+///- }
+///- 
+///- #endif
+///- static inline BOOL FSi_IsSlash(u32 c)
+///- {
+///-     return (c == '/') || (c == '\\');
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveRunning(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_RUNNING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveCanceling(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_CANCELING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSuspending(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_SUSPENDING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveAsync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_ASYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_SYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 199: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_file.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/command.h"
+///+ #if NITRO_FS_COMMAND_H_ ===false
+///- #include "19"
+///- #include "20"
+///- #include "21"
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- extern FSResult (*const (fsi_default_command[])) (FSFile *);
+///- 
+///- 
+///- 
+///- 
+///- 
+///- extern FSDirPos current_dir_pos;
+///- 
+///- 
+///- 
+///- 
+///- 
+///- 
+///- int     FSi_StrNICmp(const char *str1, const char *str2, u32 len);
+///- 
+///- 
+///- BOOL    FSi_SendCommand(FSFile *p_file, FSCommandType command);
+///- 
+///- 
+///- FSResult FSi_TranslateCommand(FSFile *p_file, FSCommandType command);
+///- 
+///- 
+///- void    FSi_ReleaseCommand(FSFile *p_file, FSResult ret);
+///- 
+///- 
+///- FSFile *FSi_NextCommand(FSArchive *p_arc);
+///- 
+///- 
+///- void    FSi_ExecuteAsyncCommand(FSFile *p_file);
+///- 
+///- 
+///- BOOL    FSi_ExecuteSyncCommand(FSFile *p_file);
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 200: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_file.c"
+///+ #if SDK_FINALROM ===true
+const char *fsi_assert_fs_format = "[file-system] %s.\n";
+const char *fsi_assert_is_init = "not initialized";
+const char *fsi_assert_is_file = "invalid file-handle";
+const char *fsi_assert_is_dir = "invalid directory-handle";
+const char *fsi_assert_is_handle = "neither file-handle nor directory-handle";
+const char *fsi_assert_is_idle = "specified file-handle is busy";
+const char *fsi_assert_is_empty = "specified file-handle is already opened";
+const char *fsi_assert_is_valid_arg = "invalid argument parameter";
+const char *fsi_assert_is_valid_dma_channel = "cannot specify DMA channel 0";
+const char *fsi_assert_irq_enabled = "not IRQ-enabled";
+
+const char *fsi_assert_arc_free = "archive is still now registered";
+const char *fsi_assert_arc_unloaded = "archive is still now loaded";
+const char *fsi_assert_arc_not_rom = "cannot modify \"rom\" archive";
+
+///+ #endif ===true
+static BOOL is_init = FALSE;
+
+
+
+
+
+
+void FS_Init(u32 default_dma_no)
+{
+///+ #if FS_IMPLEMENT ===true
+    if(default_dma_no == 0)	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_dma_channel);
+    if (!is_init)
+    {
+        is_init = TRUE;
+
+
+        FSi_InitRom(default_dma_no);
+    }
+
+///+ #else ===false
+///- #pragma unused(default_dma_no)
+///-     CARD_Init();
+///+ #endif ===false
+}
+
+
+BOOL FS_IsAvailable(void)
+{
+    return is_init;
+}
+
+
+void FS_End(void)
+{
+    OSIntrMode bak_psr = OS_DisableInterrupts();
+
+    if (is_init)
+    {
+///+ #if FS_IMPLEMENT ===true
+        FSi_EndArchive();
+        OS_ReleaseLockID((u16)fsi_card_lock_id);
+///+ #endif ===true
+        is_init = FALSE;
+    }
+
+    (void)OS_RestoreInterrupts(bak_psr);
+}
+
+///+ #if FS_IMPLEMENT ===true
+void FS_InitFile(FSFile *p_file)
+{
+    if(!(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    p_file->link.next = p_file->link.prev = NULL;
+///+ #if SDK_NO_THREAD ===true
+    OS_InitThreadQueue(p_file->queue);
+///+ #endif ===true
+    p_file->arc = NULL;
+    p_file->command = FS_COMMAND_INVALID;
+    p_file->stat = 0;
+}
+
+
+static BOOL FSi_FindPath(FSFile *p_dir, const char *path, FSFileID *p_file_id, FSDirPos *p_dir_pos)
+{
+    FSDirPos pos;
+
+    if(!(p_dir && path))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+
+    if (FSi_IsSlash(MI_ReadByte(path)))
+    {
+
+        pos.arc = current_dir_pos.arc;
+        pos.own_id = 0;
+        pos.pos = 0;
+        pos.index = 0;
+        ++path;
+    }
+    else
+    {
+
+        int     i;
+
+        pos = current_dir_pos;
+        for (i = 0; i <= FS_ARCHIVE_NAME_LEN_MAX; ++i)
+        {
+            u32     c = MI_ReadByte(path + i);
+            if (!c || FSi_IsSlash(c))
+                break;
+            else if (c == ':')
+            {
+
+                FSArchive *const p_arc = FS_FindArchive(path, i);
+                if (!p_arc)
+                {
+
+                    OS_Warning("[file-system] "archive \"%*s\" is not found.", i, path);
+                    return FALSE;
+                }
+                else if (!FS_IsArchiveLoaded(p_arc))
+                {
+
+                    OS_Warning("[file-system] "
+"archive \"%*s\" is registered, but not loaded yet.", i, path);
+                    return FALSE;
+                }
+
+                pos.arc = p_arc;
+                pos.pos = 0;
+                pos.index = 0;
+                pos.own_id = 0;
+                path += i + 1;
+                if (FSi_IsSlash(MI_ReadByte(path)))
+                    ++path;
+                break;
+            }
+        }
+    }
+
+    p_dir->arc = pos.arc;
+    p_dir->arg.findpath.path = path;
+    p_dir->arg.findpath.pos = pos;
+    if (p_dir_pos)
+    {
+        p_dir->arg.findpath.find_directory = TRUE;
+        p_dir->arg.findpath.result.dir = p_dir_pos;
+    }
+    else
+    {
+        p_dir->arg.findpath.find_directory = FALSE;
+        p_dir->arg.findpath.result.file = p_file_id;
+    }
+    return FSi_SendCommand(p_dir, FS_COMMAND_FINDPATH);
+}
+
+
+static s32 FSi_ReadFileCore(FSFile *p_file, void *dst, s32 len, BOOL async)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_file && dst && (len >= 0)))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(!FS_IsFile(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_file);
+    if(FS_IsBusy(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_idle);
+
+    {
+        const s32 pos = (s32)p_file->prop.file.pos;
+        const s32 rest = (s32)p_file->prop.file.bottom - pos;
+        const u32 org = (u32)len;
+        if (len > rest)
+            len = rest;
+        if (len < 0)
+            len = 0;
+        p_file->arg.readfile.dst = dst;
+        p_file->arg.readfile.len_org = org;
+        p_file->arg.readfile.len = (u32)(len);
+        if (!async)
+            p_file->stat |= FS_FILE_STATUS_SYNC;
+        (void)FSi_SendCommand(p_file, FS_COMMAND_READFILE);
+        if (!async)
+        {
+            if (FS_WaitAsync(p_file))
+                len = (s32)p_file->prop.file.pos - pos;
+            else
+                len = -1;
+        }
+    }
+    return len;
+}
+
+
+static s32 FSi_WriteFileCore(FSFile *p_file, const void *src, s32 len, BOOL async)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_file && src && (len >= 0)))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(!FS_IsFile(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_file);
+    if(FS_IsBusy(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_idle);
+
+    {
+        const s32 pos = (s32)p_file->prop.file.pos;
+        const s32 rest = (s32)p_file->prop.file.bottom - pos;
+        const u32 org = (u32)len;
+        if (len > rest)
+            len = rest;
+        if (len < 0)
+            len = 0;
+        p_file->arg.writefile.src = src;
+        p_file->arg.writefile.len_org = org;
+        p_file->arg.writefile.len = (u32)(len);
+        if (!async)
+            p_file->stat |= FS_FILE_STATUS_SYNC;
+        (void)FSi_SendCommand(p_file, FS_COMMAND_WRITEFILE);
+        if (!async)
+        {
+            if (FS_WaitAsync(p_file))
+                len = (s32)p_file->prop.file.pos - pos;
+            else
+                len = -1;
+        }
+    }
+
+    return len;
+}
+
+
+BOOL FS_ConvertPathToFileID(FSFileID *p_file_id, const char *path)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_file_id && path))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+
+    {
+        FSFile  dir;
+        FS_InitFile(&dir);
+        if (!FSi_FindPath(&dir, path, p_file_id, NULL))
+            return FALSE;
+    }
+    return TRUE;
+}
+
+
+BOOL FS_OpenFileDirect(FSFile *p_file, FSArchive *p_arc,
+                       u32 image_top, u32 image_bottom, u32 file_index)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_file && p_arc))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(FS_IsFile(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_empty);
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+
+    {
+        p_file->arc = p_arc;
+        p_file->arg.openfiledirect.index = file_index;
+        p_file->arg.openfiledirect.top = image_top;
+        p_file->arg.openfiledirect.bottom = image_bottom;
+        if (!FSi_SendCommand(p_file, FS_COMMAND_OPENFILEDIRECT))
+            return FALSE;
+        p_file->stat |= FS_FILE_STATUS_IS_FILE;
+        p_file->stat &= ~FS_FILE_STATUS_IS_DIR;
+    }
+    return TRUE;
+}
+
+
+BOOL FS_OpenFileFast(FSFile *p_file, FSFileID file_id)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(FS_IsFile(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_empty);
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+
+    {
+        if (!file_id.arc)
+            return FALSE;
+        p_file->arc = file_id.arc;
+        p_file->arg.openfilefast.id = file_id;
+        if (!FSi_SendCommand(p_file, FS_COMMAND_OPENFILEFAST))
+            return FALSE;
+        p_file->stat |= FS_FILE_STATUS_IS_FILE;
+        p_file->stat &= ~FS_FILE_STATUS_IS_DIR;
+    }
+    return TRUE;
+}
+
+
+BOOL FS_OpenFile(FSFile *p_file, const char *path)
+{
+    FSFileID id;
+    return (FS_ConvertPathToFileID(&id, path) && FS_OpenFileFast(p_file, id));
+}
+
+
+BOOL FS_CloseFile(FSFile *p_file)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(!FS_IsFile(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_file);
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+
+    if (!FSi_SendCommand(p_file, FS_COMMAND_CLOSEFILE))
+        return FALSE;
+    p_file->arc = NULL;
+    p_file->command = FS_COMMAND_INVALID;
+    p_file->stat &= ~(FS_FILE_STATUS_IS_FILE | FS_FILE_STATUS_IS_DIR);
+    return TRUE;
+}
+
+
+BOOL FS_GetPathName(FSFile *p_file, char *buf, u32 len)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!FS_IsFile(p_file) && !FS_IsDir(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_handle);
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+
+
+    if (p_file->command != FS_COMMAND_GETPATH)
+    {
+        p_file->arg.getpath.total_len = 0;
+        p_file->arg.getpath.dir_id = 0;
+    }
+    p_file->arg.getpath.buf = (u8 *)buf;
+    p_file->arg.getpath.buf_len = len;
+    return FSi_SendCommand(p_file, FS_COMMAND_GETPATH);
+}
+
+
+s32 FS_GetPathLength(FSFile *p_file)
+{
+    return FS_GetPathName(p_file, NULL, 0) ? p_file->arg.getpath.total_len : -1;
+}
+
+
+BOOL FS_WaitAsync(FSFile *p_file)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+
+///+ #if SDK_NO_THREAD ===true
+    {
+        BOOL    is_owner = FALSE;
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+        if (FS_IsBusy(p_file))
+        {
+
+            is_owner = !(p_file->stat & (FS_FILE_STATUS_SYNC | FS_FILE_STATUS_OPERATING));
+            if (is_owner)
+            {
+                p_file->stat |= FS_FILE_STATUS_SYNC;
+                do
+                {
+                    OS_SleepThread(p_file->queue);
+                }
+                while (!(p_file->stat & FS_FILE_STATUS_OPERATING));
+            }
+
+            else
+            {
+                do
+                {
+                    OS_SleepThread(p_file->queue);
+                }
+                while (FS_IsBusy(p_file));
+            }
+        }
+        (void)OS_RestoreInterrupts(bak_psr);
+
+        if (is_owner)
+        {
+            return FSi_ExecuteSyncCommand(p_file);
+        }
+    }
+///+ #else ===false
+///-     while (FS_IsBusy(p_file))
+///-         ;
+///+ #endif ===false
+    return FS_IsSucceeded(p_file);
+}
+
+
+void FS_CancelFile(FSFile *p_file)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+
+    {
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+        if (FS_IsBusy(p_file))
+        {
+            p_file->stat |= FS_FILE_STATUS_CANCEL;
+            p_file->arc->flag |= FS_ARCHIVE_FLAG_CANCELING;
+        }
+        (void)OS_RestoreInterrupts(bak_psr);
+    }
+}
+
+
+s32 FS_ReadFileAsync(FSFile *p_file, void *dst, s32 len)
+{
+    return FSi_ReadFileCore(p_file, dst, len, TRUE);
+}
+
+
+s32 FS_ReadFile(FSFile *p_file, void *dst, s32 len)
+{
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+    return FSi_ReadFileCore(p_file, dst, len, FALSE);
+}
+
+
+s32 FS_WriteFileAsync(FSFile *p_file, const void *src, s32 len)
+{
+    return FSi_WriteFileCore(p_file, src, len, TRUE);
+}
+
+
+s32 FS_WriteFile(FSFile *p_file, const void *src, s32 len)
+{
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+    return FSi_WriteFileCore(p_file, src, len, FALSE);
+}
+
+
+BOOL FS_SeekFile(FSFile *p_file, s32 offset, FSSeekFileMode origin)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(!FS_IsFile(p_file))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_file);
+
+    {
+        switch (origin)
+        {
+        case FS_SEEK_SET:
+            offset += p_file->prop.file.top;
+            break;
+        case FS_SEEK_CUR:
+            offset += p_file->prop.file.pos;
+            break;
+        case FS_SEEK_END:
+            offset += p_file->prop.file.bottom;
+            break;
+        default:
+            if(!(FALSE))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+            return FALSE;
+        }
+        if (offset < (s32)p_file->prop.file.top)
+            offset = (s32)p_file->prop.file.top;
+        if (offset > (s32)p_file->prop.file.bottom)
+            offset = (s32)p_file->prop.file.bottom;
+        p_file->prop.file.pos = (u32)offset;
+    }
+
+    return TRUE;
+}
+
+
+BOOL FS_SeekDir(FSFile *p_dir, const FSDirPos *p_pos)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_dir && p_pos->arc && p_pos))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+
+    p_dir->arc = p_pos->arc;
+    p_dir->arg.seekdir.pos = *p_pos;
+    if (!FSi_SendCommand(p_dir, FS_COMMAND_SEEKDIR))
+        return FALSE;
+    p_dir->stat |= FS_FILE_STATUS_IS_DIR;
+    return TRUE;
+}
+
+
+BOOL FS_ReadDir(FSFile *p_dir, FSDirEntry *p_entry)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_dir && p_entry))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(!FS_IsDir(p_dir))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_dir);
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+
+    p_dir->arg.readdir.p_entry = p_entry;
+    p_dir->arg.readdir.skip_string = FALSE;
+    return FSi_SendCommand(p_dir, FS_COMMAND_READDIR);
+}
+
+
+BOOL FS_FindDir(FSFile *p_dir, const char *path)
+{
+    FSDirPos pos;
+    if (!FSi_FindPath(p_dir, path, NULL, &pos))
+        return FALSE;
+    return FS_SeekDir(p_dir, &pos);
+}
+
+
+BOOL FS_ChangeDir(const char *path)
+{
+    FSDirPos pos;
+    FSFile  dir;
+    FS_InitFile(&dir);
+    if (!FSi_FindPath(&dir, path, NULL, &pos))
+        return FALSE;
+    current_dir_pos = pos;
+    return TRUE;
+}
+
+
+BOOL FS_TellDir(const FSFile *p_dir, FSDirPos *p_pos)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_dir && p_pos))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(!FS_IsDir(p_dir))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_dir);
+
+    {
+        *p_pos = p_dir->prop.dir.pos;
+        return TRUE;
+    }
+}
+
+
+BOOL FS_RewindDir(FSFile *p_dir)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+    if(!(p_dir))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_arg);
+    if(!FS_IsDir(p_dir))	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_dir);
+    if(OS_GetProcMode() == OS_PROCMODE_IRQ) 	OS_TPanic(fsi_assert_fs_format, fsi_assert_irq_enabled);
+
+    {
+        FSDirPos pos;
+        pos.arc = p_dir->arc;
+        pos.own_id = p_dir->prop.dir.pos.own_id;
+        pos.pos = 0;
+        pos.index = 0;
+        return FS_SeekDir(p_dir, &pos);
+    }
+}
+
+
+///+ #endif ===true
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_mem.c"
+ 
+#line 16: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_mem.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/util.h"
+///+ #if NITRO_FS_UTIL_H_ ===false
+///- #include "20"
+///- #include "21"
+///- #include "22"
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- #if SDK_ARM7
+///- #endif
+///- #if SDK_FINALROM
+///- extern const char *fsi_assert_fs_format;
+///- extern const char *fsi_assert_is_init;
+///- extern const char *fsi_assert_is_valid_arg;
+///- extern const char *fsi_assert_is_valid_dma_channel;
+///- extern const char *fsi_assert_is_empty;
+///- extern const char *fsi_assert_is_handle;
+///- extern const char *fsi_assert_is_file;
+///- extern const char *fsi_assert_is_dir;
+///- extern const char *fsi_assert_is_idle;
+///- extern const char *fsi_assert_irq_enabled;
+///- 
+///- extern const char *fsi_assert_arc_free;
+///- extern const char *fsi_assert_arc_unloaded;
+///- extern const char *fsi_assert_arc_not_rom;
+///- 
+///- 
+///- #else
+///- #endif
+///- #if FS_IMPLEMENT
+///- static inline void FSi_CutFromListCore(FSFileLink *trg)
+///- {
+///-     FSFile *const pr = trg->prev;
+///-     FSFile *const nx = trg->next;
+///-     if (pr)
+///-         pr->link.next = nx;
+///-     if (nx)
+///-         nx->link.prev = pr;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_CutFromList(FSFile *elem)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     trg->next = trg->prev = NULL;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_AppendToList(FSFile *elem, FSFile *list)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     {
+///-         while (list->link.next)
+///-             list = list->link.next;
+///-         list->link.next = elem;
+///-         trg->prev = list;
+///-         trg->next = NULL;
+///-     }
+///- }
+///- 
+///- #endif
+///- static inline BOOL FSi_IsSlash(u32 c)
+///- {
+///-     return (c == '/') || (c == '\\');
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveRunning(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_RUNNING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveCanceling(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_CANCELING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSuspending(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_SUSPENDING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveAsync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_ASYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_SYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 18: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_mem.c"
+///+ #if FS_IMPLEMENT ===true
+static FSArchive fsi_arc_mem;
+static BOOL fsi_mem_init;
+
+
+
+
+
+
+static FSResult FSi_MemArchiveProc(FSFile *p_file, FSCommandType cmd)
+{
+ #pragma unused(p_file)
+    switch (cmd)
+    {
+
+    case FS_COMMAND_SEEKDIR:
+    case FS_COMMAND_READDIR:
+    case FS_COMMAND_FINDPATH:
+    case FS_COMMAND_GETPATH:
+    case FS_COMMAND_OPENFILEFAST:
+        return FS_RESULT_UNSUPPORTED;
+
+    default:
+        return FS_RESULT_PROC_UNKNOWN;
+
+    }
+
+}
+
+
+static void FSi_InitMem(void)
+{
+    OSIntrMode bak_cpsr = OS_DisableInterrupts();
+
+    if (!fsi_mem_init || !FS_IsArchiveLoaded(&fsi_arc_mem))
+    {
+        FS_InitArchive(&fsi_arc_mem);
+        FS_SetArchiveProc(&fsi_arc_mem, FSi_MemArchiveProc, (u32)FS_ARCHIVE_PROC_ALL);
+
+        if (!FS_LoadArchive(&fsi_arc_mem, 0, 0, 0, 0, 0, NULL, NULL))
+        {
+            OS_TPanic("failed to load memory-mapping archive!");
+        }
+        fsi_mem_init = TRUE;
+    }
+
+    (void)OS_RestoreInterrupts(bak_cpsr);
+}
+
+
+BOOL FS_CreateFileFromMemory(FSFile *p_file, void *buf, u32 size)
+{
+    FSi_InitMem();
+    return FS_OpenFileDirect(p_file, &fsi_arc_mem, (u32)buf, (u32)buf + size, 0);
+}
+
+
+///+ #endif ===true
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_overlay.c"
+ 
+#line 132: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_overlay.c"
+ 
+#line 133: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_overlay.c"
+ 
+#line 135: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_overlay.c"
+ 
+#line 137: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_overlay.c"
+ 
+#line 138: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_overlay.c"
+ 
+#line 139: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_overlay.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/util.h"
+///+ #if NITRO_FS_UTIL_H_ ===false
+///- #include "20"
+///- #include "21"
+///- #include "22"
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- #if SDK_ARM7
+///- #endif
+///- #if SDK_FINALROM
+///- extern const char *fsi_assert_fs_format;
+///- extern const char *fsi_assert_is_init;
+///- extern const char *fsi_assert_is_valid_arg;
+///- extern const char *fsi_assert_is_valid_dma_channel;
+///- extern const char *fsi_assert_is_empty;
+///- extern const char *fsi_assert_is_handle;
+///- extern const char *fsi_assert_is_file;
+///- extern const char *fsi_assert_is_dir;
+///- extern const char *fsi_assert_is_idle;
+///- extern const char *fsi_assert_irq_enabled;
+///- 
+///- extern const char *fsi_assert_arc_free;
+///- extern const char *fsi_assert_arc_unloaded;
+///- extern const char *fsi_assert_arc_not_rom;
+///- 
+///- 
+///- #else
+///- #endif
+///- #if FS_IMPLEMENT
+///- static inline void FSi_CutFromListCore(FSFileLink *trg)
+///- {
+///-     FSFile *const pr = trg->prev;
+///-     FSFile *const nx = trg->next;
+///-     if (pr)
+///-         pr->link.next = nx;
+///-     if (nx)
+///-         nx->link.prev = pr;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_CutFromList(FSFile *elem)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     trg->next = trg->prev = NULL;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_AppendToList(FSFile *elem, FSFile *list)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     {
+///-         while (list->link.next)
+///-             list = list->link.next;
+///-         list->link.next = elem;
+///-         trg->prev = list;
+///-         trg->next = NULL;
+///-     }
+///- }
+///- 
+///- #endif
+///- static inline BOOL FSi_IsSlash(u32 c)
+///- {
+///-     return (c == '/') || (c == '\\');
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveRunning(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_RUNNING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveCanceling(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_CANCELING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSuspending(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_SUSPENDING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveAsync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_ASYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_SYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 142: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_overlay.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/rom.h"
+///+ #if NITRO_FS_ROM_H_ ===false
+///- #include "19"
+///- #include "20"
+///- #include "21"
+///- #include "22"
+///- extern s32 fsi_card_lock_id;
+///- 
+///- 
+///- extern CARDRomRegion fsi_ovt9;
+///- extern CARDRomRegion fsi_ovt7;
+///- 
+///- #if FS_IMPLEMENT
+///- extern FSArchive fsi_arc_rom;
+///- #endif
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- void    FSi_InitRom(u32 default_dma_no);
+///- 
+///- 
+///- BOOL    FSi_LoadOverlayInfoCore(FSOverlayInfo *p_ovi, MIProcessor target, FSOverlayID id,
+///-                                 FSArchive *p_arc,
+///-                                 u32 offset_arm9, u32 len_arm9, u32 offset_arm7, u32 len_arm7);
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 143: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_overlay.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/mw_dtor.h"
+///+ #if NITRO_FS_MW_DTOR_H_ ===true
+///+ #define NITRO_FS_MW_DTOR_H_ ===DEFINED
+ 
+#line 19: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/mw_dtor.h"
+ 
+#line 20: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/mw_dtor.h"
+///+ #ifdef __cplusplus ===false
+///- extern "C" {
+///+ #endif ===false
+typedef void (*MWI_DESTRUCTOR_FUNC) (void *);
+
+
+typedef struct MWiDestructorChain
+{
+    struct MWiDestructorChain *next;   
+    MWI_DESTRUCTOR_FUNC dtor;          
+    void   *obj;                       
+}
+MWiDestructorChain;
+
+
+
+
+
+extern MWiDestructorChain *__global_destructor_chain;
+
+
+
+
+
+
+
+void    __register_global_object(void *obj, MWI_DESTRUCTOR_FUNC dtor, MWiDestructorChain * chain);
+
+
+
+
+
+
+///+ #ifdef __cplusplus ===false
+///- } 
+///+ #endif ===false
+///+ #endif ===true
+ 
+#line 145: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_overlay.c"
+typedef enum
+{
+    OVERLAYPROC_ARM9,
+    OVERLAYPROC_ARM7
+}
+OVERLAYPROC;
+
+int     _ISDbgLib_RegistOverlayInfo(OVERLAYPROC nProc, u32 nAddrRAM, u32 nAddrROM, u32 nSize);
+int     _ISDbgLib_UnregistOverlayInfo(OVERLAYPROC nProc, u32 nAddrRAM, u32 nSize);
+
+
+///+ #define FS_OVERLAY_FLAG_COMP  0x0001 ===DEFINED
+///+ #define FS_OVERLAY_FLAG_AUTH  0x0002 ===DEFINED
+///+ #define FS_OVERLAY_DIGEST_SIZE  DGT_HASH2_DIGEST_SIZE ===DEFINED
+///+ #if SDK_TS ===false
+///- extern u8 SDK_OVERLAYTABLE_DIGEST[];
+///- extern u8 SDK_OVERLAY_DIGEST[];
+///- extern u8 SDK_OVERLAY_DIGEST_END[];
+///+ #endif ===false
+static const u8 fsi_def_digest_key[64] = {      
+    0x21, 0x06, 0xc0, 0xde,
+    0xba, 0x98, 0xce, 0x3f,
+    0xa6, 0x92, 0xe3, 0x9d,
+    0x46, 0xf2, 0xed, 0x01,
+
+    0x76, 0xe3, 0xcc, 0x08,
+    0x56, 0x23, 0x63, 0xfa,
+    0xca, 0xd4, 0xec, 0xdf,
+    0x9a, 0x62, 0x78, 0x34,
+
+    0x8f, 0x6d, 0x63, 0x3c,
+    0xfe, 0x22, 0xca, 0x92,
+    0x20, 0x88, 0x97, 0x23,
+    0xd2, 0xcf, 0xae, 0xc2,
+
+    0x32, 0x67, 0x8d, 0xfe,
+    0xca, 0x83, 0x64, 0x98,
+    0xac, 0xfd, 0x3e, 0x37,
+    0x87, 0x46, 0x58, 0x24,
+};
+
+static const void *fsi_digest_key_ptr = fsi_def_digest_key;
+static int fsi_digest_key_len = sizeof(fsi_def_digest_key);
+
+
+
+
+
+///+ #if SDK_TEG ===true
+///+ #define FS_NEED_CARD  1 ===DEFINED
+///+ #endif ===true
+static u32 FSi_GetOverlayBinarySize(const FSOverlayInfo *p_ovi)
+{
+    u32     size = (((p_ovi->header.flag & 0x0001) != 0)
+                    ? p_ovi->header.compressed : p_ovi->header.ram_size);
+    return size;
+}
+
+
+void FS_ClearOverlayImage(FSOverlayInfo *p_ovi)
+{
+    u8     *const addr = FS_GetOverlayAddress(p_ovi);
+    const u32 image_size = FS_GetOverlayImageSize(p_ovi);
+    const u32 total_size = FS_GetOverlayTotalSize(p_ovi);
+///+ #if SDK_ARM9 ===false
+///-     IC_InvalidateRange(addr, total_size);
+///-     DC_InvalidateRange(addr, total_size);
+///+ #endif ===false
+    MI_CpuFill8(addr + image_size, 0, total_size - image_size);
+}
+
+
+///+ #if FS_IMPLEMENT ===true
+FSFileID FS_GetOverlayFileID(const FSOverlayInfo *p_ovi)
+{
+    FSFileID ret;
+    ret.arc = &fsi_arc_rom;
+    ret.file_id = p_ovi->header.file_id;
+    return ret;
+}
+
+
+BOOL FSi_LoadOverlayInfoCore(FSOverlayInfo *p_ovi, MIProcessor target, FSOverlayID id,
+                             FSArchive *p_arc,
+                             u32 offset_arm9, u32 len_arm9, u32 offset_arm7, u32 len_arm7)
+{
+    CARDRomRegion pr[1];
+    u32     pos;
+
+    if (target == MI_PROCESSOR_ARM9)
+    {
+        pr->offset = offset_arm9;
+        pr->length = len_arm9;
+    }
+    else
+    {
+        pr->offset = offset_arm7;
+        pr->length = len_arm7;
+    }
+
+    pos = (u32)id *sizeof(FSOverlayInfoHeader);
+    if (pos >= pr->length)
+    {
+        return FALSE;
+    }
+    else
+    {
+        FSFile  file[1];
+        FS_InitFile(file);
+        if (!FS_OpenFileDirect(file, p_arc, pr->offset + pos, pr->offset + pr->length, (u32)~0))
+        {
+            return FALSE;
+        }
+        else
+        {
+            if (FS_ReadFile(file, p_ovi, sizeof(FSOverlayInfoHeader)) !=
+                sizeof(FSOverlayInfoHeader))
+            {
+                (void)FS_CloseFile(file);
+                return FALSE;
+            }
+            (void)FS_CloseFile(file);
+            p_ovi->target = target;
+
+            if (!FS_OpenFileFast(file, FS_GetOverlayFileID(p_ovi)))
+            {
+                return FALSE;
+            }
+            else
+            {
+                p_ovi->file_pos.offset = FS_GetFileImageTop(file);
+                p_ovi->file_pos.length = FS_GetLength(file);
+                (void)FS_CloseFile(file);
+            }
+        }
+    }
+    return TRUE;
+}
+
+
+BOOL FS_LoadOverlayInfo(FSOverlayInfo *p_ovi, MIProcessor target, FSOverlayID id)
+{
+
+    CARDRomRegion *const pr = (target == MI_PROCESSOR_ARM9) ? &fsi_ovt9 : &fsi_ovt7;
+
+    if (pr->offset)
+    {
+        const u32 pos = (u32)id * sizeof(FSOverlayInfoHeader);
+        if (pos >= pr->length)
+        {
+            return FALSE;
+        }
+        else
+        {
+            MI_CpuCopy8((const void *)(pr->offset + pos), p_ovi, sizeof(FSOverlayInfoHeader));
+            p_ovi->target = target;
+
+            {
+                FSFile  file[1];
+                FS_InitFile(file);
+                if (!FS_OpenFileFast(file, FS_GetOverlayFileID(p_ovi)))
+                {
+                    return FALSE;
+                }
+                else
+                {
+                    p_ovi->file_pos.offset = FS_GetFileImageTop(file);
+                    p_ovi->file_pos.length = FS_GetLength(file);
+                    (void)FS_CloseFile(file);
+                }
+            }
+            return TRUE;
+        }
+    }
+
+    else
+    {
+        const CARDRomRegion *const p_ovt9 = CARD_GetRomRegionOVT(MI_PROCESSOR_ARM9);
+        const CARDRomRegion *const p_ovt7 = CARD_GetRomRegionOVT(MI_PROCESSOR_ARM7);
+        return FSi_LoadOverlayInfoCore(p_ovi, target, id,
+                                       &fsi_arc_rom,
+                                       p_ovt9->offset, p_ovt9->length,
+                                       p_ovt7->offset, p_ovt7->length);
+    }
+}
+
+
+BOOL FS_LoadOverlayImageAsync(FSOverlayInfo *p_ovi, FSFile *p_file)
+{
+    FS_InitFile(p_file);
+    if (!FS_OpenFileFast(p_file, FS_GetOverlayFileID(p_ovi)))
+    {
+        return FALSE;
+    }
+    else
+    {
+        s32     size = (s32)FSi_GetOverlayBinarySize(p_ovi);
+        FS_ClearOverlayImage(p_ovi);
+        if (FS_ReadFileAsync(p_file, FS_GetOverlayAddress(p_ovi), size) != size)
+        {
+            (void)FS_CloseFile(p_file);
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+
+BOOL FS_LoadOverlayImage(FSOverlayInfo *p_ovi)
+{
+    FSFile  p_file[1];
+
+    FS_InitFile(p_file);
+    if (!FS_OpenFileFast(p_file, FS_GetOverlayFileID(p_ovi)))
+    {
+        return FALSE;
+    }
+    else
+    {
+        s32     size = (s32)FSi_GetOverlayBinarySize(p_ovi);
+        FS_ClearOverlayImage(p_ovi);
+        if (FS_ReadFile(p_file, FS_GetOverlayAddress(p_ovi), size) != size)
+        {
+            (void)FS_CloseFile(p_file);
+            return FALSE;
+        }
+    }
+    (void)FS_CloseFile(p_file);
+    return TRUE;
+}
+
+///+ #endif ===true
+static BOOL FSi_CompareDigest(const u8 *spec_digest, void *src, int len)
+{
+    int     i;
+    u8      digest[DGT_HASH2_DIGEST_SIZE];
+    u8      digest_key[64];
+
+    MI_CpuClear8(digest, sizeof(digest));
+    MI_CpuCopy8(fsi_digest_key_ptr, digest_key, (u32)fsi_digest_key_len);
+    DGT_Hash2CalcHmac(digest, src, len, digest_key, fsi_digest_key_len);
+    for (i = 0; i < sizeof(digest); i += sizeof(u32))
+    {
+        if (*(const u32 *)(digest + i) != *(const u32 *)(spec_digest + i))
+            break;
+    }
+    return (i == sizeof(digest));
+}
+
+
+
+void FS_StartOverlay(FSOverlayInfo *p_ovi)
+{
+    u32     rare_size = FSi_GetOverlayBinarySize(p_ovi);
+
+///+ #ifndef SDK_TEG ===true
+    if (MB_IsMultiBootChild())
+    {
+        BOOL    ret = FALSE;
+
+        if ((p_ovi->header.flag & 0x0002) != 0)
+        {
+            const u32 odt_max =
+                (u32)((SDK_OVERLAY_DIGEST_END - SDK_OVERLAY_DIGEST) / DGT_HASH2_DIGEST_SIZE);
+            if (p_ovi->header.id < odt_max)
+            {
+                const u8 *spec_digest = (SDK_OVERLAY_DIGEST +
+                                         DGT_HASH2_DIGEST_SIZE * p_ovi->header.id);
+                ret = FSi_CompareDigest(spec_digest, p_ovi->header.ram_address, (int)rare_size);
+            }
+        }
+        if (!ret)
+        {
+            MI_CpuClear8(p_ovi->header.ram_address, rare_size);
+            OS_TPanic("FS_StartOverlay() failed! (invalid overlay-segment data)");
+            return;
+        }
+    }
+///+ #endif ===true
+///+ #ifndef SDK_ARM7 ===true
+    if ((p_ovi->header.flag & 0x0001) != 0)
+    {
+        MIi_UncompressBackward(p_ovi->header.ram_address + rare_size);
+    }
+    DC_FlushRange(FS_GetOverlayAddress(p_ovi), FS_GetOverlayImageSize(p_ovi));
+///+ #endif ===true
+///+ #if SDK_FINALROM ===true
+    (void)_ISDbgLib_RegistOverlayInfo((p_ovi->target == MI_PROCESSOR_ARM9)
+                                      ? OVERLAYPROC_ARM9 : OVERLAYPROC_ARM7,
+                                      (u32)FS_GetOverlayAddress(p_ovi),
+                                      p_ovi->file_pos.offset, FS_GetOverlayImageSize(p_ovi));
+///+ #endif ===true
+    {                                  
+        FSOverlayInitFunc *p = p_ovi->header.sinit_init;
+        FSOverlayInitFunc *q = p_ovi->header.sinit_init_end;
+        for (; p < q; ++p)
+        {
+            if (*p)
+                (**p) ();
+        }
+    }
+
+}
+
+
+void FS_EndOverlay(FSOverlayInfo *p_ovi)
+{
+    for (;;)
+    {
+
+        MWiDestructorChain *head = NULL, *tail = NULL;
+        const u32 region_top = (u32)FS_GetOverlayAddress(p_ovi);
+        const u32 region_bottom = region_top + FS_GetOverlayTotalSize(p_ovi);
+
+        {
+            OSIntrMode bak_psr = OS_DisableInterrupts();
+            MWiDestructorChain *prev = NULL;
+            MWiDestructorChain *base = __global_destructor_chain;
+            MWiDestructorChain *p = base;
+            while (p)
+            {
+                MWiDestructorChain *next = p->next;
+                const u32 dtor = (u32)p->dtor;
+                const u32 obj = (u32)p->obj;
+                if (((obj == 0) && (dtor >= region_top) && (dtor < region_bottom)) ||
+                    ((obj >= region_top) && (obj < region_bottom)))
+                {
+
+                    if (!tail)
+                    {
+                        head = p;
+                    }
+                    else
+                    {
+                        tail->next = p;
+                    }
+                    if (base == p)
+                    {
+                        base = __global_destructor_chain = next;
+                    }
+                    tail = p, p->next = NULL;
+                    if (prev)
+                    {
+                        prev->next = next;
+                    }
+                }
+                else
+                {
+
+                    prev = p;
+                }
+                p = next;
+            }
+            (void)OS_RestoreInterrupts(bak_psr);
+        }
+
+
+        if (!head)
+        {
+            break;
+        }
+
+        do
+        {
+            MWiDestructorChain *next = head->next;
+            if (head->dtor)
+            {
+                (*head->dtor) (head->obj);
+            }
+            head = next;
+        }
+        while (head);
+
+
+    }
+
+///+ #if SDK_FINALROM ===true
+    (void)_ISDbgLib_UnregistOverlayInfo((p_ovi->target ==
+                                         MI_PROCESSOR_ARM9) ? OVERLAYPROC_ARM9 : OVERLAYPROC_ARM7,
+                                        (u32)FS_GetOverlayAddress(p_ovi),
+                                        FS_GetOverlayImageSize(p_ovi));
+///+ #endif ===true
+}
+
+
+
+BOOL FS_UnloadOverlayImage(FSOverlayInfo *p_ovi)
+{
+    FS_EndOverlay(p_ovi);
+    return TRUE;
+}
+
+
+///+ #if FS_IMPLEMENT ===true
+BOOL FS_LoadOverlay(MIProcessor target, FSOverlayID id)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+
+    {
+        FSOverlayInfo ovi;
+        if (!FS_LoadOverlayInfo(&ovi, target, id) || !FS_LoadOverlayImage(&ovi))
+            return FALSE;
+        FS_StartOverlay(&ovi);
+    }
+    return TRUE;
+}
+
+
+BOOL FS_UnloadOverlay(MIProcessor target, FSOverlayID id)
+{
+    if(!FS_IsAvailable())	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_init);
+
+    {
+        FSOverlayInfo ovi;
+        if (!FS_LoadOverlayInfo(&ovi, target, id) || !FS_UnloadOverlayImage(&ovi))
+            return FALSE;
+    }
+    return TRUE;
+}
+
+
+///+ #else ===false
+///- static void FSi_ReadRomDirect(const void *src, void *dst, u32 len)
+///- {
+///- #if SDK_TS
+///-     if (src >= (const void *)HW_CTRDG_ROM)
+///-     {
+///- 
+///-         (void)OS_LockCartridge((u16)fsi_card_lock_id);
+///-         MI_CpuCopy32(src, dst, len);
+///-         (void)OS_UnlockCartridge((u16)fsi_card_lock_id);
+///-     }
+///-     else
+///- #endif
+///-     {
+///- 
+///-         (void)CARD_LockRom((u16)fsi_card_lock_id);
+///-         CARD_ReadRom(FS_DMA_NOT_USE, src, dst, len);
+///-         (void)CARD_UnlockRom((u16)fsi_card_lock_id);
+///-     }
+///- }
+///- 
+///- 
+///- 
+///- BOOL FS_LoadOverlay(MIProcessor target, FSOverlayID id)
+///- {
+///-     FS_ASSERT_INIT(FALSE);
+///- 
+///-     {
+///- 
+///-         const u8 *const base = (const u8 *)
+///-             (((OS_GetConsoleType() & OS_CONSOLE_DEV_CARD) != 0) ? 0x00000000 : HW_CTRDG_ROM);
+///- 
+///-         const CARDRomRegion *fat = CARD_GetRomRegionFAT();
+///- 
+///-         const CARDRomRegion *ovt = CARD_GetRomRegionOVT(target);
+///- 
+///-         FSOverlayInfo ovi;
+///-         FSArchiveFAT fat_info;
+///- 
+///-         u32     pos, index;
+///- 
+///- 
+///-         index = (u32)id;
+///-         pos = index * sizeof(FSOverlayInfoHeader);
+///-         if (pos >= ovt->length)
+///-             return FALSE;
+///-         FSi_ReadRomDirect(base + ovt->offset + pos, &ovi, sizeof(FSOverlayInfoHeader));
+///-         ovi.target = target;
+///- 
+///- 
+///-         index = ovi.header.file_id;
+///-         pos = index * sizeof(FSArchiveFAT);
+///-         if (pos >= fat->length)
+///-             return FALSE;
+///-         FSi_ReadRomDirect(base + fat->offset + pos, &fat_info, sizeof(FSArchiveFAT));
+///- 
+///- 
+///-         FS_ClearOverlayImage(&ovi);
+///-         FSi_ReadRomDirect(base + fat_info.top,
+///-                           ovi.header.ram_address, fat_info.bottom - fat_info.top);
+///- 
+///-         (void)_ISDbgLib_RegistOverlayInfo((ovi.target ==
+///-                                            MI_PROCESSOR_ARM9) ? OVERLAYPROC_ARM9 : OVERLAYPROC_ARM7,
+///-                                           (u32)FS_GetOverlayAddress(&ovi),
+///-                                           (u32)(base + fat_info.top), FS_GetOverlayImageSize(&ovi));
+///- 
+///-         FS_StartOverlay(&ovi);
+///-     }
+///- 
+///-     return TRUE;
+///- }
+///- 
+///- 
+///- BOOL FS_UnloadOverlay(MIProcessor target, FSOverlayID id)
+///- {
+///-     FS_ASSERT_INIT(FALSE);
+///-     (void)target;
+///-     (void)id;
+///-     return TRUE;
+///- }
+///- 
+///+ #endif ===false
+void FS_AttachOverlayTable(MIProcessor target, const void *ptr, u32 len)
+{
+///+ #ifdef SDK_TS ===false
+///-     if ((ptr != NULL) && (target == MI_PROCESSOR_ARM9))
+///-     {                                  
+///-         int     bak_ovt_mode = DGT_SetOverlayTableMode(TRUE);
+///-         if (!FSi_CompareDigest((const u8 *)SDK_OVERLAYTABLE_DIGEST, (void *)ptr, (int)len))
+///-         {
+///-             OS_TPanic("FS_AttachOverlayTable() failed! (invalid overlay-table data)");
+///-         }
+///-         (void)DGT_SetOverlayTableMode(bak_ovt_mode);
+///-     }
+///+ #endif ===false
+    {
+        CARDRomRegion *const pr = (target == MI_PROCESSOR_ARM9) ? &fsi_ovt9 : &fsi_ovt7;
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+
+        pr->offset = (u32)ptr;
+        pr->length = len;
+
+        (void)OS_RestoreInterrupts(bak_psr);
+    }
+}
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_rom.c"
+ 
+#line 135: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_rom.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/util.h"
+///+ #if NITRO_FS_UTIL_H_ ===false
+///- #include "20"
+///- #include "21"
+///- #include "22"
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- #if SDK_ARM7
+///- #endif
+///- #if SDK_FINALROM
+///- extern const char *fsi_assert_fs_format;
+///- extern const char *fsi_assert_is_init;
+///- extern const char *fsi_assert_is_valid_arg;
+///- extern const char *fsi_assert_is_valid_dma_channel;
+///- extern const char *fsi_assert_is_empty;
+///- extern const char *fsi_assert_is_handle;
+///- extern const char *fsi_assert_is_file;
+///- extern const char *fsi_assert_is_dir;
+///- extern const char *fsi_assert_is_idle;
+///- extern const char *fsi_assert_irq_enabled;
+///- 
+///- extern const char *fsi_assert_arc_free;
+///- extern const char *fsi_assert_arc_unloaded;
+///- extern const char *fsi_assert_arc_not_rom;
+///- 
+///- 
+///- #else
+///- #endif
+///- #if FS_IMPLEMENT
+///- static inline void FSi_CutFromListCore(FSFileLink *trg)
+///- {
+///-     FSFile *const pr = trg->prev;
+///-     FSFile *const nx = trg->next;
+///-     if (pr)
+///-         pr->link.next = nx;
+///-     if (nx)
+///-         nx->link.prev = pr;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_CutFromList(FSFile *elem)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     trg->next = trg->prev = NULL;
+///- }
+///- 
+///- 
+///- 
+///- static inline void FSi_AppendToList(FSFile *elem, FSFile *list)
+///- {
+///-     FSFileLink *const trg = &elem->link;
+///-     FSi_CutFromListCore(trg);
+///-     {
+///-         while (list->link.next)
+///-             list = list->link.next;
+///-         list->link.next = elem;
+///-         trg->prev = list;
+///-         trg->next = NULL;
+///-     }
+///- }
+///- 
+///- #endif
+///- static inline BOOL FSi_IsSlash(u32 c)
+///- {
+///-     return (c == '/') || (c == '\\');
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveRunning(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_RUNNING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveCanceling(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_CANCELING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSuspending(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_SUSPENDING) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveAsync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_ASYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- static inline BOOL FSi_IsArchiveSync(const volatile FSArchive *p_arc)
+///- {
+///-     return ((p_arc->flag & FS_ARCHIVE_FLAG_IS_SYNC) != 0);
+///- }
+///- 
+///- 
+///- 
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 137: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_rom.c"
+
+#line 1: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/include/../include/rom.h"
+///+ #if NITRO_FS_ROM_H_ ===false
+///- #include "19"
+///- #include "20"
+///- #include "21"
+///- #include "22"
+///- extern s32 fsi_card_lock_id;
+///- 
+///- 
+///- extern CARDRomRegion fsi_ovt9;
+///- extern CARDRomRegion fsi_ovt7;
+///- 
+///- #if FS_IMPLEMENT
+///- extern FSArchive fsi_arc_rom;
+///- #endif
+///- #ifdef __cplusplus
+///- extern "C" {
+///- #endif
+///- void    FSi_InitRom(u32 default_dma_no);
+///- 
+///- 
+///- BOOL    FSi_LoadOverlayInfoCore(FSOverlayInfo *p_ovi, MIProcessor target, FSOverlayID id,
+///-                                 FSArchive *p_arc,
+///-                                 u32 offset_arm9, u32 len_arm9, u32 offset_arm7, u32 len_arm7);
+///- 
+///- 
+///- #ifdef __cplusplus
+///- } 
+///- #endif
+///+ #endif ===false
+ 
+#line 138: "/home/c/Documents/rom/ds/sdk/NitroSDK-3_2-060901/build/libraries/fs/common/src/fs_rom.c"
+///+ #if FS_IMPLEMENT ===true
+static u32 fsi_default_dma_no;
+
+
+s32     fsi_card_lock_id;
+
+
+CARDRomRegion fsi_ovt9;
+CARDRomRegion fsi_ovt7;
+
+
+
+FSArchive fsi_arc_rom;
+
+///+ #endif ===true
+///+ #if FS_IMPLEMENT ===true
+static void FSi_OnRomReadDone(void *p_arc)
+{
+    FS_NotifyArchiveAsyncEnd((FSArchive *)p_arc, CARD_IsPulledOut() ? FS_RESULT_ERROR : FS_RESULT_SUCCESS);
+}
+
+static FSResult FSi_ReadRomCallback(FSArchive *p_arc, void *dst, u32 src, u32 len)
+{
+    CARD_ReadRomAsync(fsi_default_dma_no, (const void *)src, dst, len, FSi_OnRomReadDone, p_arc);
+
+    return FS_RESULT_PROC_ASYNC;
+}
+
+static FSResult FSi_WriteDummyCallback(FSArchive *p_arc, const void *src, u32 dst, u32 len)
+{
+    (void)p_arc;
+    (void)src;
+    (void)dst;
+    (void)len;
+    return FS_RESULT_FAILURE;
+}
+
+static FSResult FSi_RomArchiveProc(FSFile *p_file, FSCommandType cmd)
+{
+    (void)p_file;
+
+    switch (cmd)
+    {
+
+    case FS_COMMAND_ACTIVATE:
+        CARD_LockRom((u16)fsi_card_lock_id);
+        return FS_RESULT_SUCCESS;
+
+    case FS_COMMAND_IDLE:
+        CARD_UnlockRom((u16)fsi_card_lock_id);
+        return FS_RESULT_SUCCESS;
+
+    case FS_COMMAND_WRITEFILE:
+        return FS_RESULT_UNSUPPORTED;
+
+    default:
+        return FS_RESULT_PROC_UNKNOWN;
+
+    }
+
+}
+
+
+static FSResult FSi_ReadDummyCallback(FSArchive *p_arc, void *dst, u32 src, u32 len)
+{
+    (void)p_arc;
+    (void)dst;
+    (void)src;
+    (void)len;
+    return FS_RESULT_FAILURE;
+}
+
+static FSResult FSi_EmptyArchiveProc(FSFile *p_file, FSCommandType cmd)
+{
+    (void)p_file;
+    (void)cmd;
+    return FS_RESULT_UNSUPPORTED;
+}
+
+
+void FSi_InitRom(u32 default_dma_no)
+{
+    fsi_default_dma_no = default_dma_no;
+    fsi_card_lock_id = OS_GetLockID();
+    fsi_ovt9.offset = 0;
+    fsi_ovt9.length = 0;
+    fsi_ovt7.offset = 0;
+    fsi_ovt7.length = 0;
+
+    CARD_Init();
+
+
+    FS_InitArchive(&fsi_arc_rom);
+    (void)FS_RegisterArchiveName(&fsi_arc_rom, "rom", 3);
+
+
+    if (MB_IsMultiBootChild())
+    {
+
+        fsi_ovt9.offset = (u32)~0;
+        fsi_ovt9.length = 0;
+        fsi_ovt7.offset = (u32)~0;
+        fsi_ovt7.length = 0;
+
+        FS_SetArchiveProc(&fsi_arc_rom, FSi_EmptyArchiveProc, (u32)FS_ARCHIVE_PROC_ALL);
+        (void)FS_LoadArchive(&fsi_arc_rom, 0x00000000,
+                             0, 0, 0, 0, FSi_ReadDummyCallback, FSi_WriteDummyCallback);
+    }
+
+    else
+    {
+        const CARDRomRegion *const fnt = CARD_GetRomRegionFNT();
+        const CARDRomRegion *const fat = CARD_GetRomRegionFAT();
+
+        FS_SetArchiveProc(&fsi_arc_rom, FSi_RomArchiveProc,
+                          FS_ARCHIVE_PROC_WRITEFILE |
+                          FS_ARCHIVE_PROC_ACTIVATE | FS_ARCHIVE_PROC_IDLE);
+
+        if ((fnt->offset == 0xFFFFFFFF) || (fnt->offset == 0x00000000) ||
+            (fat->offset == 0xFFFFFFFF) || (fat->offset == 0x00000000))
+        {
+            OS_Warning("file-system : no MAKEROM-information in rom header.");
+        }
+        else
+        {
+            (void)FS_LoadArchive(&fsi_arc_rom, 0x00000000,
+                                 fat->offset, fat->length,
+                                 fnt->offset, fnt->length,
+                                 FSi_ReadRomCallback, FSi_WriteDummyCallback);
+        }
+    }
+
+}
+
+
+u32 FS_GetDefaultDMA(void)
+{
+    return fsi_default_dma_no;
+}
+
+
+u32 FS_SetDefaultDMA(u32 dma_no)
+{
+    if(dma_no == 0)	OS_TPanic(fsi_assert_fs_format, fsi_assert_is_valid_dma_channel);
+    {
+        OSIntrMode bak_psr = OS_DisableInterrupts();
+        u32     bak_dma_no = fsi_default_dma_no;
+///+ #if FS_IMPLEMENT ===true
+        BOOL    bak_stat = FS_SuspendArchive(&fsi_arc_rom);
+///+ #endif ===true
+        fsi_default_dma_no = dma_no;
+///+ #if FS_IMPLEMENT ===true
+        if (bak_stat)
+            (void)FS_ResumeArchive(&fsi_arc_rom);
+///+ #endif ===true
+        (void)OS_RestoreInterrupts(bak_psr);
+        return bak_dma_no;
+    }
+}
+
+
+u32 FS_TryLoadTable(void *p_mem, u32 size)
+{
+    return FS_LoadArchiveTables(&fsi_arc_rom, p_mem, size);
+}
+
+
+BOOL FS_CreateFileFromRom(FSFile *p_file, u32 offset, u32 size)
+{
+    return FS_OpenFileDirect(p_file, &fsi_arc_rom, offset, offset + size, 0xFFFF);
+}
+
+///+ #endif ===true
+

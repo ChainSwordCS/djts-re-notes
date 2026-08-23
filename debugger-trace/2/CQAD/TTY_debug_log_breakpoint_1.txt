@@ -1,0 +1,270 @@
+MemoryManager::MemoryManager():
+   statically allocated memory: 01070720
+   start address:       0x02105680
+   end   address:       0x023E0000
+   debug start address: 0x00000000
+   debug end   address: 0x00000000
+
+⌐A2M, NuTek vDrakeNJosh_2.02.195
+Drake and Josh DS: v.2.04.002
+Warning: Memory not same - leak?
+
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007636] Free [00140156] Contig [00140100]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007460] Free [00140356] Contig [00140100]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+[NuTek::MemoryProfiler] Resource container 0x932205DE: 424068 bytes.
+Warning: Memory not same - leak?
+
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007720] Free [00139976] Contig [00133672]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Memory status
+  [00]: Alloc [00113220] Free [02349504] Contig [02135692]
+  [01]: Alloc [00007832] Free [00139824] Contig [00132744]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+[NuTek::MemoryProfiler] Resource container 0xB2654D60: 207528 bytes.
+[NuTek::MemoryProfiler] Resource container 0x932205DE: 424068 bytes.
+[NuTek::MemoryProfiler] Resource container 0xEC86D38E: 58672 bytes.
+[NuTek::MemoryProfiler] Resource container 0xDB061172: 2932 bytes.
+[NuTek::ParseResource] Begin EnvMesh.
+[NuTek::MemoryProfiler] Resource container 0x00343484: 217428 bytes.
+[NuTek::ParseResource] Textures, container 0x00343484: 25228 bytes.
+[NuTek::ParseResource] Mesh resource 0x0073DFE8: 408 bytes.
+[NuTek::ParseResource] Mesh resource 0x033A18FD: 6084 bytes.
+[NuTek::ParseResource] Mesh resource 0x074DD133: 4120 bytes.
+[NuTek::ParseResource] Mesh resource 0x0ADCFDB1: 13348 bytes.
+[NuTek::ParseResource] Mesh resource 0x10395F06: 5864 bytes.
+[NuTek::ParseResource] Mesh resource 0x16ED99CD: 2880 bytes.
+[NuTek::ParseResource] Mesh resource 0x17F1EE63: 1664 bytes.
+[NuTek::ParseResource] Mesh resource 0x23062071: 520 bytes.
+[NuTek::ParseResource] Mesh resource 0x24A29756: 2468 bytes.
+[NuTek::ParseResource] Mesh resource 0x2A31149F: 1132 bytes.
+[NuTek::ParseResource] Mesh resource 0x2F8FDAAA: 1492 bytes.
+[NuTek::ParseResource] Mesh resource 0x32B64004: 1428 bytes.
+[NuTek::ParseResource] Mesh resource 0x3505B14A: 5992 bytes.
+[NuTek::ParseResource] Mesh resource 0x351C022D: 1024 bytes.
+[NuTek::ParseResource] Mesh resource 0x39E0FC12: 1284 bytes.
+[NuTek::ParseResource] Mesh resource 0x3AA60819: 796 bytes.
+[NuTek::ParseResource] Mesh resource 0x3B2897A8: 964 bytes.
+[NuTek::ParseResource] Mesh resource 0x485BD8D5: 1728 bytes.
+[NuTek::ParseResource] Mesh resource 0x4E13E34D: 4604 bytes.
+[NuTek::ParseResource] Mesh resource 0x5A60641E: 15608 bytes.
+[NuTek::ParseResource] Mesh resource 0x60103630: 4852 bytes.
+[NuTek::ParseResource] Mesh resource 0x6381BF1B: 1588 bytes.
+[NuTek::ParseResource] Mesh resource 0x63FED6A3: 916 bytes.
+[NuTek::ParseResource] Mesh resource 0x6C7DCC23: 532 bytes.
+[NuTek::ParseResource] Mesh resource 0x6C9243F3: 15128 bytes.
+[NuTek::ParseResource] Mesh resource 0x6E671D47: 812 bytes.
+[NuTek::ParseResource] Mesh resource 0x6FE64B4F: 4608 bytes.
+[NuTek::ParseResource] Mesh resource 0x768724AB: 8480 bytes.
+[NuTek::ParseResource] Mesh resource 0x85D59AD4: 4444 bytes.
+[NuTek::ParseResource] Mesh resource 0x8A9394BF: 4096 bytes.
+[NuTek::ParseResource] Mesh resource 0x8B87205E: 2968 bytes.
+[NuTek::ParseResource] Mesh resource 0x8B8DF0DF: 332 bytes.
+[NuTek::ParseResource] Mesh resource 0x8C91E142: 1952 bytes.
+[NuTek::ParseResource] Mesh resource 0x920C16D2: 4760 bytes.
+[NuTek::ParseResource] Mesh resource 0x92FDAEB0: 1588 bytes.
+[NuTek::ParseResource] Mesh resource 0x9C33D949: 1304 bytes.
+[NuTek::ParseResource] Mesh resource 0x9C73BC2E: 1028 bytes.
+[NuTek::ParseResource] Mesh resource 0xA14813E2: 3208 bytes.
+[NuTek::ParseResource] Mesh resource 0xA3BBA583: 4272 bytes.
+[NuTek::ParseResource] Mesh resource 0xAC50DF86: 4016 bytes.
+[NuTek::ParseResource] Mesh resource 0xB1942651: 332 bytes.
+[NuTek::ParseResource] Mesh resource 0xB2B123DE: 10820 bytes.
+[NuTek::ParseResource] Mesh resource 0xC1067C46: 1164 bytes.
+[NuTek::ParseResource] Mesh resource 0xC15A2E49: 3520 bytes.
+[NuTek::ParseResource] Mesh resource 0xC22CD6AD: 2380 bytes.
+[NuTek::ParseResource] Mesh resource 0xC244C907: 5976 bytes.
+[NuTek::ParseResource] Mesh resource 0xC51D5CD9: 520 bytes.
+[NuTek::ParseResource] Mesh resource 0xCE513401: 4008 bytes.
+[NuTek::ParseResource] Mesh resource 0xE2C4DFC7: 1212 bytes.
+[NuTek::ParseResource] Mesh resource 0xE54735F7: 628 bytes.
+[NuTek::ParseResource] Mesh resource 0xE5BCE2C4: 4036 bytes.
+[NuTek::ParseResource] Mesh resource 0xE5FB4B0F: 944 bytes.
+[NuTek::ParseResource] Mesh resource 0xECF04A42: 1160 bytes.
+[NuTek::ParseResource] Mesh resource 0xF4F4477B: 1308 bytes.
+[NuTek::ParseResource] Mesh resource 0xF94118FE: 3236 bytes.
+[NuTek::ParseResource] Mesh resource 0xFB177833: 4948 bytes.
+[NuTek::ParseResource] Begin EnvColl.
+[NuTek::MemoryProfiler] Resource container 0x26B9B0C0: 7708 bytes.
+[NuTek::ParseResource] Begin AgtMesh.
+[NuTek::MemoryProfiler] Resource container 0x1CD4E575: 169108 bytes.
+[NuTek::ParseResource] Textures, container 0x1CD4E575: 21640 bytes.
+[NuTek::ParseResource] Mesh resource 0x14C5BA24: 12352 bytes.
+[NuTek::ParseResource] Mesh resource 0x26677AA8: 21916 bytes.
+[NuTek::ParseResource] Mesh resource 0x32293880: 692 bytes.
+[NuTek::ParseResource] Mesh resource 0x3B90013E: 520 bytes.
+[NuTek::ParseResource] Mesh resource 0x4616635F: 2668 bytes.
+[NuTek::ParseResource] Mesh resource 0x462FB076: 992 bytes.
+[NuTek::ParseResource] Mesh resource 0x62BE501F: 472 bytes.
+[NuTek::ParseResource] Mesh resource 0x66DBFC08: 3600 bytes.
+[NuTek::ParseResource] Mesh resource 0x6B078F15: 520 bytes.
+[NuTek::ParseResource] Mesh resource 0x7863D66F: 500 bytes.
+[NuTek::ParseResource] Mesh resource 0x8419282E: 3064 bytes.
+[NuTek::ParseResource] Mesh resource 0x84385AE4: 464 bytes.
+[NuTek::ParseResource] Mesh resource 0x886C7A61: 14688 bytes.
+[NuTek::ParseResource] Mesh resource 0x96EB9269: 3116 bytes.
+[NuTek::ParseResource] Mesh resource 0x984A8016: 3768 bytes.
+[NuTek::ParseResource] Mesh resource 0x9976D27D: 10344 bytes.
+[NuTek::ParseResource] Mesh resource 0xA77538E6: 12344 bytes.
+[NuTek::ParseResource] Mesh resource 0xA861C87D: 1676 bytes.
+[NuTek::ParseResource] Mesh resource 0xB240FBBB: 780 bytes.
+[NuTek::ParseResource] Mesh resource 0xBD9AA11D: 500 bytes.
+[NuTek::ParseResource] Mesh resource 0xBF502945: 2220 bytes.
+[NuTek::ParseResource] Mesh resource 0xC33D2DF8: 888 bytes.
+[NuTek::ParseResource] Mesh resource 0xCAD9F527: 4072 bytes.
+[NuTek::ParseResource] Mesh resource 0xCBE2E5F4: 12072 bytes.
+[NuTek::ParseResource] Mesh resource 0xD6E2D156: 1252 bytes.
+[NuTek::ParseResource] Mesh resource 0xE6AD89A6: 3156 bytes.
+[NuTek::ParseResource] Mesh resource 0xE7D209A8: 1388 bytes.
+[NuTek::ParseResource] Mesh resource 0xECB84D74: 440 bytes.
+[NuTek::ParseResource] Mesh resource 0xEF10FAD4: 688 bytes.
+[NuTek::ParseResource] Mesh resource 0xF75DF0EE: 748 bytes.
+[NuTek::ParseResource] Mesh resource 0xFA13829D: 19464 bytes.
+[NuTek::ParseResource] Mesh resource 0xFAF37ED6: 5084 bytes.
+[NuTek::ParseResource] Begin AgtColl.
+[NuTek::MemoryProfiler] Resource container 0x5E14C2EB: 844 bytes.
+[NuTek::ParseResource] Begin environment instances.
+[NuTek::MemoryProfiler] Mesh instance 0x074DD133: 248 bytes.
+[NuTek::MemoryProfiler] Collision instance 0x1175FB95: 544 bytes.
+[NuTek::MemoryProfiler] Mesh instance 0x074DD133: 248 bytes.
+[NuTek::MemoryProfiler] Collision instance 0x1175FB95: 544 bytes.
+[NuTek::MemoryProfiler] Mesh instance 0xE5BCE2C4: 248 bytes.
+[NuTek::MemoryProfiler] Collision instance 0xF384C862: 372 bytes.
+[NuTek::MemoryProfiler] Mesh instance 0xE5BCE2C4: 248 bytes.
+[NuTek::MemoryProfiler] Collision instance 0xF384C862: 372 bytes.
+[NuTek::MemoryProfiler] Mesh instance 0x074DD133: 248 bytes.
+[NuTek::MemoryProfiler] Collision instance 0x1175FB95: 544 bytes.
+[NuTek::MemoryProfiler] Mesh instance 0xE5BCE2C4: 248 bytes.
+[NuTek::MemoryProfiler] Collision instance 0xF384C862: 372 bytes.
+[NuTek::MemoryProfiler] Mesh instance 0xE5BCE2C4: 248 bytes.
+Warning: Memory not same - leak?
+
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007720] Free [00139976] Contig [00133672]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Memory status
+  [00]: Alloc [00113220] Free [02349504] Contig [02135692]
+  [01]: Alloc [00007832] Free [00139824] Contig [00132744]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+[NuTek::MemoryProfiler] Resource container 0xB2654D60: 207528 bytes.
+[NuTek::MemoryProfiler] Resource container 0x932205DE: 424068 bytes.
+[NuTek::MemoryProfiler] Resource container 0xEC86D38E: 58672 bytes.
+[NuTek::MemoryProfiler] Resource container 0xDB061172: 2932 bytes.
+[NuTek::ParseResource] Begin EnvMesh.
+[NuTek::MemoryProfiler] Resource container 0x00343484: 217428 bytes.
+[NuTek::ParseResource] Textures, container 0x00343484: 25228 bytes.
+[NuTek::ParseResource] Mesh resource 0x0073DFE8: 408 bytes.
+[NuTek::ParseResource] Mesh resource 0x033A18FD: 6084 bytes.
+[NuTek::ParseResource] Mesh resource 0x074DD133: 4120 bytes.
+[NuTek::ParseResource] Mesh resource 0x0ADCFDB1: 13348 bytes.
+[NuTek::ParseResource] Mesh resource 0x10395F06: 5864 bytes.
+[NuTek::ParseResource] Mesh resource 0x16ED99CD: 2880 bytes.
+[NuTek::ParseResource] Mesh resource 0x17F1EE63: 1664 bytes.
+[NuTek::ParseResource] Mesh resource 0x23062071: 520 bytes.
+[NuTek::ParseResource] Mesh resource 0x24A29756: 2468 bytes.
+[NuTek::ParseResource] Mesh resource 0x2A31149F: 1132 bytes.
+[NuTek::ParseResource] Mesh resource 0x2F8FDAAA: 1492 bytes.
+[NuTek::ParseResource] Mesh resource 0x32B64004: 1428 bytes.
+[NuTek::ParseResource] Mesh resource 0x3505B14A: 5992 bytes.
+[NuTek::ParseResource] Mesh resource 0x351C022D: 1024 bytes.
+[NuTek::ParseResource] Mesh resource 0x39E0FC12: 1284 bytes.
+[NuTek::ParseResource] Mesh resource 0x3AA60819: 796 bytes.
+[NuTek::ParseResource] Mesh resource 0x3B2897A8: 964 bytes.
+[NuTek::ParseResource] Mesh resource 0x485BD8D5: 1728 bytes.
+[NuTek::ParseResource] Mesh resource 0x4E13E34D: 4604 bytes.
+[NuTek::ParseResource] Mesh resource 0x5A60641E: 15608 bytes.
+[NuTek::ParseResource] Mesh resource 0x60103630: 4852 bytes.
+[NuTek::ParseResource] Mesh resource 0x6381BF1B: 1588 bytes.
+[NuTek::ParseResource] Mesh resource 0x63FED6A3: 916 bytes.
+[NuTek::ParseResource] Mesh resource 0x6C7DCC23: 532 bytes.
+[NuTek::ParseResource] Mesh resource 0x6C9243F3: 15128 bytes.
+[NuTek::ParseResource] Mesh resource 0x6E671D47: 812 bytes.
+[NuTek::ParseResource] Mesh resource 0x6FE64B4F: 4608 bytes.
+[NuTek::ParseResource] Mesh resource 0x768724AB: 8480 bytes.
+[NuTek::ParseResource] Mesh resource 0x85D59AD4: 4444 bytes.
+[NuTek::ParseResource] Mesh resource 0x8A9394BF: 4096 bytes.
+[NuTek::ParseResource] Mesh resource 0x8B87205E: 2968 bytes.
+[NuTek::ParseResource] Mesh resource 0x8B8DF0DF: 332 bytes.
+[NuTek::ParseResource] Mesh resource 0x8C91E142: 1952 bytes.
+[NuTek::ParseResource] Mesh resource 0x920C16D2: 4760 bytes.
+[NuTek::ParseResource] Mesh resource 0x92FDAEB0: 1588 bytes.
+[NuTek::ParseResource] Mesh resource 0x9C33D949: 1304 bytes.
+[NuTek::ParseResource] Mesh resource 0x9C73BC2E: 1028 bytes.
+[NuTek::ParseResource] Mesh resource 0xA14813E2: 3208 bytes.
+[NuTek::ParseResource] Mesh resource 0xA3BBA583: 4272 bytes.
+[NuTek::ParseResource] Mesh resource 0xAC50DF86: 4016 bytes.
+[NuTek::ParseResource] Mesh resource 0xB1942651: 332 bytes.
+[NuTek::ParseResource] Mesh resource 0xB2B123DE: 10820 bytes.
+[NuTek::ParseResource] Mesh resource 0xC1067C46: 1164 bytes.
+[NuTek::ParseResource] Mesh resource 0xC15A2E49: 3520 bytes.
+[NuTek::ParseResource] Mesh resource 0xC22CD6AD: 2380 bytes.
+[NuTek::ParseResource] Mesh resource 0xC244C907: 5976 bytes.
+[NuTek::ParseResource] Mesh resource 0xC51D5CD9: 520 bytes.
+[NuTek::ParseResource] Mesh resource 0xCE513401: 4008 bytes.
+[NuTek::ParseResource] Mesh resource 0xE2C4DFC7: 1212 bytes.
+[NuTek::ParseResource] Mesh resource 0xE54735F7: 628 bytes.
+[NuTek::ParseResource] Mesh resource 0xE5BCE2C4: 4036 bytes.
+[NuTek::ParseResource] Mesh resource 0xE5FB4B0F: 944 bytes.
+[NuTek::ParseResource] Mesh resource 0xECF04A42: 1160 bytes.
+[NuTek::ParseResource] Mesh resource 0xF4F4477B: 1308 bytes.
+[NuTek::ParseResource] Mesh resource 0xF94118FE: 3236 bytes.
+[NuTek::ParseResource] Mesh resource 0xFB177833: 4948 bytes.
+[NuTek::ParseResource] Begin EnvColl.
+[NuTek::MemoryProfiler] Resource container 0x26B9B0C0: 7708 bytes.
+[NuTek::ParseResource] Begin AgtMesh.
+[NuTek::MemoryProfiler] Resource container 0x1CD4E575: 169108 bytes.
+[NuTek::ParseResource] Textures, container 0x1CD4E575: 21640 bytes.
+[NuTek::ParseResource] Mesh resource 0x14C5BA24: 12352 bytes.
+[NuTek::ParseResource] Mesh resource 0x26677AA8: 21916 bytes.
+[NuTek::ParseResource] Mesh resource 0x32293880: 692 bytes.
+[NuTek::ParseResource] Mesh resource 0x3B90013E: 520 bytes.
+[NuTek::ParseResource] Mesh resource 0x4616635F: 2668 bytes.
+[NuTek::ParseResource] Mesh resource 0x462FB076: 992 bytes.
+[NuTek::ParseResource] Mesh resource 0x62BE501F: 472 bytes.
+[NuTek::ParseResource] Mesh resource 0x66DBFC08: 3600 bytes.
+[NuTek::ParseResource] Mesh resource 0x6B078F15: 520 bytes.
+[NuTek::ParseResource] Mesh resource 0x7863D66F: 500 bytes.
+[NuTek::ParseResource] Mesh resource 0x8419282E: 3064 bytes.
+[NuTek::ParseResource] Mesh resource 0x84385AE4: 464 bytes.
+[NuTek::ParseResource] Mesh resource 0x886C7A61: 14688 bytes.
+[NuTek::ParseResource] Mesh resource 0x96EB9269: 3116 bytes.
+[NuTek::ParseResource] Mesh resource 0x984A8016: 3768 bytes.
+[NuTek::ParseResource] Mesh resource 0x9976D27D: 10344 bytes.
+[NuTek::ParseResource] Mesh resource 0xA77538E6: 12344 bytes.
+[NuTek::ParseResource] Mesh resource 0xA861C87D: 1676 bytes.
+[NuTek::ParseResource] Mesh resource 0xB240FBBB: 780 bytes.
+[NuTek::ParseResource] Mesh resource 0xBD9AA11D: 500 bytes.
+[NuTek::ParseResource] Mesh resource 0xBF502945: 2220 bytes.
+[NuTek::ParseResource] Mesh resource 0xC33D2DF8: 888 bytes.
+[NuTek::ParseResource] Mesh resource 0xCAD9F527: 4072 bytes.
+[NuTek::ParseResource] Mesh resource 0xCBE2E5F4: 12072 bytes.
+[NuTek::ParseResource] Mesh resource 0xD6E2D156: 1252 bytes.
+[NuTek::ParseResource] Mesh resource 0xE6AD89A6: 3156 bytes.
+[NuTek::ParseResource] Mesh resource 0xE7D209A8: 1388 bytes.
+[NuTek::ParseResource] Mesh resource 0xECB84D74: 440 bytes.
+[NuTek::ParseResource] Mesh resource 0xEF10FAD4: 688 bytes.
+[NuTek::ParseResource] Mesh resource 0xF75DF0EE: 748 bytes.
+[NuTek::ParseResource] Mesh resource 0xFA13829D: 19464 bytes.
+[NuTek::ParseResource] Mesh resource 0xFAF37ED6: 5084 bytes.
+[NuTek::ParseResource] Begin AgtColl.
+[NuTek::MemoryProfiler] Resource container 0x5E14C2EB: 844 bytes.
+[NuTek::ParseResource] Begin environment instances.
+[NuTek::MemoryProfiler] Mesh instance 0x074DD133: 248 bytes.
+[NuTek::MemoryProfiler] Collision instance 0x1175FB95: 544 bytes.
+[NuTek::MemoryProfiler] Mesh instance 0x074DD133: 248 bytes.
+[NuTek::MemoryProfiler] Collision instance 0x1175FB95: 544 bytes.
+[NuTek::MemoryProfiler] Mesh instance 0xE5BCE2C4: 248 bytes.

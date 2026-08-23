@@ -1,0 +1,89 @@
+
+Example input data:
+(values in hexadecimal)
+
+// dst = 0x027E3890;
+dst = {
+	$1000, $0000, $0000,
+	$0000, $0000, $F000,
+	$0000, $F000, $0000, $0000
+};
+
+// src = 0x021DBC30;
+src = {
+	$0000, $0000, $F000,
+	$0000, $1000, $0000,
+	$1000, $0000, $0000, $0000
+};
+
+Example result data:
+(after this function was run with the given example input data)
+dst = {
+	$0000, $0000, $F000,
+	$F000, $0000, $0000
+	$0000, $F000, $0000, $0000
+};
+
+
+/** dude....	*/
+void FUN_020a5974(s16* dst, s16* src) {
+	if ((src[9] & 0x01) != 0) {
+		return;
+	}
+	if (dst[9] & 0x01) == 0) {
+		
+		// i forget the order of operations with regard to the ">>" (bitshift right) operator,
+		// so i've just copied what Ghidra output basically 1:1
+		// better not make any typos :)
+		
+		dst[6] = (s16)((s32)src[0] * (s32)dst[6] >> 12) +
+			(s16)(src[3] * (s32)dst[7] >> 12) +
+			(s16)((u32)(src[6] * (s32)dst[8] * 16) >> 16);
+		
+		dst[7] = (s16)((s32)src[1] * (s32)dst[6] >> 12) +
+			(s16)(src[4] * (s32)dst[7] >> 12) +
+			(s16)((u32)(src[7] * (s32)dst[8] * 16) >> 16);
+		
+		dst[8] = (s16)((s32)src[2] * (s32)dst[6] >> 12) +
+			(s16)(src[5] * (s32)dst[7] >> 12) +
+			(s16)((u32)(src[8] * (s32)dst[8] * 16) >> 16);
+		
+		dst[0] = (s16)((s32)src[0] * (s32)dst[0] >> 12) +
+			(s16)(src[3] * (s32)dst[1] >> 12) +
+			(s16)((u32)(src[6] * (s32)dst[2] * 16) >> 16);
+		
+		dst[1] = (s16)((s32)src[1] * (s32)dst[0] >> 12) +
+			(s16)(src[4] * (s32)dst[1] >> 12) +
+			(s16)((u32)(src[7] * (s32)dst[2] * 16) >> 16);
+		
+		dst[2] = (s16)((s32)src[2] * (s32)dst[0] >> 12) +
+			(s16)(src[5] * (s32)dst[1] >> 12) +
+			(s16)((u32)(src[8] * (s32)dst[2] * 16) >> 16);
+		
+		dst[3] = (s16)((s32)src[0] * (s32)dst[3] >> 12) +
+			(s16)(src[3] * (s32)dst[4] >> 12) +
+			(s16)((u32)(src[6] * (s32)dst[5] * 16) >> 16);
+		
+		dst[4] = (s16)((s32)src[1] * (s32)dst[3] >> 12) +
+			(s16)(src[4] * (s32)dst[4] >> 12) +
+			(s16)((u32)(src[7] * (s32)dst[5] * 16) >> 16);
+		
+		dst[5] = (s16)((s32)src[2] * (s32)dst[3] >> 12) +
+			(s16)(src[5] * (s32)dst[4] >> 12) +
+			(s16)((u32)(src[8] * (s32)dst[5] * 16) >> 16);
+		
+		return;
+	}
+	
+	dst[0] = src[0];
+	dst[1] = src[1];
+	dst[2] = src[2];
+	dst[3] = src[3];
+	dst[4] = src[4];
+	dst[5] = src[5];
+	dst[6] = src[6];
+	dst[7] = src[7];
+	dst[8] = src[8];
+	dst[9] = src[9];
+	return;
+}

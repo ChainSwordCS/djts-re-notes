@@ -1,0 +1,56 @@
+AR Codes for Drake & Josh - Talent Showdown (Beta)
+
+[Level Select Modifier]
+221059C0 000000XX
+
+[Level Select - Test Level]
+221059C0 00000023
+
+[enable ensata debug messages on no$gba]
+020BCC58 E3500001
+020BCC3C 04FFFA1C
+// line 1: patch ensata check,
+// line 2: redirect ensata debug msg output -> no$gba debug msg output
+
+[enable all DebugStrings.bin debug messages]
+0207967C E1A00000
+02079680 E1A00000
+02079684 E1A00000
+02079688 E1A00000
+
+[suppress particle emitter log spam]
+0206E29C E1A00000
+0206E2C0 E1A00000
+0206E2DC E1A00000
+
+[RE-ENABLE particle emitter log spam]
+0206E29C EB002CE9
+0206E2C0 EB002CE0
+0206E2DC EB002CD9
+
+[suppress CurrValue/Beginning/Ending/RelevantValue/Middle log spam]
+0200A828 E1A00000
+0200A8C0 E1A00000
+0200B204 E1A00000
+0200B29C E1A00000
+0200B420 E1A00000
+
+[RE-ENABLE CurrValue/Beginning/Ending/RelevantValue/Middle log spam]
+0200A828 EB01BB86
+0200A8C0 EB01BB60
+0200B204 EB01B90F
+0200B29C EB01B8E9
+0200B420 EB01B888
+
+[enable Nutek::ParseResource debug logging]
+020FE124 FFFFFFFF
+020FE1A4 00000001
+
+[mess up all CBOX collision lol]
+0207D554 E1A00000
+0207D568 E1A00000
+0207D57C E1A00000
+0207D59C E1A00000
+0207D5B0 E1A00000
+0207D5C0 E1A00000
+

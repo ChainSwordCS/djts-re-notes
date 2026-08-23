@@ -1,0 +1,2 @@
+[NuTek::MemoryProfiler] Collision instance 0x1175FB95: 544 bytes.
+[NuTek::MemoryProfiler] Mesh instance 0x074DD133: 248 bytes.

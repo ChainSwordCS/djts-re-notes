@@ -1,0 +1,48 @@
+djts (beta)
+
+FUN_02013f44(my_Avatar_struct*, 0x021DCBBC);
+	. . .
+	FUN_0208f768(0x021DCBBC, 0xE51C1008);
+		FUN_020d9c1c(0x021DCBC0, 0xE51C1008);
+		
+		
+		
+
+
+
+02013fe4
+
+021DCDA4
+
+
+(the moment the code hits the breakpoint at 020140B8....)
+021DCBBC:
+	var_00 = 0x020F80C8;
+
+
+
+
+
+	var_00 = 0;
+	var_04 = 0;
+	var_08 = 0;
+	var_0C = 0;
+	var_10 = 0x021DCC80; // code * *
+	var_14 = 0;
+	var_18 = 0x021DBC30;
+	var_1C = 0x021DBC18;
+	var_20 = 0x00001000;
+	var_24 = 0;
+	var_28 = 0x00001000;
+	var_2C = 0;
+	var_30 = 0x00011000;
+	var_34 = 0xFFFFFCCD;
+	var_38 = 0x000014CD;
+	var_3C = 0x00002E66;
+	var_40 = 0x00001000;
+	var_44 = 0;
+	var_48 = 0x00001000;
+	var_4C = 0;
+	var_50 = 0x00011000;
+	var_54 = 0x0007A8F6;
+	var_58 = 0x000014CD;

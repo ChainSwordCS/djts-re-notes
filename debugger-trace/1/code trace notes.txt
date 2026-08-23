@@ -1,0 +1,421 @@
+// processing for FRAME 925
+
+
+(at the start of OnCollision...)
+
+param1_struct data (at 0x0237D2D0):
+
+$020f020c $0237d3f8 $00000000 $fffffff6
+$020f0234 $020f0248 $020f0258 $0237d3a0
+$0236dd90 $0007b545 $000014cd $fffdc50e
+$0000039d $021dbbf0 $021dcbbc $0237d328
+$80000000 $0237d334 $020f026c $0237d2b4
+$0237d3d4
+. . .
+
+param_1->38_Avatar_collision_body data (at 0x021DCBBC):
+
+$020f80c8 $0007b7d4 $000014cd $fffdc50e
+$0000099a $000005c3 $00000000 $021dbe9c
+$021dcc80 $00000002 $00110005 $02361644
+$0000015a $00000000 $00009341 $00001000
+$021dbbf0 $00000000 $021dbcc0 $00000000
+$021dbc30 $021dbc18 $00001000 $00000000
+$f0000000 $f0000000 $00000000 $00000000
+$000014cd $00000000 $00000000 $f000f000
+$00000000 $f0000000 $00000000 $0007b7d4
+$000014cd $fffdc50e $00000001 $00000400 // end of struct?
+$80000000 $021dcd24 $020f0e68 $0237d388
+$0237d44c
+. . .
+
+data at 0x020F80C8:
+
+$0208f704 $0208f724 $0208f74c $0208c1ec
+$0208c174 $0208c128 $00000000 $00000000
+
+
+
+pos_lastframe...
+123.329 = 0x0007B545	( 0007B.545 =	123.329345703 )
+  0.000 = 0x000014CD	( 00001.4CD =	  1.300048828 )
+-35.684 = 0xFFFDC50E	(-7FFDC.50E =	-35.684082031?) (my calc may have an off-by-one error in it, but you get the idea.)
+
+
+
+data at 0x027E0A40:
+$01000010 $027E0808 // static
+
+data at 0x027E0808: // THIS data actually changes :)
+
+$0007C16B $000014CD $FFFDC50C $00001000
+$0102FFFE $FFFFFD71 $0A512490 $021DCBBC
+$02260A60
+
+data at 0x02260A60:
+
+$ . . .
+
+
+
+
+
+data at 0x022609B0:
+$020F7EEC $0007BEDC $FFFFFF5C $FFFDA636
+$0007F70E $00001B24 $FFFDFF6D $02260C20
+$00000000 $00000001 $00000000 $02372ADC
+$00000000 $02260748
+
+
+
+
+// pseudocode
+
+void OnCollision(param1_struct*, void*);
+void arraycopy_u16_x10_FUN_0207ccd4(u16*, u16*);
+int* FUN_0207cd98(s16*, s32*);
+void FUN_0207cde8();
+void FUN_0207cdec(s32*, s32*);
+void FUN_0208c1ec(Avatar_collision_body*);
+void FUN_020b68e4(s32*, s32*, u32*);
+
+
+
+FUN_0208f068(CollisionBody * param_1, CollisionBody * param_2) {
+	// example input:
+	// param_1 = 0x021DCBBC
+	// param_2 = 0x022609B0
+	// param_2 (alt) = 0x022F5D04
+	// retaddr (r14) = 0x0208F5C0
+	
+	/* snip */
+	// whatever line of code calls Agent_FUN_0202eb40()
+	(****(param_1 + 0x48))(*(param_1 + 0x48), iVar1, param_2);
+	/* snip */
+}
+
+Agent::Agent_FUN_0202eb40(Agent * this, undefined4 param_1, CollisionBody * param_2) {
+	// example input:
+	// this    = 0x021DBBF0
+	// param_1 = 0x027E0A48
+	// param_2 = 0x022609B0
+	// return address = 0x0208f1b0
+	
+	
+	CollisionCompensator* cc;
+	for (cc = this->bc_collisionCompensator; cc != nullptr; cc = cc->nextCollisionCompensator) {
+		(*cc->vptr->vtable[6])(cc, param_1, param_2); //this calls CollisionCompensator::OnCollision()
+	}
+	FUN_020110a8(this);
+	return;
+}
+
+// wtf, is param_3 used???
+void CollisionCompensator::OnCollision(CollisionCompensator * this, void* param_2, void* param_3) {
+	// this    = 0x0237D2D0 (static.)
+	// param_2 = 0x027E0A48 (static; this ptr doesnt change depending on collision body.)
+	// param_2->substruct = 0x027E0808 (static)
+	// param_3 = 0x022609B0 ?
+	// agent = 0x021DBBF0
+	// avatar_collision_body = 0x021DCBBC
+	// return_addr (r14) = 0x0202eb78
+	
+	uint a;
+	uint b;
+	
+	/* insert other local variable declarations here */
+	
+	uint num_contacts = *(byte*)(param_2 + 1); // 01
+	
+	local_90 = 0;
+	local_8c = 0;
+	local_88 = 0;
+	local_84 = 0;
+	local_80 = 0;
+	local_7c = 0;
+	
+	{
+		a = this->38_Avatar_collision_body; // 0x021DCBBC
+		b = *(uint*)a; // 0x020f80c8
+		func = ((uint*)b)[3]; // 0x0208c1ec
+		(*func)(a); // FUN_0208c1ec(a);
+	}
+	
+	u32* c = (this->var_38_Avatar_collision_body)->var_78.var_14;
+	u32 vec_movementThisFrame[];
+	vec_movementThisFrame[0] = c[0] - this->var_24[0];
+	vec_movementThisFrame[1] = c[1] - this->var_24[1];
+	vec_movementThisFrame[2] = c[2] - this->var_24[2];
+	
+	DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"ds00", 
+		"/////// CollisionCompensator::OnCollision () /////// :: FRAME ", 
+		*(uint *)(*(int *)0x020fb4e4 - 0x18)); // 925
+	
+	DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"Xs00",
+		"--- For agent:  ",
+		*(uint *)(this + 0x34)); // 0x021DBBF0
+	
+	DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"ss00",
+		"Movement this frame: ",
+		vector_toString_02072b44(vec_movementThisFrame)); 
+	
+	DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"ds00",
+		"Contacts to analyze: ",
+		num_contacts);
+	
+	if (num_contacts != 0) {
+		for (contact_index = 0; contact_index < num_contacts; contact_index++) {
+			DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"ds00",
+				"> Analyzing contact ",
+				contact_index);
+			
+			param2_sub = ((contact_index & 0xFF) * 0x24 + *(int*)(param_2 + 4));
+			
+			DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"Xs00",
+				"Collision key:     ",
+				param2_sub->collision_key;
+			
+			DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"ss00",
+				"Contact point:     ",
+				vector_toString_02072b44(param2_sub->contact_point));
+			
+			DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"ds00",
+				"Contact type:      ",
+				(u32)(param2_sub->contact_type);
+			
+			if ( ((int)((uint)param2_sub->v_13 << 0x1d) < 0) || // ????
+				(param2_sub->v_1c_collisionbody != this->var38_avatar_collision_body) ) {
+				
+				DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"s000",
+					"Intangible, or not the body of interest.");
+				
+			} else {
+				local_154 = vec_movementThisFrame[0]; // happens earlier in the decompiled code, moved for relevance.
+				local_150 = vec_movementThisFrame[2]; // happens earlier in the decompiled code, moved for relevance.
+				local_138 = -(int)(param2_sub->v_0c[2]);
+				local_13c = -(int)(param2_sub->v_0c[0]);
+				
+				// i'm just gonna leave these copied over verbatim for now.
+				local_14c = (uint)((longlong)local_13c * (longlong)(int)local_154) >> 12 |
+					(int)((ulonglong)((longlong)local_13c * (longlong)(int)local_154) >> 32) << 20;
+				local_94 = local_14c +
+					((uint)((longlong)local_138 * (longlong)local_150) >> 12 |
+					(int)((ulonglong)((longlong)local_138 * (longlong)local_150) >> 32) << 20);
+				
+				u32 local_60[3];
+				local_60[0] = (int)(param2_sub->v_0c[0]);
+				local_60[1] = (int)(param2_sub->v_0c[1]);
+				local_60[2] = (int)(param2_sub->v_0c[2]);
+				
+				DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"ss00",
+					"Contact normal:   ",
+					vector_toString_02072b44(local_60));
+				DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"ss00",
+					"Contact depth:    ",
+					fixedpoint_toString(param2_sub->v_14));
+				DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"ss00",
+					"Dot product, (-normal) * movement: ",
+					fixedpoint_toString(local_94));
+				
+				if (local_94 < 0) {
+					iVar8 = (int)(short)param2_sub->v_14;
+					u32 local_6c[3]; // local_6c, local_68, and local_64, respectively.
+					local_6c[2] = param2_sub->v_0c[2] * iVar8 * 16 >> 16;
+					local_6c[1] = 0;
+					local_6c[0] = param2_sub->v_0c[0] * iVar8 * 16 >> 16;
+					
+					DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"ss00",
+						"Push vector: ",
+						vector_toString(local_6c));
+					
+					if (param2_sub->contact_type == 2)
+						puVar9 = &local_90;
+					else
+						puVar9 = &local_84;
+					
+					u32 local_48[3]; // local_48, local_44, local_40
+					local_48[0] = puVar9[0] + local_6c[0];
+					local_48[1] = puVar9[1] + local_6c[1];
+					local_48[2] = puVar9[2] + local_6c[2];
+					puVar9[0] = local_48[0];
+					puVar9[1] = local_48[1];
+					puVar9[2] = local_48[2];
+				}
+			}
+			// continue FOR loop
+		}
+	}
+	
+	DebugLog.cpp_printDebugString(0x020fdfac, 1, 0x10000, (uint)"s000",
+		">> All contacts analyzed.");
+	
+	/* TODO */
+}
+
+/** does exactly what it sounds like. */
+void arraycopy_u16_x10_FUN_0207ccd4(u16* dst, u16* src) {
+	/* snip */
+}
+
+int* FUN_0207cd98(s16* src, s32* dst) {
+	dst[0] = (s32)src[0];
+	dst[1] = (s32)src[1];
+	dst[2] = (s32)src[2];
+	dst[3] = (s32)src[3];
+	dst[4] = (s32)src[4];
+	dst[5] = (s32)src[5];
+	dst[6] = (s32)src[6];
+	dst[7] = (s32)src[7];
+	dst[8] = (s32)src[8];
+	return dst;
+}
+
+// ?
+void FUN_0207cde8() {
+	return;
+}
+
+// ?
+void FUN_0207cdec(s32* dst, s32* param_2) {
+	dst[0] = src[0];
+	dst[1] = src[1];
+	dst[2] = src[2];
+	dst[0] = src[0];
+	dst[1] = src[1];
+	dst[2] = src[2];
+	return;
+}
+
+void CollisionBody::FUN_0208c1ec(CollisionBody* this) {
+	//u16* psVar7 = this->var_50;
+	if ((this->var_50 == nullptr) || (this->var_54 == nullptr)) {
+		u16* dst = (this->var_78).var_00;
+		u16* src = (this->var_58).var_00;
+		dst[0] = src[0];
+		dst[1] = src[1];
+		dst[2] = src[2];
+		dst[3] = src[3];
+		dst[4] = src[4];
+		dst[5] = src[5];
+		dst[6] = src[6];
+		dst[7] = src[7];
+		dst[8] = src[8];
+		dst[9] = src[9];
+		(this->var_78).var_14 = (this->var_58).var_14;
+		(this->var_78).var_18 = (this->var_58).var_18;
+		(this->var_78).var_1c = (this->var_58).var_1c;
+	} else {
+		u16* src = (this->var_58).var_00;
+		u16 local_70[10];
+		arraycopy_u16_x10_FUN_0207ccd4(local_70, src);
+		FUN_020a5974(local_70, this->var_50);
+		u16* dst = (this->var_78).var_00;
+		dst[0] = local_70[0];
+		dst[1] = local_70[1];
+		dst[2] = local_70[2];
+		dst[3] = local_70[3];
+		dst[4] = local_70[4];
+		dst[5] = local_70[5];
+		dst[6] = local_70[6];
+		dst[7] = local_70[7];
+		dst[8] = local_70[8];
+		dst[9] = local_70[9];
+		s32 local_50[3];
+		if ((this->var_50[9] & 0x01) == 0) {
+			u32 auStack_44[3];
+			s32 aiStack_38[10];
+			FUN_0207cde8();
+			piVar2 = FUN_0207cd98(this->var_50, aiStack_38);
+			FUN_020b68e4((this->var_58).var_14, piVar2, auStack_44);
+			FUN_0207cdec(local_50, auStack_44);
+		} else {
+			FUN_0207cdec(local_50, (this0>var_58).var_14);
+		}
+		(this->var_78).var_14[0] = local_50[0] + this->var_54[0];
+		(this->var_78).var_14[1] = local_50[1] + this->var_54[1];
+		(this->var_78).var_14[2] = local_50[2] + this->var_54[2];
+	}
+	this->var_9d = this->var_9d & 0xFE;
+	return;
+}
+
+/** dude....	*/
+void FUN_020a5974(s16* dst, s16* src) {
+	if ((src[9] & 0x01) != 0) {
+		return;
+	}
+	if (dst[9] & 0x01) == 0) {
+		
+		// i forget the order of operations with regard to the ">>" (bitshift right) operator,
+		// so i've just copied what Ghidra output basically 1:1
+		// better not make any typos :)
+		
+		dst[6] = (s16)((s32)src[0] * (s32)dst[6] >> 12) +
+			(s16)(src[3] * (s32)dst[7] >> 12) +
+			(s16)((u32)(src[6] * (s32)dst[8] * 16) >> 16);
+		
+		dst[7] = (s16)((s32)src[1] * (s32)dst[6] >> 12) +
+			(s16)(src[4] * (s32)dst[7] >> 12) +
+			(s16)((u32)(src[7] * (s32)dst[8] * 16) >> 16);
+		
+		dst[8] = (s16)((s32)src[2] * (s32)dst[6] >> 12) +
+			(s16)(src[5] * (s32)dst[7] >> 12) +
+			(s16)((u32)(src[8] * (s32)dst[8] * 16) >> 16);
+		
+		dst[0] = (s16)((s32)src[0] * (s32)dst[0] >> 12) +
+			(s16)(src[3] * (s32)dst[1] >> 12) +
+			(s16)((u32)(src[6] * (s32)dst[2] * 16) >> 16);
+		
+		dst[1] = (s16)((s32)src[1] * (s32)dst[0] >> 12) +
+			(s16)(src[4] * (s32)dst[1] >> 12) +
+			(s16)((u32)(src[7] * (s32)dst[2] * 16) >> 16);
+		
+		dst[2] = (s16)((s32)src[2] * (s32)dst[0] >> 12) +
+			(s16)(src[5] * (s32)dst[1] >> 12) +
+			(s16)((u32)(src[8] * (s32)dst[2] * 16) >> 16);
+		
+		dst[3] = (s16)((s32)src[0] * (s32)dst[3] >> 12) +
+			(s16)(src[3] * (s32)dst[4] >> 12) +
+			(s16)((u32)(src[6] * (s32)dst[5] * 16) >> 16);
+		
+		dst[4] = (s16)((s32)src[1] * (s32)dst[3] >> 12) +
+			(s16)(src[4] * (s32)dst[4] >> 12) +
+			(s16)((u32)(src[7] * (s32)dst[5] * 16) >> 16);
+		
+		dst[5] = (s16)((s32)src[2] * (s32)dst[3] >> 12) +
+			(s16)(src[5] * (s32)dst[4] >> 12) +
+			(s16)((u32)(src[8] * (s32)dst[5] * 16) >> 16);
+		
+		return;
+	}
+	
+	dst[0] = src[0];
+	dst[1] = src[1];
+	dst[2] = src[2];
+	dst[3] = src[3];
+	dst[4] = src[4];
+	dst[5] = src[5];
+	dst[6] = src[6];
+	dst[7] = src[7];
+	dst[8] = src[8];
+	dst[9] = src[9];
+	return;
+}
+
+void FUN_020b68e4(s32* srcA, s32* srcB, u32* dst) {
+	s64 lVar1;
+	
+	lVar1 = (s64)srcB[6] * (s64)srcA[2] + (s64)srcB[0] * (s64)srcA[0] + (s64)srcA[1] * (s64)srcB[3];
+	dst[0] = (u32)lVar1 >> 12 | (s32)((u64)lVar1 >> 0x32) << 20;
+	
+	lVar1 = (s64)srcB[7] * (s64)srcA[2] + (s64)srcB[1] * (s64)srcA[0] + (s64)srcA[1] * (s64)srcB[4];
+	dst[1] = (u32)lVar1 >> 12 | (s32)((u64)lVar1 >> 0x32) << 20;
+	
+	lVar1 = (s64)srcB[8] * (s64)srcA[2] + (s64)srcB[2] * (s64)srcA[0] + (s64)srcA[1] * (s64)srcB[5];
+	dst[2] = (u32)lVar1 >> 12 | (s32)((u64)lVar1 >> 0x32) << 20;
+	
+	return;
+}
+
+
+

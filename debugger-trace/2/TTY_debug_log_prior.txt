@@ -1,0 +1,60 @@
+MemoryManager::MemoryManager():
+   statically allocated memory: 01070720
+   start address:       0x02105680
+   end   address:       0x023E0000
+   debug start address: 0x00000000
+   debug end   address: 0x00000000
+
+⌐A2M, NuTek vDrakeNJosh_2.02.195
+Drake and Josh DS: v.2.04.002
+Warning: Memory not same - leak?
+
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007636] Free [00140156] Contig [00140100]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007460] Free [00140356] Contig [00140100]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+[NuTek::MemoryProfiler] Resource container 0x932205DE: 424068 bytes.
+OnPenDown() [195, 85]
+OnPenMove() [195, 85]
+OnTap() [195, 85]
+OnPenUp() [195, 85]
+Key Down: 8
+Key Up: 8
+Key Down: 8
+Key Up: 8
+Key Down: 8
+Key Up: 8
+Key Down: 8
+Key Up: 8
+Warning: Memory not same - leak?
+
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007460] Free [00140356] Contig [00140100]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007720] Free [00139976] Contig [00133672]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+[NuTek::MemoryProfiler] Resource container 0xB2654D60: 207528 bytes.
+[NuTek::MemoryProfiler] Resource container 0x932205DE: 424068 bytes.
+Key Down: 8
+Key Up: 8
+Key Down: 1
+Key Up: 1
+Key Down: 1
+Key Up: 1
+Key Down: 1
+Key Up: 1
+Key Down: 32
+Key Up: 32
+Key Down: 1
+Key Up: 1

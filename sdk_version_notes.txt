@@ -1,0 +1,10 @@
+# Debug build, v2.04.002
+	
+	"Drake and Josh DS"
+	"D&J v.2.04.002"
+	"Region - US"
+	
+	"\n\n\n[[ IS-NITRO-DEBUGGER Debug Support Library Ver.2006.6.7 ]]\n\n\n"
+	
+	"[SDK+NINTENDO:BACKUP]"
+	"[SDK+NINTENDO:DEBUG]"

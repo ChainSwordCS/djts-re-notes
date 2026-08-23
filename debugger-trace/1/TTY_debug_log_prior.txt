@@ -1,0 +1,154 @@
+MemoryManager::MemoryManager():
+   statically allocated memory: 01070720
+   start address:       0x02105680
+   end   address:       0x023E0000
+   debug start address: 0x00000000
+   debug end   address: 0x00000000
+
+⌐A2M, NuTek vDrakeNJosh_2.02.195
+Drake and Josh DS: v.2.04.002
+Warning: Memory not same - leak?
+
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007592] Free [00140208] Contig [00140152]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007460] Free [00140356] Contig [00140152]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Key Down: 8
+Key Up: 8
+Key Down: 1
+Key Up: 1
+Key Down: 1
+Key Up: 1
+Warning: Memory not same - leak?
+
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007460] Free [00140356] Contig [00140152]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007552] Free [00140208] Contig [00133900]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Key Down: 1
+Key Up: 1
+Key Down: 1
+Key Up: 1
+Key Down: 1
+Key Up: 1
+Key Down: 32
+Key Up: 32
+Key Down: 32
+Key Up: 32
+Key Down: 1
+Key Up: 1
+Key Down: 32
+Key Up: 32
+Key Down: 1
+Key Up: 1
+Warning: Memory not same - leak?
+
+Memory status
+  [00]: Alloc [00113060] Free [02349680] Contig [02349680]
+  [01]: Alloc [00007552] Free [00140208] Contig [00133900]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Memory status
+  [00]: Alloc [00113220] Free [02349504] Contig [02135692]
+  [01]: Alloc [00007664] Free [00140064] Contig [00132964]
+  [02]: Alloc [00000000] Free [00000024] Contig [00000024]
+  [03]: Alloc [00000000] Free [00378872] Contig [00378872]
+Avatar's collision body is 0x021DCBBC
+Trigger [100] => Sending Message: MsgID[1005], ReceiverID[6]
+Trigger [100] => Sending Message: MsgID[1009], ReceiverID[832]
+
+Key Down: 8
+Key Up: 8
+Key Down: 4
+Key Up: 4
+Key Down: 128
+Key Up: 128
+Key Down: 1
+Key Up: 1
+Key Down: 4
+Key Up: 4
+Key Down: 8
+Key Up: 8
+Key Down: 8
+Key Up: 8
+Key Down: 128
+Key Up: 128
+Key Down: 16
+/////// CollisionCompensator::OnCollision () /////// :: FRAME 920
+--- For agent:  0x021DBBF0
+Movement this frame: < 0.159, 0.000, 0.000 >
+Contacts to analyze: 1
+> Analyzing contact 0
+Collision key:     0x0A512490
+Contact point:     < 123.999, 1.300,-35.684 >
+Contact type:      2
+Contact normal:   < 1.000, 0.000,-0.000 >
+Contact depth:    -0.070
+Dot product, (-normal) * movement: -0.159
+Push vector: <-0.070, 0.000, 0.000 >
+>> All contacts analyzed.
+Aggregate face push vector:<-0.070, 0.000, 0.000 >
+Aggr. non-face push vector:< 0.000, 0.000, 0.000 >
+% of push vector applied:  100.000
+=> Push vector applied (face):    <-0.070, 0.000, 0.000 >
+=> Push vector applied (non-face):< 0.000, 0.000, 0.000 >
+*** Compensation so far this frame: <-0.070, 0.000, 0.000 >
+++++++ CollisionCompensator::OnPostCollision() - Motion: <-0.070, 0.000, 0.000 >
+++++++ Position after compensation: < 123.329, 0.000,-35.684 >
+:: Collision XC Reset for agent:  0x021DBBF0
+/////// CollisionCompensator::OnCollision () /////// :: FRAME 921
+--- For agent:  0x021DBBF0
+Movement this frame: < 0.159, 0.000, 0.000 >
+Contacts to analyze: 1
+> Analyzing contact 0
+Collision key:     0x0A512490
+Contact point:     < 124.088, 1.300,-35.684 >
+Contact type:      2
+Contact normal:   < 1.000, 0.000,-0.000 >
+Contact depth:    -0.159
+Dot product, (-normal) * movement: -0.159
+Push vector: <-0.159, 0.000, 0.000 >
+>> All contacts analyzed.
+Aggregate face push vector:<-0.159, 0.000, 0.000 >
+Aggr. non-face push vector:< 0.000, 0.000, 0.000 >
+% of push vector applied:  100.000
+=> Push vector applied (face):    <-0.159, 0.000, 0.000 >
+=> Push vector applied (non-face):< 0.000, 0.000, 0.000 >
+*** Compensation so far this frame: <-0.159, 0.000, 0.000 >
+++++++ CollisionCompensator::OnPostCollision() - Motion: <-0.159, 0.000, 0.000 >
+++++++ Position after compensation: < 123.329, 0.000,-35.684 >
+:: Collision XC Reset for agent:  0x021DBBF0
+/////// CollisionCompensator::OnCollision () /////// :: FRAME 922
+--- For agent:  0x021DBBF0
+Movement this frame: < 0.159, 0.000, 0.000 >
+Contacts to analyze: 1
+> Analyzing contact 0
+Collision key:     0x0A512490
+Contact point:     < 124.088, 1.300,-35.684 >
+Contact type:      2
+Contact normal:   < 1.000, 0.000,-0.000 >
+Contact depth:    -0.159
+Dot product, (-normal) * movement: -0.159
+Push vector: <-0.159, 0.000, 0.000 >
+>> All contacts analyzed.
+Aggregate face push vector:<-0.159, 0.000, 0.000 >
+Aggr. non-face push vector:< 0.000, 0.000, 0.000 >
+% of push vector applied:  100.000
+=> Push vector applied (face):    <-0.159, 0.000, 0.000 >
+=> Push vector applied (non-face):< 0.000, 0.000, 0.000 >
+*** Compensation so far this frame: <-0.159, 0.000, 0.000 >
+++++++ CollisionCompensator::OnPostCollision() - Motion: <-0.159, 0.000, 0.000 >
+++++++ Position after compensation: < 123.329, 0.000,-35.684 >
+:: Collision XC Reset for agent:  0x021DBBF0

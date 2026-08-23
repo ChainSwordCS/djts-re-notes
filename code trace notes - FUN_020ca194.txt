@@ -1,0 +1,9 @@
+
+
+// param_1 = 0x0235EEF8
+// param_2 = 0x021EE63C
+
+FUN_020ca194(param_1, param_2) {
+	
+	
+}

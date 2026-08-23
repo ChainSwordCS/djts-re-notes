@@ -1,0 +1,128 @@
+.
+.
+							* = known to be referenced
+u32 var_00 = 0x020F7CF4
+u32 var_04 = 0x02362C74
+char** var_08 = 0x020F7CDA	*	
+u16 var_0C = 0x0001			*
+u16 var_0E = 0x0000
+u8  var_10 = 0x00			*
+u8  var_11 = 0x00
+u8  var_12 = 0x00
+u8  var_13 = 0x00
+u32 var_14 = 0x40000000		*
+u32 var_18 = 0x00000001		*
+u8  var_1C = 0x01			*
+u8  var_1D = 0x00
+u16 var_1E = 0x0010			*
+u32 var_20 = 0x00000010		*
+u32 var_24 = 0x02362F5C		*	// near a buffer which gets data from DebugStrings.bin copied to it?
+u32 var_28 = 0x02362CB8		*
+
+
+
+
+
+
+example values for what gets compared with var_14:
+
+0x00000001
+	- CRCR / RCRC	"sms32_CyclingRefCount = %d\n"
+	- FPCR / RCPF	"Pointer found and removed in PurgeCyclingSound()\n"
+	- DPCR / RCPD	"PurgeCyclingSound() in ~RandomCyclingNumbers()\n"
+0x00000003
+	- MSCS / SCSM	"Trigger [%d] => Sending Message: MsgID[%d], ReceiverID[%d]\n"
+	- LNHS / SHNL	"\n"
+0x00000200
+	- DKNI / INKD	"Key Down: %d\n"
+	- UKNI / INKU	"Key Up: %d\n"
+	- 2TNI / INT2	"OnDoubleTap() [%d, %d]\n"
+	- DTNI / INTD	"OnPenDown() [%d, %d]\n"
+	- MTNI / INTM	"OnPenMove() [%d, %d]\n"
+	- TTNI / INTT	"OnTap() [%d, %d]\n"
+	- UTNI / INTU	"OnPenUp() [%d, %d]\n"
+0x00000800
+	- OEAP / PAEO	"Emitter Orientation: <%f, %f, %f>\n"
+	- PEAP / PAEP	"Emitter Position: <%f, %f, %f>\n"
+	- ANAP / PANA	"Number of active Particles = %d\n"
+	- DSAP / PASD	"Particles: %s: %d\n"
+		- "Hit"
+0x00001000
+	- s000 / 000s	"%s\n"
+		- "I ain't goin' no further, sucka'!"
+	- Vs00 / 00sV	"%s<%f, %f, %f>\n"
+		- "Goal: "
+		- "Direction: "
+	- fs00 / 00sf	"%s%f\n"
+		- "Motion last frame SqM: "
+		- "Collision comp last frame SqM: "
+		- " Sum - SqM: "
+		- "Idle threshold SqM: "
+		- "Direction SqM: "
+		- "1 Step SqM: "
+0x00002000
+	- GBMB / BMBG	"Beginning %d\n"
+	- VCMB / BMCV	"CurrValue %d\n"
+	- NEMB / BMEN	"Ending %d\n"
+	- DMMB / BMMD	"Middle %d\n"
+	- VRMB / BMRV	"RelevantValue %d\n"
+0x00004000
+	- TDUG / GUDT	"Dispatch time: %d\n"
+	- EFUG / GUFE	"%s(%d, %#010x, %#010x)\n"
+		- "OnScriptEvent"
+	- TMUG / GUMT	"Midi time: %d\n"
+	- CSUG / GUSC	"Sequence complete!\n"
+0x00008000
+	- xs00 / 00sx	"%s0x%08x\n"
+		- "Too far from this door to care:"
+		- "Close enough, but on the clear side:"
+		- "Close, on the unclear side, but clearing the hinge:"
+		- "Close, on the unclear side, but clearing both hinges:"
+		- "About to get hit by this door - vetoing!:"
+		- "Goto complete, clearing veto on door:"
+0x00010000
+	- Xs00 / 00sX	"%s0x%08X\n"
+		- "Avatar's collision body is "
+		- "--- For agent:  "
+		- "Collision key:     "
+		- ":: Collision XC Reset for agent:  "
+	- ss00 / 00ss	"%s%s\n"
+		- "++++++ CollisionCompensator::OnPostCollision() - Motion: "
+		- "++++++ Position after compensation: "
+		- "Movement this frame: "
+		- "Contact point:     "
+		- "Contact normal:   "
+		- "Contact depth:    "
+		- "Dot product, (-normal) * movement: "
+		- "Push vector: "
+		- "Aggregate face push vector:"
+		- "Aggr. non-face push vector:"
+		- "% of push vector applied: "
+		- "=> Push vector applied (face):    "
+		- "=> Push vector applied (non-face):"
+		- "*** Compensation so far this frame: "
+	- ds00
+		- "/////// CollisionCompensator::OnCollision () /////// :: FRAME "
+		- "Contacts to analyze: "
+		- "> Analyzing contact "
+		- "Contact type:      "
+	- s000
+		- "Intangible, or not the body of interest."
+		- ">> All contacts analyzed."
+0x00020000
+	- DAUG / GUAD	"Correct Key Already Down!\n"
+	- PAUG / GUAP	"Activating Play Area At %d with %d Strings!\n"
+	- KCUG / GUCK	"Correct Key Down!\n"
+	- YDUG / GUDY	"Moved from Y = %d to Y = %d\n"
+	- AFUG / GUFA	"Failure!\n"
+	- SPUG / GUPS	"Plucked String %d\n"
+0x00040000
+	- RBPG / GPBR	"Browsing PowerUps %0X08	TS = %d versus %d\n"
+	- OCPG / GPCO	"Collect Power Up %d\n"
+	- RCPG / GPCR	"Creating PowerUp %0X08	TS = %d\n"
+	- IKPG / GPKI	"Killing PowerUp %0X08\n"
+	- MMPG / GPMM	"Morphing PowerUp into Miss %0X08\n"
+	- SMPG / GPMS	"Morphing PowerUp into Success %0X08\n"
+	- RTPG / GPTR	"Transferring PowerUp %0X08\n"
+0x40000000
+	- FAMM / MMAF	"Animation container failed to open. Dumping memory info:\n"
