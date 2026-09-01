@@ -61,6 +61,12 @@ void* FUN_02018160(void* this) {
 	return (void*)((uint)this - 20);
 }
 
+void FUN_02030f4c(undefined4* this) {
+	this[0] = 0x020ed428; // vptr
+	this[3] = 0;
+	return;
+}
+
 // SaboteurEffect.cpp
 void SaboteurEffect::SaboteurEffect_02035d48(SaboteurEffect* this, void* owner, undefined4 param_2, uint param_3) {
 	// example input:
@@ -81,7 +87,44 @@ void SaboteurEffect::SaboteurEffect_02035d48(SaboteurEffect* this, void* owner, 
 	this->field_0x10	= 0x020f0c98;
 	this->field_0x14	= 0x020f0cac;
 	this->owner = owner;
-	/* todo */
+	this->field_0x1c = 0;
+	this->field_0x24 = 1;
+	
+	if (this->owner == NULL) {
+		OS_VSNPrintf_wrapper_020bc870(0x02035edc, 0x300, "Invalid Owner!");
+		iVar3 = debug_FUN_0200664c();
+		print_assert_error_02075850(iVar3, "SaboteurEffect.cpp", 17, 0x02035edc);
+	}
+	
+	/* todo; incoherent */
+	local_48 = *(undefined4 *)PTR_DAT_02035ee8;
+	local_50 = 0;
+	local_4e = 0;
+	local_4c = 0;
+	local_4a = 0x1000;
+	local_18 = 0x1000;
+	local_14 = 0x1000;
+	local_10 = 0x1000;
+	local_24 = 0;
+	local_20 = 0;
+	local_1c = 0;
+	puVar4 = (undefined4 *)FUN_02010770();
+	FUN_02010754(auStack_44,puVar4);
+	puVar4 = (undefined4 *)FUN_02010770();
+	FUN_02010754(auStack_38,puVar4);
+	FUN_02010718(auStack_2c,&local_50);
+	
+	this->field_0x1c = createAgent?_0207bc54(*(uint*)0x020fc8d0, &local_48, 0);
+	if (this->field_0x1c == NULL) {
+		OS_VSNPrintf_wrapper_020bc870(0x02035edc, 0x300, "Failed to instantiate Saboteur Effect!");
+		iVar3 = debug_FUN_0200664c();
+		print_assert_error_02075850(iVar3, "SaboteurEffect.cpp", 20, 0x02035edc);
+	}
+	
+	// what
+	FUN_020105f0(*(int*)(*(int*)0x02102f3c + 4) + 0x44, this->field_0x1c);
+	
+	return;
 }
 
 
