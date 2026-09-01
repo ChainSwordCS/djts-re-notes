@@ -1,0 +1,88 @@
+
+
+/* starting data at 0x0236FBF0: (SaboteurEffect)
+	[all 00000000]
+*/
+
+
+/* SaboteurEffect_vtable
+	FUN_020180e4
+	FUN_02018090
+	NULLPTR
+	FUN_return_void_02018088
+	FUN_return_void_0201808c
+	FUN_return_void_020180e0
+	FUN_return_void_0201812c
+	NULLPTR
+*/
+
+/* vtable_020ed950:
+	FUN_02018150
+	FUN_02018130
+	CollisionCompensator_2::getParent?_FUN_02018140
+*/
+
+/* vtable_020ed964:
+	FUN_02018160
+*/
+
+/* vtable_020f0c98:
+	FUN_02035f08
+	FUN_02035ef8
+	CollisionCompensator_2::getParent?_FUN_02018140
+*/
+
+/* vtable_020f0cac:
+	FUN_02018160
+*/
+
+/* vtable?_020f6ad4:
+	FUN_02073f88 // Messenger_ctor?
+	FUN_02073f60 // Messenger_dtor?
+*/
+
+
+void SaboteurEffect::FUN_02018090_dtor(SaboteurEffect* this, undefined4 param_1, uint* param_2, undefined* param_3) {
+	this->vptr = SaboteurEffect_vtable; // 0x020ed928
+	this->field_0x10 = 0x020ed950;
+	this->field_0x14 = 0x020ed964;
+}
+
+void FUN_02018130_dtor(void* this, undefined4 param_2, uint* param_3, undefined* param_4) {
+	SaboteurEffect* saboEff = (void*)((uint)this - 16);
+	FUN_02018090_dtor(saboEff, param_2, param_3, param_4);
+}
+
+void* CollisionCompensator_2::getParent?_FUN_02018140(void* param_1) {
+	return (void*)((uint)param_1 - 16);
+}
+
+void* FUN_02018160(void* this) {
+	return (void*)((uint)this - 20);
+}
+
+// SaboteurEffect.cpp
+void SaboteurEffect::SaboteurEffect_02035d48(SaboteurEffect* this, void* owner, undefined4 param_2, uint param_3) {
+	// example input:
+	// this		= 0x0236FBF0;
+	// owner	= 0x0231812C;
+	// param_2	= 0x6000001F; // unused?
+	// param_3	= 0x80000000; // unused?
+	// retaddr	= 0x020280C4; // r14
+	
+	FUN_02030f4c(this); // SaboteurEffect extends this class (?)
+	
+	this->field_0x10	= 0x020f6ad4; // why???
+	this->field_0x14	= 0x020ed970; // why???
+	this->vptr			= 0x020ed928; // why???
+	this->field_0x10	= 0x020ed950; // why???
+	this->field_0x14	= 0x020ed964; // why???
+	this->vptr			= 0x020f0c70;
+	this->field_0x10	= 0x020f0c98;
+	this->field_0x14	= 0x020f0cac;
+	this->owner = owner;
+	/* todo */
+}
+
+
+
