@@ -71,6 +71,8 @@ $00000000 $02260748
 
 // pseudocode
 
+//import ../structs.cpp
+
 void OnCollision(param1_struct*, void*);
 void arraycopy_u16_x10_FUN_0207ccd4(u16*, u16*);
 int* FUN_0207cd98(s16*, s32*);
@@ -89,29 +91,33 @@ FUN_0208f068(CollisionBody * param_1, CollisionBody * param_2) {
 	// retaddr (r14) = 0x0208F5C0
 	
 	/* snip */
-	// whatever line of code calls Agent_FUN_0202eb40()
-	(****(param_1 + 0x48))(*(param_1 + 0x48), iVar1, param_2);
+	// this line of code calls Agent_FUN_0202eb40()
+	(*(code*)(param_1->var_48_agent->vptr->vtable[0]))(param_1->var_48_agent, iVar1, param_2);
 	/* snip */
 }
 
-Agent::Agent_FUN_0202eb40(Agent * this, undefined4 param_1, CollisionBody * param_2) {
+void Agent::FUN_020110a8(Agent* this) {
+	/* todo */
+}
+
+Agent::Agent_FUN_0202eb40(Agent* this, OnCollision_param2_struct* param_1, CollisionBody* param_2) {
 	// example input:
 	// this    = 0x021DBBF0
 	// param_1 = 0x027E0A48
 	// param_2 = 0x022609B0
 	// return address = 0x0208f1b0
 	
-	
 	CollisionCompensator* cc;
-	for (cc = this->bc_collisionCompensator; cc != nullptr; cc = cc->nextCollisionCompensator) {
-		(*cc->vptr->vtable[6])(cc, param_1, param_2); //this calls CollisionCompensator::OnCollision()
+	
+	for (cc = this->var_bc_collisionCompensator; cc != nullptr; cc = cc->nextCollisionCompensator) {
+		(*(code*)(cc->vptr->vtable[6]))(cc, param_1, param_2); //this calls CollisionCompensator::OnCollision()
 	}
 	FUN_020110a8(this);
 	return;
 }
 
 // wtf, is param_3 used???
-void CollisionCompensator::OnCollision(CollisionCompensator * this, void* param_2, void* param_3) {
+void CollisionCompensator::OnCollision(CollisionCompensator* this, OnCollision_param2_struct* param_2, CollisionBody* param_3) {
 	// this    = 0x0237D2D0 (static.)
 	// param_2 = 0x027E0A48 (static; this ptr doesnt change depending on collision body.)
 	// param_2->substruct = 0x027E0808 (static)
@@ -125,7 +131,7 @@ void CollisionCompensator::OnCollision(CollisionCompensator * this, void* param_
 	
 	/* insert other local variable declarations here */
 	
-	uint num_contacts = *(byte*)(param_2 + 1); // 01
+	uint num_contacts = (uint)(param_2->num_contacts); // 1
 	
 	// vector
 	uint local_90[3];
