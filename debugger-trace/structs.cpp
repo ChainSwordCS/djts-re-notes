@@ -123,7 +123,7 @@ struct OnCollision_param2_struct {
 
 struct OnCol_param2_substruct {
 	u32	contact_point[3]; // vector
-	s16	v_0c; // vector
+	s16	v_0c[3]; // vector
 	u8	contact_type;
 	u8	v_13;
 	undefined4 v_14;
