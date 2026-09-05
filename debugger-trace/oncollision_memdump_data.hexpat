@@ -11,6 +11,9 @@ import std.mem;
 import type.base;
 using Hex<T> = type::Hex<T>;
 
+const u32 base_address = std::mem::base_address();
+const u32 eof = std::mem::size() + base_address;
+
 using Agent;
 using Avatar;
 using collision_substruct_58;
@@ -151,7 +154,11 @@ struct collision_substruct_58 {
 //struct Avatar_collision_body {
 struct CollisionBody {
     Hex<u32> vptr;
-    Hex<u32> vtable[6] @ vptr;
+    try {
+        Hex<u32> vtable[6] @ vptr;
+    } catch {
+        
+    }
     Hex<u32> v_04;
     Hex<u32> v_08;
     Hex<u32> v_0c;
@@ -183,6 +190,12 @@ struct CollisionBody {
     Hex<u8> v_9d;
     Hex<u8> v_9e;
     Hex<u8> v_9f;
+};
+
+struct CollisionBody_plusheader {
+    u32;
+    u32;
+    CollisionBody CollisionBody;
 };
 
 struct CollisionCompensator {
@@ -270,3 +283,35 @@ if (arg_param_3 != unk_collisionbody_1.v_44_collisionbody)
 
 if (param_3.v_44_collisionbody != 0)
     CollisionBody unk_collisionbody_3 @ param_3.v_44_collisionbody;
+
+u32 cur_depth = 0;
+using unk_collisionbody_struct;
+struct unk_collisionbody_struct {
+    Hex<u32> ptr;
+    Hex<u32> ptr_2;
+    if (ptr > base_address && ptr < eof) {
+        // don't ask
+        u32 tmp = $;
+        $ = ptr;
+        CollisionBody_plusheader cb;
+        $ = tmp;
+    }
+    u32; // 0x80000000
+    Hex<u32> next_ptr;
+    if (next_ptr > base_address && next_ptr < eof) {
+        if (cur_depth < 26) {
+            cur_depth += 1;
+            $ = next_ptr - 8;
+            unk_collisionbody_struct next;
+        }
+    }
+};
+
+unk_collisionbody_struct unk_collisionbody_linked_list @ 0x022604C0;
+
+
+
+
+
+
+
