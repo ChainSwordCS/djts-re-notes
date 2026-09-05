@@ -20,17 +20,24 @@ void* ParseCMDFile_FUN_0207ce20(u32* param_1, s32 param_2) {
 			do {
 				pacVar10 = local_130;
 				if (acVar5 == (u32)"IRTC") {
-					/* snip */
+					/* todo */
+					pCVar9 = (CollisionBody*)new_CollisionBody_CTRI_0208fda0(&pcVar4->v_04,(int)local_278 - *(int *)(iVar5 + 0xc));
+					/* todo */
 				}
 				else if (acVar5 == (u32)"HPSC") {
-					/* snip */
+					/* todo */
+					pCVar9 = (CollisionBody*)new_CollisionBody_CSPH_0208f7b4(local_274);
+					/* todo */
 				}
-				else if (acVar5 == (u32)"PSSC") {
-					/* UNUSED */
-					/* snip */
+				else if (acVar5 == (u32)"PSSC") { /* UNUSED */
+					/* todo */
+					pCVar9 = (CollisionBody*)new_CollisionBody_CSSP?_0208fc90(local_270);
+					/* todo */
 				}
 				else if (acVar5 == (u32)"PACC") {
-					/* snip */
+					/* todo */
+					pCVar9 = (CollisionBody*)new_CollisionBody_CCAP?_0207e9f0(local_26c,local_268);
+					/* todo */
 				}
 				else if (acVar5 == (u32)"XOBC") {
 					// execution breakpoint: 0x0207d520
@@ -58,7 +65,7 @@ void* ParseCMDFile_FUN_0207ce20(u32* param_1, s32 param_2) {
 							s32 local_110 = (s32)(*(s16*)(r7 + 0x20)) << 2; // $043B => $000010EC (bytes read => value written to variable)
 							s32 local_114 = (s32)(*(s16*)(r7 + 0x1E)) << 2; // $0F33 => $00003CCC
 							s32 local_118 = (s32)(*(s16*)(r7 + 0x1C)) << 2; // $054A => $00001528
-							CollisionBody* piVar8 = FUN_0207e714(local_118, local_114, local_110);
+							CollisionBody* piVar8 = new_CollisionBody_CBOX?_0207e714(local_118, local_114, local_110);
 							// piVar8 = 0x02250F60, for example
 							
 							s32 local_54[3]; /* local_54, local_50, and local_4c, in order. */
@@ -135,7 +142,7 @@ void* ParseCMDFile_FUN_0207ce20(u32* param_1, s32 param_2) {
 						}
 					}
 				}
-				else if (acVar5 == (u32)"DQAC") {
+				else if (acVar5 == (u32)"DAQC") {
 					// execution breakpoint: 0x0207d86c
 					/* example values:
 						local_130 = 0x022244AC;
@@ -143,7 +150,7 @@ void* ParseCMDFile_FUN_0207ce20(u32* param_1, s32 param_2) {
 					 */
 					s32 a = (s32)local_130 - *(s32*)(iVar5 + 0xc);
 						a = 0x022244AC - 0x02224484; // $28
-					piVar9 = FUN_0208c690(&piVar4->v_04, a);
+					piVar9 = new_CollisionBody_CQAD(&piVar4->v_04, a);
 					uVar2 = *(s16*)(pacVar11[1] + 2);
 					
 					/* todo */
