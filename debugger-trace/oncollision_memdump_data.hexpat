@@ -293,7 +293,7 @@ struct unk_collisionbody_struct {
         // don't ask
         u32 tmp = $;
         $ = ptr;
-        CollisionBody_plusheader cb;
+        //CollisionBody_plusheader cb;
         $ = tmp;
     }
     u32; // 0x80000000
@@ -307,7 +307,7 @@ struct unk_collisionbody_struct {
     }
 };
 
-unk_collisionbody_struct unk_collisionbody_linked_list @ 0x022604C0;
+//unk_collisionbody_struct unk_collisionbody_linked_list @ 0x022604C0;
 
 
 
