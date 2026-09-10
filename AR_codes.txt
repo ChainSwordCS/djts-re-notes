@@ -12,6 +12,16 @@ AR Codes for Drake & Josh - Talent Showdown (Beta)
 // line 1: patch ensata check,
 // line 2: redirect ensata debug msg output -> no$gba debug msg output
 
+// v2
+[enable ensata debug messages v2]
+020BCC58 E1A00000
+020BCC5C E1A00000
+020BCC60 E1A00000
+020BCC64 E1A00000
+020BCC68 E59F1030
+020BCC6C E59F0028
+020BCC70 E5801000
+
 [enable all DebugStrings.bin debug messages]
 0207967C E1A00000
 02079680 E1A00000
