@@ -1,5 +1,7 @@
 -- tested in desmume 0.9.13 (x64) on Windows
 
+info_overlay=0
+
 locNumContacts = 0x027E0A49
 locContactListPtr = 0x027E0A4C
 locContactList = 0x027E0808 -- common value (placeholder)
@@ -46,7 +48,7 @@ function update()
 	end
 	numContacts = memory.readbyte(locNumContacts)
 	
-	if(numContacts > 0) then
+	if(numContacts >= 1) then
 		locContactList = memory.readdword(locContactListPtr)
 		if(sanityCheckPtr(locContactList)) then
 			-- lazy; only care about contact 1
@@ -62,6 +64,10 @@ function update()
 				print("current collisionbody:")
 				print("corner_A=(" .. corner_A_x .. "," .. corner_A_y .. "," .. corner_A_z .. ")")
 				print("corner_B=(" .. corner_B_x .. "," .. corner_B_y .. "," .. corner_B_z .. ")")
+				if(info_overlay == 1) then
+					gui.text(0,10,("corner_A=(" .. corner_A_x .. "," .. corner_A_y .. "," .. corner_A_z .. ")"))
+					gui.text(0,18,("corner_B=(" .. corner_B_x .. "," .. corner_B_y .. "," .. corner_B_z .. ")"))
+				end
 			else
 				panic=1
 				print("error, locCollisionBody=")
