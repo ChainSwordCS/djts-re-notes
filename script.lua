@@ -1,6 +1,7 @@
 -- tested in desmume 0.9.13 (x64) on Windows
 
 info_overlay=1
+csv_style_logging=1
 
 locNumContacts = 0x027E0A49
 locContactListPtr = 0x027E0A4C
@@ -10,6 +11,13 @@ numContacts=0
 panic=0
 
 print("hello world")
+if csv_style_logging then
+	print("csv_style_logging=1")
+	print("collisionKey, x1, y1, z1, x2, y2, z2")
+end
+unique_contacts = {
+	{ -1, 0, 0, 0, 0, 0, 0 }
+}
 
 -- returns true if the pointer seems valid
 function sanityCheckPtr(ptr)
@@ -54,8 +62,10 @@ function update()
 	if(numContacts >= 1) then
 		locContactList = memory.readdword(locContactListPtr)
 		if(sanityCheckPtr(locContactList)) then
+			--print("numContacts=" .. numContacts)
 			i = 0
 			while(i < numContacts) do
+				collisionKey = memory.readdword(locContactList + i * 0x24 + 0x18)
 				--locCollisionBody1 = memory.readdword(locContactList + i * 0x24 + 0x1C)
 				locCollisionBody2 = memory.readdword(locContactList + i * 0x24 + 0x20)
 				if(sanityCheckPtr(locCollisionBody2)) then
@@ -66,25 +76,44 @@ function update()
 					vtx_B_x = readfixedpoint2012(locCollisionBody2 + 0x10)
 					vtx_B_y = readfixedpoint2012(locCollisionBody2 + 0x14)
 					vtx_B_z = readfixedpoint2012(locCollisionBody2 + 0x18)
-					print("contact " .. i)
-					print("vtx_A=(" .. vtx_A_x .. "," .. vtx_A_y .. "," .. vtx_A_z .. ")")
-					print("vtx_B=(" .. vtx_B_x .. "," .. vtx_B_y .. "," .. vtx_B_z .. ")")
+					
+					-- logic to avoid excessive logging of duplicate data
+					is_dupe = false
+					for _, c in pairs(unique_contacts) do
+						if collisionKey == c[1] and vtx_A_x == c[2] and vtx_A_y == c[3] and vtx_A_z == c[4] and vtx_B_x == c[5] and vtx_B_y == c[6] and vtx_B_z == c[7] then
+							is_dupe = true
+							break
+						end
+					end
+					if not is_dupe then
+						table.insert(unique_contacts, {collisionKey,vtx_A_x,vtx_A_y,vtx_A_z,vtx_B_x,vtx_B_y,vtx_B_z})
+						if(csv_style_logging == 1) then
+							print(string.format("\"%08X\", % 8.3f, % 8.3f, % 8.3f, % 8.3f, % 8.3f, % 8.3f",collisionKey,vtx_A_x,vtx_A_y,vtx_A_z,vtx_B_x,vtx_B_y,vtx_B_z))
+						else
+							print("contact " .. i .. ":")
+							print(string.format("collisionkey=%08X , ",collisionKey) .. string.format("vertices = (% 8.3f, % 8.3f, % 8.3f), (% 8.3f, % 8.3f, % 8.3f)",vtx_A_x,vtx_A_y,vtx_A_z,vtx_B_x,vtx_B_y,vtx_B_z))
+						end
+					else
+						if(csv_style_logging == 0) then
+							print(string.format("contact %i (REPEAT): collisionkey=%08X", i, collisionKey))
+						end
+					end
+					
+					-- todo: this part has some kinks to work out still. (flickering, mainly.)
 					if(info_overlay == 1) then
-						gui.text(0,24*i+2,("contact " .. i))
-						gui.text(0,24*i+10,("vtx_A=(" .. vtx_A_x .. "," .. vtx_A_y .. "," .. vtx_A_z .. ")"))
-						gui.text(0,24*i+18,("vtx_B=(" .. vtx_B_x .. "," .. vtx_B_y .. "," .. vtx_B_z .. ")"))
+						gui.text(0,24*i+2,string.format("contact %i; collisionkey=%08X", i, collisionKey))
+						gui.text(0,24*i+10,string.format("vtx_A=(% 8.3f, % 8.3f, % 8.3f)",vtx_A_x,vtx_A_y,vtx_A_z))
+						gui.text(0,24*i+18,string.format("vtx_B=(% 8.3f, % 8.3f, % 8.3f)",vtx_B_x,vtx_B_y,vtx_B_z))
 					end
 				else
 					panic=1
-					print("error, locCollisionBody=")
-					print(locCollisionBody)
+					print(string.format("error: locCollisionBody=%08X", locCollisionBody))
 				end
 				i = i + 1
 			end
 		else
 			panic=1
-			print("error, locContactList=")
-			print(locContactList)
+			print(string.format("error: locContactList=%08X", locContactList))
 		end
 	end
 end
