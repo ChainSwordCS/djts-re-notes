@@ -46,6 +46,9 @@ function update()
 	if (panic == 1) then
 		return
 	end
+	-- todo: this variable in memory isn't always updated, such as when OnCollision isn't run for a given frame. (?)
+	-- so sometimes it's still set to 1 when it should probably be 0.
+	-- try to find a workaround
 	numContacts = memory.readbyte(locNumContacts)
 	
 	if(numContacts >= 1) then
