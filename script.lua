@@ -1,4 +1,4 @@
--- untested
+-- tested in desmume 0.9.13 (x64) on Windows
 
 locNumContacts = 0x027E0A49
 locContactListPtr = 0x027E0A4C
