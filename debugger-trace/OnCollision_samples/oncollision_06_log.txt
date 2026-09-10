@@ -1,0 +1,18 @@
+/////// CollisionCompensator::OnCollision () /////// :: FRAME 2610
+--- For agent:  0x021DBBF0
+Movement this frame: <-0.159, 0.000, 0.000 >
+Contacts to analyze: 1
+> Analyzing contact 0
+Collision key:     0x0A50665C
+Contact point:     < 115.495, 1.300,-38.910 >
+Contact type:      0
+Contact normal:   <-1.000, 0.000, 0.000 >
+Contact depth:    -0.029
+Dot product, (-normal) * movement: -0.159
+Push vector: < 0.029, 0.000,-0.000 >
+>> All contacts analyzed.
+Aggregate face push vector:< 0.000, 0.000, 0.000 >
+Aggr. non-face push vector:< 0.029, 0.000,-0.000 >
+=> Push vector applied (face):    < 0.000, 0.000, 0.000 >
+=> Push vector applied (non-face):< 0.029, 0.000,-0.000 >
+*** Compensation so far this frame: < 0.029, 0.000,-0.000 >
