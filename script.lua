@@ -19,6 +19,10 @@ unique_contacts = {
 	{ -1, 0, 0, 0, 0, 0, 0 }
 }
 
+-- (unused)
+last_logged_repeat_contacts = { 0, 0, 0 }
+has_just_printed_cont = { false, false, false }
+
 -- returns true if the pointer seems valid
 function sanityCheckPtr(ptr)
 	if(ptr > 0x02000000) and (ptr < 0x02800000) then
@@ -95,7 +99,15 @@ function update()
 						end
 					else
 						if(csv_style_logging == 0) then
+							--if last_logged_repeat_contacts[i] == collisionKey then
+							--	if not has_just_printed_cont[i] then
+							--		print("(cont.)")
+							--		has_just_printed_cont[i] = true
+							--	end
+							--else
 							print(string.format("contact %i (REPEAT): collisionkey=%08X", i, collisionKey))
+							--	has_just_printed_cont[i] = false
+							--end
 						end
 					end
 					
