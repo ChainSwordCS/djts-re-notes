@@ -55,14 +55,14 @@ function readfixedpoint2012(ptr)
 end
 
 function update()
+	-- todo
+end
+
+function onCollisionCallback()
 	if (panic == 1) then
 		return
 	end
-	-- todo: this variable in memory isn't always updated, such as when OnCollision isn't run for a given frame. (?)
-	-- so sometimes it's still set to 1 when it should probably be 0.
-	-- try to find a workaround
 	numContacts = memory.readbyte(locNumContacts)
-	
 	if(numContacts >= 1) then
 		locContactList = memory.readdword(locContactListPtr)
 		if(sanityCheckPtr(locContactList)) then
@@ -129,6 +129,8 @@ function update()
 		end
 	end
 end
+
+memory.registerexec(0x02031e2c, onCollisionCallback)
 
 -- Main loop ----------------------------------------------------------------------------------------------------------
 while true do
