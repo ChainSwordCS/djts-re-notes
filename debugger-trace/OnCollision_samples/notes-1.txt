@@ -1,0 +1,92 @@
+
+oncollision samples 02, 03, 04, 05...
+
+
+
+top left: around	123.4, 0.0, -38.0
+top right: around	127.8, 0.0, -38.0
+bottom left: around	123.7, 0.0, -31.4
+bottom right: around127.8, 0.0, -31.5
+
+bottom: z = -31.4 ish
+top:	z = -38.2 ish
+left:	x = 123.3 ish
+right:	x = 128.0 ish
+
+
+CollisionBody cb;
+
+cb.vptr = 0x020F8078;
+
+cb.v_04 = 0x0007BEDC; // 123.929
+cb.v_08 = 0xFFFFFF5C; // -0.040
+cb.v_0c = 0xFFFDA636; // -37.612
+cb.v_10 = 0x0007F70E; // 127.441
+cb.v_14 = 0x00001B24; // 1.696
+cb.v_18 = 0xFFFDFF6D; // -32.036
+
+cb.v_1c = 0x022609B4;
+
+cb.v_20 = 0;
+cb.v_24 = 1;
+cb.v_28 = 0;
+cb.v_2c = 0;
+cb.v_30 = -1;
+
+cb.v_34 = 0x022609B4;
+
+cb.v_38 = 0;
+cb.v_3c = 0;
+cb.v_40 = 0;
+cb.v_44 = 0x022609B0;
+cb.v_48 = 0;
+cb.v_4c = 0;
+cb.v_50 = 0x02260A28;
+cb.v_54 = 0x02260A3C;
+
+cb.v_58_sub.v_00 = {
+	0x1000,
+	0,
+	0,
+	0,
+	0x1000,
+	0,
+	0,
+	0,
+	0x1000,
+	1
+}
+cb.v_58_sub.pos_new = {
+	0, 0, 0
+}
+
+cb.v_78_sub.v_00 = {
+	2,
+	0,
+	0x1000,
+	0,
+	0x1000,
+	0,
+	0xF000,
+	0,
+	2,
+	0
+}
+cb.v_78_sub.pos_new = {
+	0x0007D7B9,
+	0,
+	0xFFFDD0F2
+}
+
+cb.v_98 = 0x06;
+cb.v_99 = 0x05;
+cb.v_9a = 0x0000;
+cb.v_9c = 0x00;
+cb.v_9d = 0x04;
+cb.v_9e = 0x00;
+cb.v_9f = 0x00;
+
+
+
+
+
