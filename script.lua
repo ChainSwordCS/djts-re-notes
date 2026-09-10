@@ -1,6 +1,6 @@
 -- tested in desmume 0.9.13 (x64) on Windows
 
-info_overlay=0
+info_overlay=1
 
 locNumContacts = 0x027E0A49
 locContactListPtr = 0x027E0A4C
@@ -51,27 +51,32 @@ function update()
 	if(numContacts >= 1) then
 		locContactList = memory.readdword(locContactListPtr)
 		if(sanityCheckPtr(locContactList)) then
-			-- lazy; only care about contact 1
-			locCollisionBody = memory.readdword(locContactList + 0x20)
-			if(sanityCheckPtr(locCollisionBody)) then
-				-- todo: check vptr to determine what kind of CollisionBody this is?
-				corner_A_x = readfixedpoint2012(locCollisionBody + 0x04)
-				corner_A_y = readfixedpoint2012(locCollisionBody + 0x08)
-				corner_A_z = readfixedpoint2012(locCollisionBody + 0x0C)
-				corner_B_x = readfixedpoint2012(locCollisionBody + 0x10)
-				corner_B_y = readfixedpoint2012(locCollisionBody + 0x14)
-				corner_B_z = readfixedpoint2012(locCollisionBody + 0x18)
-				print("current collisionbody:")
-				print("corner_A=(" .. corner_A_x .. "," .. corner_A_y .. "," .. corner_A_z .. ")")
-				print("corner_B=(" .. corner_B_x .. "," .. corner_B_y .. "," .. corner_B_z .. ")")
-				if(info_overlay == 1) then
-					gui.text(0,10,("corner_A=(" .. corner_A_x .. "," .. corner_A_y .. "," .. corner_A_z .. ")"))
-					gui.text(0,18,("corner_B=(" .. corner_B_x .. "," .. corner_B_y .. "," .. corner_B_z .. ")"))
+			i = 0
+			while(i < numContacts) do
+				--locCollisionBody1 = memory.readdword(locContactList + i * 0x24 + 0x1C)
+				locCollisionBody2 = memory.readdword(locContactList + i * 0x24 + 0x20)
+				if(sanityCheckPtr(locCollisionBody2)) then
+					-- todo: check vptr to determine what kind of CollisionBody this is?
+					vtx_A_x = readfixedpoint2012(locCollisionBody2 + 0x04)
+					vtx_A_y = readfixedpoint2012(locCollisionBody2 + 0x08)
+					vtx_A_z = readfixedpoint2012(locCollisionBody2 + 0x0C)
+					vtx_B_x = readfixedpoint2012(locCollisionBody2 + 0x10)
+					vtx_B_y = readfixedpoint2012(locCollisionBody2 + 0x14)
+					vtx_B_z = readfixedpoint2012(locCollisionBody2 + 0x18)
+					print("contact " .. i)
+					print("vtx_A=(" .. vtx_A_x .. "," .. vtx_A_y .. "," .. vtx_A_z .. ")")
+					print("vtx_B=(" .. vtx_B_x .. "," .. vtx_B_y .. "," .. vtx_B_z .. ")")
+					if(info_overlay == 1) then
+						gui.text(0,24*i+2,("contact " .. i))
+						gui.text(0,24*i+10,("vtx_A=(" .. vtx_A_x .. "," .. vtx_A_y .. "," .. vtx_A_z .. ")"))
+						gui.text(0,24*i+18,("vtx_B=(" .. vtx_B_x .. "," .. vtx_B_y .. "," .. vtx_B_z .. ")"))
+					end
+				else
+					panic=1
+					print("error, locCollisionBody=")
+					print(locCollisionBody)
 				end
-			else
-				panic=1
-				print("error, locCollisionBody=")
-				print(locCollisionBody)
+				i = i + 1
 			end
 		else
 			panic=1
