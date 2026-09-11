@@ -115,9 +115,10 @@ function onCollisionCallback()
 	if (panic == 1) then
 		return
 	end
-	numContacts = memory.readbyte(locNumContacts)
+	param_2_ptr = memory.getregister("r1")
+	numContacts = memory.readbyte(param_2_ptr + 1)
 	if(numContacts >= 1) then
-		locContactList = memory.readdword(locContactListPtr)
+		locContactList = memory.readdword(param_2_ptr + 4)
 		if(sanityCheckPtr(locContactList)) then
 			--print("numContacts=" .. numContacts)
 			i = 0
