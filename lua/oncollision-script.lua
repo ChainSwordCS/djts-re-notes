@@ -1,12 +1,14 @@
 -- tested in desmume 0.9.13 (x64) on Windows
 
 info_overlay=1
+draw_collision_overlay=0 -- experimental
 csv_style_logging=1
 
 locNumContacts = 0x027E0A49
 locContactListPtr = 0x027E0A4C
 locContactList = 0x027E0808 -- common value (placeholder)
 numContacts=0
+locCamPtr = 0x0212118C
 
 panic=0
 
@@ -52,6 +54,57 @@ function readfixedpoint2012(ptr)
 		result = deci + inte
 	end
 	return result
+end
+
+
+-- 3d viewport constants
+-- (inexplicable magic numbers are asspulls fyi)
+
+-- for use with just the "Camera pointed straight down" AR code:
+const_vp_w = 4.67*2.0
+const_vp_h = 3.5*2.0
+
+const_vp_x_fac = 256.0 / const_vp_w
+const_vp_z_fac = 192.0 / const_vp_h
+
+-- simple and hacky. only designed to work with certain camera hacks in play.
+function drawOverlay()
+	cam_ptr = memory.readdword(locCamPtr)
+	if cam_ptr == 0 then
+		-- probably not in-game; abort!
+		return
+	end
+	
+	gui.opacity(0.5)
+	
+	cam_x = readfixedpoint2012(cam_ptr + 0x90)
+	cam_z = readfixedpoint2012(cam_ptr + 0x98)
+	
+	-- 4:3 aspect
+	-- "vp" stands for "viewport" btw
+	vp_topleft  = { cam_x-const_vp_w/2.0, cam_z-const_vp_h/2.0 }
+	vp_botright = { cam_x+const_vp_w/2.0, cam_z+const_vp_h/2.0 }
+	
+	for _, c in pairs(unique_contacts) do
+		-- test that both points are within view
+		--if (1 == 1) then
+		if (c[2] > vp_topleft[1] and c[2] < vp_botright[1]) -- x1
+		and (c[4] > vp_topleft[2] and c[4] < vp_botright[2]) -- z1
+		and (c[5] > vp_topleft[1] and c[5] < vp_botright[1]) -- x2
+		and (c[7] > vp_topleft[2] and c[7] < vp_botright[2]) then -- z2
+			-- map onto new coord plane
+			x1 = (c[2] * const_vp_x_fac) - (vp_topleft[1] * const_vp_x_fac)
+			z1 = (c[4] * const_vp_z_fac) - (vp_topleft[2] * const_vp_z_fac)
+			x2 = (c[5] * const_vp_x_fac) - (vp_topleft[1] * const_vp_x_fac)
+			z2 = (c[7] * const_vp_z_fac) - (vp_topleft[2] * const_vp_z_fac)
+			-- subtract 192 from the y value to draw on the top screen
+			gui.drawrect(x1, z1-192, x2, z2-192)
+			print(string.format("debug: drawrect(%.1f, %.1f, %.1f, %.1f)",x1,z1-192,x2,z2-192))
+		end
+	end
+	
+	gui.opacity(1.0) -- return to normal afterwards
+	return
 end
 
 function update()
@@ -131,6 +184,9 @@ function onCollisionCallback()
 end
 
 memory.registerexec(0x02031e2c, onCollisionCallback)
+if(draw_collision_overlay == 1) then
+	gui.register(drawOverlay)
+end
 
 -- Main loop ----------------------------------------------------------------------------------------------------------
 while true do
