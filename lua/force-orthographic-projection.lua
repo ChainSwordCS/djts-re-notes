@@ -187,7 +187,7 @@ while true do
 	matAdjustment = {
 		(mat[1] / const_zoom), 0.0, 0.0, 0.0,	-- mat[1] is basically viewport width
 		0.0, (mat[6] / const_zoom), 0.0, 0.0,	-- mat[6] is basically viewport height
-		0.0, 0.0, (mat[11] / const_farclip_dist), 0.0,  -- mat[11] is (inverse of?) distance from the camera to the Far-Clip Plane
+		0.0, 0.0, (mat[11] / const_farclip_dist), -0.00025,  -- mat[11] is (inverse of?) distance from the camera to the Far-Clip Plane
 		0.0, 0.0, (mat[15] * const_nearclip_dist), 1.0	-- mat[15] is (inverse of?) distance from the camera to the Near-Clip Plane
 	};
 	if should_print_new_proj_matrix then
