@@ -149,8 +149,12 @@ function on3d()
 
 end
 
+function exitcallback()
+	emu.set3dtransform(0,nil);
+end
 
 emu.register3devent(on3d);
+emu.registerexit(exitcallback);
 
 local timer = 0;
 while true do
