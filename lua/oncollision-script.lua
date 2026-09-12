@@ -1,8 +1,22 @@
 -- tested in desmume 0.9.13 (x64) on Windows
 
+-- feature enable flags
 info_overlay=1
 draw_collision_overlay=0 -- experimental
 csv_style_logging=1
+
+
+-- 3d viewport constants
+-- aka "size of the 3D camera viewport, in in-game units"
+
+-- for "not as high camera" code, "Camera pointed straight down" code, and "force-orthographic-projection.lua":
+const_vp_h = 12.387
+const_vp_w = const_vp_h * 4 / 3
+
+-- for use with just the "Camera pointed straight down" AR code:
+--const_vp_w = 4.67*2.0
+--const_vp_h = 3.5*2.0
+
 
 locNumContacts = 0x027E0A49
 locContactListPtr = 0x027E0A4C
@@ -44,13 +58,6 @@ function readfixedpoint2012(ptr)
 	return (dword / 4096.0)
 end
 
-
--- 3d viewport constants
--- (inexplicable magic numbers are asspulls fyi)
-
--- for use with just the "Camera pointed straight down" AR code:
-const_vp_w = 4.67*2.0
-const_vp_h = 3.5*2.0
 
 const_vp_x_fac = 256.0 / const_vp_w
 const_vp_z_fac = 192.0 / const_vp_h
