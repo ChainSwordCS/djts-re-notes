@@ -38,22 +38,10 @@ end
 -- next highest 19 bits are the integer component
 -- lowest 12 bits are the decimal/fractional component
 --
--- additional note: not sure i've implemented this correctly!
+-- this implementation should be good
 function readfixedpoint2012(ptr)
-	dword = memory.readdword(ptr)
-	result = 0.0
-	deci = 1.0 * (dword % 0x1000)
-	inte = dword / 0x1000 -- float division cuz lua 5.1
-	inte = inte % 0x100000 -- result is implicitly rounded down to nearest integer here anyways
-	if(dword >= 0x80000000) then
-		deci = (4096.0 - deci) / 4096.0
-		inte = (inte - 0xfffff) - 1
-		result = deci + inte
-	else
-		deci = deci / 4096.0
-		result = deci + inte
-	end
-	return result
+	dword = memory.readdwordsigned(ptr)
+	return (dword / 4096.0)
 end
 
 
