@@ -45,7 +45,7 @@ function readfixedpoint2012(ptr)
 	deci = 1.0 * (dword % 0x1000)
 	inte = dword / 0x1000 -- float division cuz lua 5.1
 	inte = inte % 0x100000 -- result is implicitly rounded down to nearest integer here anyways
-	if(dword > 0x8000000) then
+	if(dword >= 0x80000000) then
 		deci = (4096.0 - deci) / 4096.0
 		inte = (inte - 0xfffff) - 1
 		result = deci + inte
