@@ -103,6 +103,7 @@ identity = {
 
 mat = identity; --global
 matAdjustment = {};
+should_print_new_proj_matrix = false
 
 function on3d()
 	local evt = _G.registered3devent_which;
@@ -117,10 +118,12 @@ function on3d()
 	if(mat[1] ~= arg[1] or mat[2] ~= arg[2] or mat[3] ~= arg[3] or mat[4] ~= arg[4] or mat[5] ~= arg[5] or mat[6] ~= arg[6] or mat[7] ~= arg[7] or mat[8] ~= arg[8] or mat[9] ~= arg[9] or mat[10] ~= arg[10] or mat[11] ~= arg[11] or mat[12] ~= arg[12] or mat[13] ~= arg[13] or mat[14] ~= arg[14] or mat[15] ~= arg[15] or mat[16] ~= arg[16]) then
 		mat = arg;
 		print("Projection Matrix changed:");
+		print("old:");
 		print(string.format("| % .4f, % .4f, % .4f, % .4f |", mat[1], mat[2], mat[3], mat[4]));
 		print(string.format("| % .4f, % .4f, % .4f, % .4f |", mat[5], mat[6], mat[7], mat[8]));
 		print(string.format("| % .4f, % .4f, % .4f, % .4f |", mat[9], mat[10], mat[11], mat[12]));
 		print(string.format("| % .4f, % .4f, % .4f, % .4f |", mat[13], mat[14], mat[15], mat[16]));
+		should_print_new_proj_matrix = true
 	end
 	
 
@@ -172,6 +175,15 @@ while true do
 		0.0, 0.0, (mat[11] / 17.15), 0.0,  -- mat[11] is (inverse of?) distance from the camera to the Far-Clip Plane
 		0.0, 0.0, (mat[15] * 10), 1.0	-- mat[15] is (inverse of?) distance from the camera to the Near-Clip Plane
 	};
+	if should_print_new_proj_matrix then
+		print("new:");
+		print(string.format("| % .4f, % .4f, % .4f, % .4f |", matAdjustment[1], matAdjustment[2], matAdjustment[3], matAdjustment[4]));
+		print(string.format("| % .4f, % .4f, % .4f, % .4f |", matAdjustment[5], matAdjustment[6], matAdjustment[7], matAdjustment[8]));
+		print(string.format("| % .4f, % .4f, % .4f, % .4f |", matAdjustment[9], matAdjustment[10], matAdjustment[11], matAdjustment[12]));
+		print(string.format("| % .4f, % .4f, % .4f, % .4f |", matAdjustment[13], matAdjustment[14], matAdjustment[15], matAdjustment[16]));
+		should_print_new_proj_matrix = false
+	end
+	
 	--matAdjustment[11] = -0.01;
 	--matAdjustment[1] = 0.0078;
 	--matAdjustment[6] = 0.0105;
