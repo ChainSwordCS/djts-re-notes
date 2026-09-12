@@ -13,6 +13,17 @@
 -- there are some polygon rendering-order issues, i'm not sure why,
 -- and i haven't been able to resolve them as of yet.
 
+-- change this value to adjust the zoom level.
+-- a higher value makes the camera more zoomed-out.
+-- example values: 10, 15, 25, 50
+const_zoom = 15
+-- (inverse of?) distance from the camera to the Far-Clip Plane
+-- example value: 17.15 seems fine
+const_farclip_dist = 17.15
+-- (inverse of?) distance from the camera to the Near-Clip Plane
+-- example value: 10 seems fine
+const_nearclip_dist = 10
+
 function QuatFromYawPitchRollDeg(yaw, pitch, roll)
 	--from monogame
 	local halfRoll = math.rad(roll * 0.5);
@@ -174,10 +185,10 @@ while true do
 --	end
 	
 	matAdjustment = {
-		(mat[1] / 50), 0.0, 0.0, 0.0,	-- mat[1] is basically viewport width
-		0.0, (mat[6] / 50), 0.0, 0.0,	-- mat[6] is basically viewport height
-		0.0, 0.0, (mat[11] / 17.15), 0.0,  -- mat[11] is (inverse of?) distance from the camera to the Far-Clip Plane
-		0.0, 0.0, (mat[15] * 10), 1.0	-- mat[15] is (inverse of?) distance from the camera to the Near-Clip Plane
+		(mat[1] / const_zoom), 0.0, 0.0, 0.0,	-- mat[1] is basically viewport width
+		0.0, (mat[6] / const_zoom), 0.0, 0.0,	-- mat[6] is basically viewport height
+		0.0, 0.0, (mat[11] / const_farclip_dist), 0.0,  -- mat[11] is (inverse of?) distance from the camera to the Far-Clip Plane
+		0.0, 0.0, (mat[15] * const_nearclip_dist), 1.0	-- mat[15] is (inverse of?) distance from the camera to the Near-Clip Plane
 	};
 	if should_print_new_proj_matrix then
 		print("new:");
