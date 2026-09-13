@@ -2,8 +2,13 @@
 
 -- feature enable flags
 info_overlay=1
-draw_collision_overlay=0 -- experimental
+draw_collision_overlay=1 -- experimental
 csv_style_logging=1
+
+-- minor extra logging flags for testing
+cb_x3y3z3=true
+cb_vptr=true
+cb_ptr=true
 
 
 -- 3d viewport constants
@@ -29,7 +34,18 @@ panic=0
 print("hello world")
 if csv_style_logging then
 	print("csv_style_logging=1")
-	print("collisionKey, x1, y1, z1, x2, y2, z2")
+	line1 = ""
+	if cb_ptr then
+		line1 = line1 .. "CollisionBody ptr,"
+	end
+	line1 = line1 .. "collisionKey, x1, y1, z1, x2, y2, z2,"
+	if cb_x3y3z3 then
+		line1 = line1 .. "x3,y3,z3,"
+	end
+	if cb_vptr then
+		line1 = line1 .. "vptr,"
+	end
+	print(line1)
 end
 unique_contacts = {
 	{ -1, 0, 0, 0, 0, 0, 0 }
@@ -140,12 +156,26 @@ function drawOverlay()
 				gui.drawrect(x1, z1-192, x2, z2-192)
 				--print(string.format("debug: drawrect(%.1f, %.1f, %.1f, %.1f)",x1,z1-192,x2,z2-192))
 				table.insert(_drawCollision_prevFrameRectList, {x1, z1, x2, z2})
+				
+				if (cb_x3y3z3) then
+					-- map onto new coord plane
+					x3 = (c[8] * const_vp_x_fac) - (vp_topleft[1] * const_vp_x_fac)
+					z3 = (c[10] * const_vp_z_fac) - (vp_topleft[2] * const_vp_z_fac)
+					green = "#00FF00"
+					gui.drawrect(x3-1, z3-192-1, x3+1, z3-192+1, green)
+					table.insert(_drawCollision_prevFrameRectList,{x3-1,z3-1, x3+1, z3+1, green})
+					--print(string.format("debug: drawrect(%.1f, %.1f, %.1f, %.1f)",x3-1,z3-193,x3+1,z3-191))
+				end
 			end
 		end
 	else
 		-- redraw the same stuff we drew last frame
 		for _, rect in pairs(_drawCollision_prevFrameRectList) do
-			gui.drawrect(rect[1], rect[2]-192, rect[3], rect[4]-192)
+			if (#rect == 5) then
+				gui.drawrect(rect[1], rect[2]-192, rect[3], rect[4]-192, rect[5])
+			else
+				gui.drawrect(rect[1], rect[2]-192, rect[3], rect[4]-192)
+			end
 			--print(string.format("debug: drawrect(%.1f, %.1f, %.1f, %.1f)",x1,z1-192,x2,z2-192))
 		end
 	end
@@ -181,6 +211,11 @@ function onCollisionCallback()
 					vtx_B_y = readfixedpoint2012(locCollisionBody2 + 0x14)
 					vtx_B_z = readfixedpoint2012(locCollisionBody2 + 0x18)
 					
+					x3 = readfixedpoint2012(locCollisionBody2 + 0x8C)
+					y3 = readfixedpoint2012(locCollisionBody2 + 0x90)
+					z3 = readfixedpoint2012(locCollisionBody2 + 0x94)
+					vptr = memory.readdword(locCollisionBody2 + 0x00)
+					
 					-- logic to avoid excessive logging of duplicate data
 					is_dupe = false
 					for _, c in pairs(unique_contacts) do
@@ -189,26 +224,61 @@ function onCollisionCallback()
 							break
 						end
 					end
+					outstring = ""
 					if not is_dupe then
-						table.insert(unique_contacts, {collisionKey,vtx_A_x,vtx_A_y,vtx_A_z,vtx_B_x,vtx_B_y,vtx_B_z})
+						new_entry = {collisionKey,vtx_A_x,vtx_A_y,vtx_A_z,vtx_B_x,vtx_B_y,vtx_B_z}
+						if cb_x3y3z3 then
+							new_entry[8] = x3
+							new_entry[9] = y3
+							new_entry[10] = z3
+						end
+						--if cb_vptr then
+						--	new_entry[11] = vptr
+						--end
+						table.insert(unique_contacts, new_entry)
 						if(csv_style_logging == 1) then
-							print(string.format("\"%08X\", % 8.3f, % 8.3f, % 8.3f, % 8.3f, % 8.3f, % 8.3f",collisionKey,vtx_A_x,vtx_A_y,vtx_A_z,vtx_B_x,vtx_B_y,vtx_B_z))
+							if cb_ptr then
+								outstring = outstring .. string.format("\"%08X\",", locCollisionBody2)
+							end
+							outstring = outstring .. string.format("\"%08X\",% 8.3f,% 8.3f,% 8.3f,% 8.3f,% 8.3f,% 8.3f,",collisionKey,vtx_A_x,vtx_A_y,vtx_A_z,vtx_B_x,vtx_B_y,vtx_B_z)
+							if cb_x3y3z3 then
+								outstring = outstring .. string.format("% 8.3f,% 8.3f,% 8.3f,",x3,y3,z3)
+							end
+							if cb_vptr then
+								outstring = outstring .. string.format(" \"%08X\",", vptr)
+							end
 						else
-							print("contact " .. i .. ":")
-							print(string.format("collisionkey=%08X , ",collisionKey) .. string.format("vertices = (% 8.3f, % 8.3f, % 8.3f), (% 8.3f, % 8.3f, % 8.3f)",vtx_A_x,vtx_A_y,vtx_A_z,vtx_B_x,vtx_B_y,vtx_B_z))
+							outstring = outstring .. "contact " .. i .. ":\n"
+							if cb_ptr then
+								outstring = outstring .. string.format("cb_ptr=%08X , ", locCollisionBody2)
+							end
+							outstring = outstring .. string.format("collisionkey=%08X , ",collisionKey) .. string.format("vertices = (% 8.3f, % 8.3f, % 8.3f), (% 8.3f, % 8.3f, % 8.3f)",vtx_A_x,vtx_A_y,vtx_A_z,vtx_B_x,vtx_B_y,vtx_B_z)
+							if cb_x3y3z3 then
+								outstring = outstring .. string.format(", ( % 8.3f, % 8.3f, % 8.3f)",x3,y3,z3)
+							end
+							if cb_vptr then
+								outstring = outstring .. string.format(", vptr=%08X", vptr)
+							end
 						end
 					else
 						if(csv_style_logging == 0) then
 							--if last_logged_repeat_contacts[i] == collisionKey then
 							--	if not has_just_printed_cont[i] then
-							--		print("(cont.)")
+							--		outstring = outstring .. "(cont.)"
 							--		has_just_printed_cont[i] = true
 							--	end
 							--else
-							print(string.format("contact %i (REPEAT): collisionkey=%08X", i, collisionKey))
+							outstring = outstring .. string.format("contact %i (REPEAT): collisionkey=%08X", i, collisionKey)
 							--	has_just_printed_cont[i] = false
 							--end
+						else
+							--outstring = outstring .. string.format("\"%08X\", \"(dupe)\",,,,,,", collisionKey)
 						end
+					end
+					
+					if not (outstring == "") then
+						print(outstring)
+						outstring = ""
 					end
 					
 					-- todo: this part has some kinks to work out still. (flickering, mainly.)
