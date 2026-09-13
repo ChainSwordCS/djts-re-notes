@@ -14,6 +14,7 @@ using Hex<T> = type::Hex<T>;
 const u32 base_address = std::mem::base_address();
 const u32 eof = std::mem::size() + base_address;
 
+using vec32;
 using Agent;
 using Avatar;
 using collision_substruct_58;
@@ -21,6 +22,12 @@ using CollisionBody;
 using CollisionCompensator;
 using OnCollision_param2_struct;
 using OnCol_param2_substruct;
+
+struct vec32 {
+    s32 x;
+    s32 y;
+    s32 z;
+};
 
 struct Agent {
     Hex<u32> vptr;
@@ -148,8 +155,8 @@ struct Avatar {
 };
 
 struct collision_substruct_58 {
-    Hex<u16> v_00[10];
-    Hex<u32> pos_new[3]; // vector
+    Hex<u16> v_00[10]; // three 16-bit vectors and an extra u16, judging by the code
+    vec32 pos_new;
 };
 //struct Avatar_collision_body {
 struct CollisionBody {
@@ -159,12 +166,7 @@ struct CollisionBody {
     } catch {
         
     }
-    Hex<u32> v_04;
-    Hex<u32> v_08;
-    Hex<u32> v_0c;
-    Hex<u32> v_10;
-    Hex<u32> v_14;
-    Hex<u32> v_18;
+    vec32 boundingBox[2]; // two points; corners
     Hex<u32> v_1c_collisionbody_plus_4; // ?
     Hex<u32> v_20;
     Hex<u32> v_24;
@@ -309,9 +311,40 @@ struct unk_collisionbody_struct {
 
 //unk_collisionbody_struct unk_collisionbody_linked_list @ 0x022604C0;
 
+// this is objects in level 1-1 of course
 
+// vptr = 020f8078
+// cardinal-aligned rectangle shaped:
+CollisionBody CB_table_green_1 @ 0x0226167C;
+CollisionBody CB_table_green_2 @ 0x02260A60;
+CollisionBody CB_shelves_art @ 0x02260CCC;
+CollisionBody CB_set_draped_chair @ 0x02260588;
+CollisionBody CB_shelf_art_supplies_1 @ 0x022618E8;
+CollisionBody CB_shelf_art_supplies_2 @ 0x02261B54;
+// non-rectangle (or not cardinal-aligned):
+CollisionBody CB_counters_art @ 0x022607F4;
+CollisionBody CB_easel_1 @ 0x022611A4;
+CollisionBody CB_easel_2 @ 0x02261DC0;
+CollisionBody CB_easel_3 @ 0x02260F38;
+CollisionBody CB_easel_4 @ 0x02261410;
 
+// vptr = 020f7f7c
+CollisionBody CB_wall_tan_1 @ 0x022B0124;
+CollisionBody CB_wall_tan_2 @ 0x02275704;
+CollisionBody CB_wall_window_tan_1 @ 0x022B626C;
+CollisionBody CB_wall_window_tan_2 @ 0x022B6008;
+CollisionBody CB_wall_window_tan_3 @ 0x02277C48;
+CollisionBody CB_wall_inside_window_tan_1 @ 0x022B5DA4; // ?
+CollisionBody CB_unk_wall_tan_1 @ 0x022748AC; // ?
+CollisionBody CB_unk_wall_tan_2 @ 0x02274B10;
+CollisionBody CB_unk_wall_tan_3 @ 0x022B4508;
+CollisionBody CB_unk_doorway_1 @ 0x022740CC;
+CollisionBody CB_unk_doorway_2 @ 0x02274180;
+CollisionBody CB_unk_doorway_3 @ 0x022EF070;
 
+// vptr = 020f7f9c
+CollisionBody CB_door_1 @ 0x022EEFC0;
 
-
+// vptr = 020f80c8
+CollisionBody CB_girl_npc_amber_1 @ 0x022D3680;
 
