@@ -1,0 +1,50 @@
+ensata debug console string output notes
+
+
+/*
+( via https://www.problemkaputt.de/gbatek.htm#dsdebugregistersemulatordevkits )
+(the gbatek documentation is copyright 2025 martin korth (nocash).)
+
+## No$gba Emulator Pseudo I/O Ports (no$gba) (GBA,NDS9,NDS7)
+	(...)
+	4FFFA1Ch       W Char Out (nocash)
+
+## Ensata Emulator Pseudo I/O Ports (NDS9)
+	(...)
+	4FFF000h (8bit)  ;debug message character output (used when Ensata detected)
+
+## ISD (Intelligent Systems Debugger or so) I/O Ports
+The ISD ports seem to be real (non-emulated) debugging ports, 
+mapped to the GBA Slot region at 8000000h-9FFFFFFh, (...)
+
+## NDS Devkit
+In Nintendo's devkit, debug messages are handled in file "os_printf.c", (...)
+*/
+
+
+for DJTS (Beta):
+patch 0x020BCC58 to "cmp r0,#0x1" (01 00 50 E3)
+patch 0x020BCC3C to "1C FA FF 04"
+. . .
+profit ?
+
+
+codes to enable "DebugStrings.bin" style debug messages (?)
+
+02079660 E1A00000
+02079664 E1A00000
+02079668 E1A00000
+0207966C E1A00000
+
+0207967C E1A00000
+02079680 E1A00000
+02079684 E1A00000
+02079688 E1A00000
+
+02079694 E1A00000
+02079698 E1A00000
+0207969C E1A00000
+020796A0 E1A00000
+
+
+
