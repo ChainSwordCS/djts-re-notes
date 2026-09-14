@@ -121,6 +121,8 @@ function checkIsNew3dEngineFrame()
 	return
 end
 
+_curPlayerCBodyPtr = 0
+
 const_vp_x_fac = 256.0 / const_vp_w
 const_vp_z_fac = 192.0 / const_vp_h
 
@@ -134,6 +136,9 @@ function drawOverlay()
 	end
 	gui.opacity(0.5)
 	if isNew3dEngineFrame3 and not emu.paused then
+		-- refresh player hitbox
+		-- todo ??
+		
 		-- refresh
 		_drawCollision_prevFrameRectList = { }
 		cam_x = readfixedpoint2012(cam_ptr + 0x90)
@@ -197,10 +202,12 @@ function onCollisionCallback()
 		locContactList = memory.readdword(param_2_ptr + 4)
 		if(sanityCheckPtr(locContactList)) then
 			--print("numContacts=" .. numContacts)
+			
+			_curPlayerCBodyPtr = memory.readdword(locContactList + 0x1C)
+			
 			i = 0
 			while(i < numContacts) do
 				collisionKey = memory.readdword(locContactList + i * 0x24 + 0x18)
-				--locCollisionBody1 = memory.readdword(locContactList + i * 0x24 + 0x1C)
 				locCollisionBody2 = memory.readdword(locContactList + i * 0x24 + 0x20)
 				if(sanityCheckPtr(locCollisionBody2)) then
 					-- todo: check vptr to determine what kind of CollisionBody this is?
