@@ -63,6 +63,17 @@ function HOOK_FUN_0209eebc()
 	return;
 end
 
+-- NOTE: this overlaps with FUN_0209eebc
+function HOOK_FUN_0209f050()
+	-- i'm feeling lazy, so here's a quick proof of concept
+	r2 = readstring(memory.getregister("r2"));
+	-- r3 is a pointer to a list of 3 32-bit values, those are the varargs.
+	-- todo: write code for that.
+	print(r2);
+	return;
+end
+
 memory.registerexec(0x0209eebc, HOOK_FUN_0209eebc);
+memory.registerexec(0x0209f050, HOOK_FUN_0209f050);
 
 print(string.format("Hello World! %i %i %i", 1, 2, 3, 4));
