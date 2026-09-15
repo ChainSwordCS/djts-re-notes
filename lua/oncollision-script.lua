@@ -23,11 +23,28 @@ const_vp_w = const_vp_h * 4 / 3
 --const_vp_h = 3.5*2.0
 
 
-locNumContacts = 0x027E0A49
-locContactListPtr = 0x027E0A4C
-locContactList = 0x027E0808 -- common value (placeholder)
-numContacts=0
-locCamPtr = 0x0212118C
+-- specific const memory addresses needed for things.
+-- (these differ between different builds/versions.)
+
+ptr_3dEngineFrameCount = 0
+ptr_onCollision = 0
+ptr_camPtr = 0
+build = -1
+if (memory.readdword(0x02032efc) == 0xe92d4ff0) then
+	print("rom = retail")
+	build = 0
+	ptr_3dEngineFrameCount = 0x020ec98c
+	ptr_onCollision = 0x02032efc
+	ptr_camPtr = 0x0210ee88
+else
+	print("rom = DrakeAndJoshDS_Game_2_04_002_Benchmark_US.srl (Beta, Debug)")
+	build = 1
+	ptr_3dEngineFrameCount = 0x02106ab8
+	ptr_onCollision = 0x02031e2c
+	ptr_camPtr = 0x0212118c
+end
+
+
 
 panic=0
 
@@ -89,29 +106,22 @@ function checkIsNew3dEngineFrame()
 	-- potential bytes in memory to try, for tracking this
 	-- (which increment on every new frame rendered and presented by the 3D Engine,
 	-- and which do not increment on off-frames (30 fps) or lag frames.)
-	-- (DJTS beta debug build only. offsets will be different from retail build.)
-	--02106ab8
-	--021090a8
-	--02121194
-	--021547d2
-	--021548b2
-	--02154992
-	--02154a72
-	--02266b68
-	--02266f48
-	--0227f9f8
-	--02360da0
-	--02360df8
-	--02361380
+	-- (BETA) (todo: double-check these)
+	--	02106ab8	021090a8	02121194	021547d2
+	--	021548b2	02154992	02154a72	02266b68
+	--	02266f48	0227f9f8	02360da0	02360df8
+	--	02361380
 	-- same as above, but paused during bottom-screen dialogue
-	--021dcbec
-	--023615dc
-	--02361620
-	--023616ac
-	--023616f0
-	--02361800
-	--0236184c
-	a = memory.readbyte(0x02106ab8)
+	--	021dcbec	023615dc	02361620	023616ac
+	--	023616f0	02361800	0236184c
+	
+	-- (RETAIL)
+	--	020EC98C	020F3DB0	020F4FA0	0210EE60
+	--	0210EE90	0235ECF4	0235ED28	023610CC
+	--	02361284	02361328	023613F8
+	-- same as above, but paused during bottom-screen dialogue
+	--	02361284	02361328	023613F8
+	a = memory.readbyte(ptr_3dEngineFrameCount)
 	if a == _frame_count_prev_value then
 		isNew3dEngineFrame = false
 	else
@@ -129,7 +139,7 @@ const_vp_z_fac = 192.0 / const_vp_h
 _drawCollision_prevFrameRectList = { {0,0,0,0}, {0,0,0,0} }
 -- simple and hacky. only designed to work with certain camera hacks in play.
 function drawOverlay()
-	cam_ptr = memory.readdword(locCamPtr)
+	cam_ptr = memory.readdword(ptr_camPtr)
 	if cam_ptr == 0 then
 		-- probably not in-game; abort!
 		return
@@ -307,7 +317,7 @@ function onCollisionCallback()
 	end
 end
 
-memory.registerexec(0x02031e2c, onCollisionCallback)
+memory.registerexec(ptr_onCollision, onCollisionCallback)
 if(draw_collision_overlay == 1) then
 	gui.register(drawOverlay)
 end
