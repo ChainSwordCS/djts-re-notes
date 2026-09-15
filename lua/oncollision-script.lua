@@ -6,7 +6,7 @@ draw_collision_overlay=1 -- experimental
 csv_style_logging=1
 
 -- minor extra logging flags for testing
-cb_x3y3z3=true
+cb_x3y3z3=true -- todo: bugfix
 cb_vptr=true
 cb_ptr=true
 
@@ -49,6 +49,7 @@ end
 panic=0
 
 print("hello world")
+
 if csv_style_logging then
 	print("csv_style_logging=1")
 	line1 = ""
@@ -64,13 +65,18 @@ if csv_style_logging then
 	end
 	print(line1)
 end
+
 unique_contacts = {
 	{ -1, 0, 0, 0, 0, 0, 0 }
 }
 
--- (unused)
-last_logged_repeat_contacts = { 0, 0, 0 }
-has_just_printed_cont = { false, false, false }
+-- this table is used like a circular buffer
+contact_points = { {0, 0, 0} }
+contact_points_arrlen = 32 -- maximum number of entries
+cur_contact_point = 0 -- current index
+
+
+
 
 -- returns true if the pointer seems valid
 function sanityCheckPtr(ptr)
@@ -150,11 +156,30 @@ function drawOverlay()
 		-- todo ??
 		
 		-- refresh
-		_drawCollision_prevFrameRectList = { }
+		
+		-- recalc camera pos and camera side boundaries
 		cam_x = readfixedpoint2012(cam_ptr + 0x90)
 		cam_z = readfixedpoint2012(cam_ptr + 0x98)
 		vp_topleft  = { cam_x-const_vp_w/2.0, cam_z-const_vp_h/2.0 }
 		vp_botright = { cam_x+const_vp_w/2.0, cam_z+const_vp_h/2.0 }
+		
+		
+		-- draw all stored contact points within view
+		for _, point in pairs(contact_points) do
+			if  (point[1] > vp_topleft[1] and point[1] < vp_botright[1])
+			and (point[3] > vp_topleft[2] and point[3] < vp_botright[2]) then
+				-- map onto new coord plane
+				x = (point[1] * const_vp_x_fac) - (vp_topleft[1] * const_vp_x_fac)
+				z = (point[3] * const_vp_z_fac) - (vp_topleft[2] * const_vp_z_fac)
+				-- draw
+				red = "#FF0000"
+				gui.drawrect(x-1, z-192-1, x+1, z-192+1, red)
+				table.insert(_drawCollision_prevFrameRectList,{x-1,z-1,x+1,z+1,red})
+			end
+		end
+		
+		-- draw collision bounding boxes and stuff
+		_drawCollision_prevFrameRectList = { }
 		for _, c in pairs(unique_contacts) do
 			-- test that both points are within view
 			--if (1 == 1) then
@@ -232,6 +257,15 @@ function onCollisionCallback()
 					y3 = readfixedpoint2012(locCollisionBody2 + 0x90)
 					z3 = readfixedpoint2012(locCollisionBody2 + 0x94)
 					vptr = memory.readdword(locCollisionBody2 + 0x00)
+					
+					
+					this_contact_point = {
+						readfixedpoint2012(locContactList + i * 0x24 + 0),
+						readfixedpoint2012(locContactList + i * 0x24 + 4),
+						readfixedpoint2012(locContactList + i * 0x24 + 8)
+					}
+					contact_points[cur_contact_point+1] = this_contact_point
+					cur_contact_point = (cur_contact_point + 1) % contact_points_arrlen
 					
 					-- logic to avoid excessive logging of duplicate data
 					is_dupe = false
