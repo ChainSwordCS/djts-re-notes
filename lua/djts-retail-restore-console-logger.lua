@@ -73,6 +73,8 @@ function HOOK_FUN_0209f050()
 	return;
 end
 
+-- todo: investigate FUN_0209e220
+
 memory.registerexec(0x0209eebc, HOOK_FUN_0209eebc);
 memory.registerexec(0x0209f050, HOOK_FUN_0209f050);
 
