@@ -14,7 +14,6 @@ function readfixedpoint2012(ptr)
 end
 
 function dothing(r7, r8)
-	print("h");
 	mtx = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	if (r8 ~= 0) and (r7 ~= 0) then
 		for i,_ in pairs(mtx) do
@@ -26,28 +25,29 @@ function dothing(r7, r8)
 		print(string.format("%08X %08X %08X %08X", mtx[9], mtx[10], mtx[11], mtx[12]));
 		print(string.format("%08X %08X %08X %08X", mtx[13], mtx[14], mtx[15], mtx[16]));
 		print("}");
+		emu.pause();
 	end
-	emu.pause();
 end
 
 function FUN_020ba32c_callback()
-	--r7 = memory.getregister("r7");
+	r9 = memory.getregister("r9");
 	r8 = memory.getregister("r8");
-	dothing(1, r8);
+	dothing(r9, r8);
 end
 
 function FUN_020ba13c_callback()
 	r5 = memory.getregister("r5");
-	
-	dothing(1, r5);
+	sp = memory.getregister("r13");
+	param_7 = memory.readdword(sp + 0x28);
+	dothing(param_7, r5);
 end
 
 function FUN_020b9e40_callback()
 	r6 = memory.getregister("r6");
-	
-	dothing(1, r6);
+	r7 = memory.getregister("r7");
+	dothing(r7, r6);
 end
 
---memory.registerexec(0x020ba600, FUN_020ba32c_callback);
+memory.registerexec(0x020ba600, FUN_020ba32c_callback);
 memory.registerexec(0x020ba310, FUN_020ba13c_callback);
---memory.registerexec(0x020ba120, FUN_020b9e40_callback);
+memory.registerexec(0x020ba120, FUN_020b9e40_callback);
