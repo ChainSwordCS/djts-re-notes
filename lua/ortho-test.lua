@@ -18,6 +18,7 @@ end
 
 -- written weird to work around some odd behavior
 function printregisters()
+	print("FUN_020ba13c");
 	print(string.format("class_instance_ptr=%08X", memory.getregister("r4")));
 	print(string.format("param_1=%08X", memory.getregister("r0")));
 	print(string.format("param_2=%08X", memory.getregister("r1")));
@@ -38,10 +39,7 @@ end
 
 -- hack param_7 to set it to 1, not 0
 function mtx_callback0()
-	print("");
-	print("FUN_020ba13c");
-	printregisters();
-	print("mtx_callback0");
+	--printregisters();
 	sp = memory.getregister("r13");
 	param_7 = memory.readdword(sp + 0x08);
 	if (param_7 == 0) then
@@ -52,7 +50,6 @@ function mtx_callback0()
 end
 
 function mtx_callback1()
-	print("1");
 	mtx_1 = memory.getregister("r0");
 	a = math.ceil(((mtx_1 / 4096.0) / 15.0) * 4096.0);
 	memory.setregister("r0", a);
@@ -63,7 +60,6 @@ function mtx_callback1()
 end
 
 function mtx_callback2()
-	print("2");
 	mtx_11 = memory.getregister("r7");
 	c = math.ceil(((mtx_11 / 4096.0) / 17.15) / -256.0); -- ?
 	memory.setregister("r7", c);
@@ -85,7 +81,6 @@ function mtx_callback2()
 end
 
 function mtx_callback3()
-	print("3");
 	--mtx_16 = memory.getregister("r0");
 	f = math.ceil(1.0 * 4096.0);
 	memory.setregister("r0", f);
