@@ -38,7 +38,7 @@ end
 function FUN_020ba13c_callback()
 	r5 = memory.getregister("r5");
 	sp = memory.getregister("r13");
-	param_7 = memory.readdword(sp + 0x28);
+	param_7 = memory.readdword(sp + 0x08);
 	dothing(param_7, r5);
 end
 
@@ -48,6 +48,6 @@ function FUN_020b9e40_callback()
 	dothing(r7, r6);
 end
 
-memory.registerexec(0x020ba600, FUN_020ba32c_callback);
+--memory.registerexec(0x020ba600, FUN_020ba32c_callback);
 memory.registerexec(0x020ba310, FUN_020ba13c_callback);
-memory.registerexec(0x020ba120, FUN_020b9e40_callback);
+--memory.registerexec(0x020ba120, FUN_020b9e40_callback);

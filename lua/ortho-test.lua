@@ -8,6 +8,13 @@ print("hello world")
 
 -- (doesn't work :P)
 
+-- hack param_7 to set it to 1, not 0
+function mtx_callback0()
+	--memory.setregister("r6", 1);
+	sp = memory.getregister("r13");
+	--memory.writedword(sp + 0x08, 1); -- ?
+end
+
 function mtx_callback1()
 	print("hi");
 	mtx_1 = memory.getregister("r0");
@@ -30,6 +37,7 @@ function mtx_callback3()
 	memory.setregister("r0", (1.0 * 12));
 end
 
+memory.registerexec(0x020ba13c, mtx_callback0);
 memory.registerexec(0x020ba220, mtx_callback1);
 memory.registerexec(0x020ba2ec, mtx_callback2);
 memory.registerexec(0x020ba304, mtx_callback3);
