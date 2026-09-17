@@ -38,7 +38,8 @@ end
 function FUN_020ba13c_callback()
 	r5 = memory.getregister("r5");
 	sp = memory.getregister("r13");
-	param_7 = memory.readdword(sp + 0x08);
+	param_7 = memory.readdword(sp + 0x28);
+	print("param_7="..param_7);
 	dothing(param_7, r5);
 end
 
