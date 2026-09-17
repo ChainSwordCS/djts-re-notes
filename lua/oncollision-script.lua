@@ -103,12 +103,17 @@ end
 -- (false)
 -- not to be confused with desmume emulator GUI update frames
 isNew3dEngineFrame = true
-isNew3dEngineFrame2 = true -- one frame delayed
-isNew3dEngineFrame3 = true -- two frames delayed
+isNew3dEngineFrame2 = false -- one frame delayed
+isNew3dEngineFrame3 = false -- two frames delayed
+isNew3dEngineFrame4 = false
 _frame_count_prev_value = -1
 function checkIsNew3dEngineFrame()
 	isNew3dEngineFrame3 = isNew3dEngineFrame2
-	isNew3dEngineFrame2 = isNew3dEngineFrame
+	if isNew3dEngineFrame then
+		isNew3dEngineFrame2 = true
+	else
+		isNew3dEngineFrame2 = false
+	end
 	-- potential bytes in memory to try, for tracking this
 	-- (which increment on every new frame rendered and presented by the 3D Engine,
 	-- and which do not increment on off-frames (30 fps) or lag frames.)
@@ -151,7 +156,7 @@ function drawOverlay()
 		return
 	end
 	gui.opacity(0.5)
-	if isNew3dEngineFrame3 and not emu.paused then
+	if isNew3dEngineFrame2 and not emu.paused then
 		-- refresh player hitbox
 		-- todo ??
 		
