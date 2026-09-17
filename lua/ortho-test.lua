@@ -6,8 +6,6 @@
 
 print("hello world")
 
--- (doesn't work :P)
-
 function mtx_callbackM1()
 	r0 = memory.getregister("r0");
 	print(string.format("mtx_callbackM1 variable = %08X", r0));
@@ -67,12 +65,19 @@ end
 function mtx_callback2()
 	print("2");
 	mtx_11 = memory.getregister("r7");
-	c = math.ceil(((mtx_11 / 4096.0) / 17.15) * 4096.0);
+	c = math.ceil(((mtx_11 / 4096.0) / 17.15) / -256.0); -- ?
 	memory.setregister("r7", c);
 	
 	--mtx_12 = memory.getregister("r6");
-	d = math.ceil(0.00025 * 4096.0);
+	--d = 0.00025;
+	d = 0x00000001;
 	memory.setregister("r6", d); -- the game's code multiplies this by -1, btw
+	--memory.setregister("r1", d * -1);
+	
+	-- apparently necessary!
+	r5 = memory.getregister("r5");
+	memory.writedword(r5 + 0x2c, -1 * d);
+	
 	
 	mtx_15 = memory.getregister("r2");
 	e = math.ceil(((mtx_15 / 4096.0) * 10) * 4096.0);
