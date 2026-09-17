@@ -71,8 +71,8 @@ unique_contacts = {
 }
 
 -- this table is used like a circular buffer
-contact_points = { {0, 0, 0} }
-contact_points_arrlen = 32 -- maximum number of entries
+contact_points = { {0, 0} }
+contact_points_arrlen = 128 -- maximum number of entries
 cur_contact_point = 0 -- current index
 
 
@@ -147,6 +147,7 @@ _curPlayerCBodyPtr = 0
 const_vp_x_fac = 256.0 / const_vp_w
 const_vp_z_fac = 192.0 / const_vp_h
 
+_drawCollision_prevFrameContactPointList = { {0,0} }
 _drawCollision_prevFrameRectList = { {0,0,0,0}, {0,0,0,0} }
 -- simple and hacky. only designed to work with certain camera hacks in play.
 function drawOverlay()
@@ -168,21 +169,23 @@ function drawOverlay()
 		vp_topleft  = { cam_x-const_vp_w/2.0, cam_z-const_vp_h/2.0 }
 		vp_botright = { cam_x+const_vp_w/2.0, cam_z+const_vp_h/2.0 }
 		
-		
+		gui.opacity(0.75)
+		_drawCollision_prevFrameContactPointList = {}
 		-- draw all stored contact points within view
 		for _, point in pairs(contact_points) do
 			if  (point[1] > vp_topleft[1] and point[1] < vp_botright[1])
-			and (point[3] > vp_topleft[2] and point[3] < vp_botright[2]) then
+			and (point[2] > vp_topleft[2] and point[2] < vp_botright[2]) then
 				-- map onto new coord plane
 				x = (point[1] * const_vp_x_fac) - (vp_topleft[1] * const_vp_x_fac)
-				z = (point[3] * const_vp_z_fac) - (vp_topleft[2] * const_vp_z_fac)
+				z = (point[2] * const_vp_z_fac) - (vp_topleft[2] * const_vp_z_fac)
 				-- draw
 				red = "#FF0000"
-				gui.drawrect(x-1, z-192-1, x+1, z-192+1, red)
-				table.insert(_drawCollision_prevFrameRectList,{x-1,z-1,x+1,z+1,red})
+				gui.drawpixel(x, z-192, red)
+				table.insert(_drawCollision_prevFrameContactPointList,{x,z,red})
 			end
 		end
 		
+		gui.opacity(0.5)
 		-- draw collision bounding boxes and stuff
 		_drawCollision_prevFrameRectList = { }
 		for _, c in pairs(unique_contacts) do
@@ -222,6 +225,14 @@ function drawOverlay()
 				gui.drawrect(rect[1], rect[2]-192, rect[3], rect[4]-192)
 			end
 			--print(string.format("debug: drawrect(%.1f, %.1f, %.1f, %.1f)",x1,z1-192,x2,z2-192))
+		end
+		gui.opacity(0.75)
+		for _, c in pairs(_drawCollision_prevFrameContactPointList) do
+			if (#c == 3) then
+				gui.drawpixel(c[1], c[2]-192, c[3])
+			else
+				gui.drawpixel(c[1], c[2]-192)
+			end
 		end
 	end
 	gui.opacity(1.0) -- return to normal afterwards
@@ -266,7 +277,7 @@ function onCollisionCallback()
 					
 					this_contact_point = {
 						readfixedpoint2012(locContactList + i * 0x24 + 0),
-						readfixedpoint2012(locContactList + i * 0x24 + 4),
+						--readfixedpoint2012(locContactList + i * 0x24 + 4),
 						readfixedpoint2012(locContactList + i * 0x24 + 8)
 					}
 					contact_points[cur_contact_point+1] = this_contact_point
