@@ -167,13 +167,13 @@ struct CollisionBody {
         
     }
     vec32 boundingBox[2]; // two points; corners
-    Hex<u32> v_1c_collisionbody_plus_4; // ?
+    Hex<u32> v_1c_collisionbody_plus_4; // ? (ptr)
     Hex<u32> v_20;
     Hex<u32> v_24;
     Hex<u32> v_28;
-    Hex<u32> v_2c;
+    Hex<u32> v_2c; // ptr
     Hex<u32> v_30;
-    Hex<u32> v_34_collisionbody_plus_4; // ?
+    Hex<u32> v_34_collisionbody_plus_4; // ? (ptr)
     Hex<u32> v_38;
     Hex<u32> v_3c;
     Hex<u32> v_40_Agent_parent;
@@ -181,8 +181,8 @@ struct CollisionBody {
     Hex<u32> v_44_collisionbody; // ?
     Hex<u32> v_48_agent; // ?
     Hex<u32> v_4c;
-    Hex<u32> v_50_collisionbody_v78_ptr; // ?
-    Hex<u32> v_54_collisionbody_posnew_ptr; // ?
+    Hex<u32> v_50_collisionbody_v78_ptr; // ? (ptr)
+    Hex<u32> v_54_collisionbody_posnew_ptr; // ? (ptr)
     collision_substruct_58 v_58_sub;
     collision_substruct_58 v_78_sub;
     Hex<u8> v_98;
@@ -243,7 +243,7 @@ struct OnCol_param2_substruct {
     Hex<u16> v_0c[3];
     Hex<u8>  contact_type;
     Hex<u8>  v_13;
-    Hex<u32> v_14;
+    Hex<u32> contact_depth;
     Hex<u32> collision_key;
     Hex<u32> v_1c_collisionbody;
     //CollisionBody collisionBody @ v_1c_collisionbody;
@@ -285,6 +285,17 @@ if (arg_param_3 != unk_collisionbody_1.v_44_collisionbody)
 
 if (param_3.v_44_collisionbody != 0)
     CollisionBody unk_collisionbody_3 @ param_3.v_44_collisionbody;
+
+
+/*
+u32 a @ unk_collisionbody_1.v_1c_collisionbody_plus_4;
+if (unk_collisionbody_1.v_2c != 0)
+    u32 b @ unk_collisionbody_1.v_2c;
+u32 c @ unk_collisionbody_1.v_34_collisionbody_plus_4;
+u32 d @ unk_collisionbody_1.v_44_collisionbody;
+u32 e @ unk_collisionbody_1.v_50_collisionbody_v78_ptr;
+u32 f @ unk_collisionbody_1.v_54_collisionbody_posnew_ptr;
+*/
 
 u32 cur_depth = 0;
 using unk_collisionbody_struct;
