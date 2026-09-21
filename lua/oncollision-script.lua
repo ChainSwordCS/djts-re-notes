@@ -280,6 +280,22 @@ function onCollisionCallback()
 						--readfixedpoint2012(locContactList + i * 0x24 + 4),
 						readfixedpoint2012(locContactList + i * 0x24 + 8)
 					}
+					
+					-- todo: this doesn't work quite how i intended...
+					contact_depth = readfixedpoint2012(locContactList + i * 0x24 + 0x14)
+					contact_normal = {
+						memory.readwordsigned(locContactList + i * 0x24 + 0x0C) / 4096,
+						--memory.readwordsigned(locContactList + i * 0x24 + 0x0E) / 4096,
+						memory.readwordsigned(locContactList + i * 0x24 + 0x10) / 4096
+					}
+					push_vector = {
+						(contact_normal[1] * contact_depth * 16) / 65536, -- x
+						(contact_normal[2] * contact_depth * 16) / 65536  -- z
+					}
+					-- apply push vector (?)
+					this_contact_point[1] = this_contact_point[1] + push_vector[1]
+					this_contact_point[2] = this_contact_point[2] + push_vector[2]
+					
 					contact_points[cur_contact_point+1] = this_contact_point
 					cur_contact_point = (cur_contact_point + 1) % contact_points_arrlen
 					
