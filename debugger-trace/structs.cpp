@@ -53,6 +53,9 @@ struct CollisionBody_vtable {
 	func vtable[6];
 };
 
+/**
+	size = 0xA0 (?)
+ */
 struct CollisionBody {
 	CollisionBody_vtable* vptr; // like 0x020f80c8
 	undefined4	var_04;
@@ -91,6 +94,40 @@ struct collision_substruct_58 {
 	u16 var_00[10]; // 3 vectors and an extra u16...
 	u32 pos_new[3];
 };
+
+/**
+	size = 0xA0 (?)
+ */
+struct Class_020f7eec {
+	CollisionBody collisionBody;
+};
+
+struct Class_020f7edc_vtable {
+	func vtable[2];
+};
+
+/** 
+	aka collision_pivar4_struct (?)
+	class struct size = 0xB0
+	vptr = 020f7edc
+	constructor function is at 0207dae8
+	
+ */
+struct Class_020f7edc {
+	Class_020f7edc_vtable* vptr;
+	Class_020f7edc_04_substruct* var_04;
+	Class_020f7eec Class_020f7eec;
+	u32 var_a8; // ?
+	u32 var_ac; // ?
+};
+
+// unknown purpose
+struct Class_020f7edc_04_substruct {
+	u32 var_00;
+	u32 var_04;
+};
+
+
 
 struct CollisionCompensator_vtable {
 	func vtable[8];
