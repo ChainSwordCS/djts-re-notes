@@ -158,7 +158,9 @@ struct collision_substruct_58 {
     Hex<u16> v_00[10]; // three 16-bit vectors and an extra u16, judging by the code
     vec32 pos_new;
 };
-//struct Avatar_collision_body {
+/**
+    size = 0xA0 (?)
+ */
 struct CollisionBody {
     Hex<u32> vptr;
     try {
@@ -192,12 +194,6 @@ struct CollisionBody {
     Hex<u8> v_9d;
     Hex<u8> v_9e;
     Hex<u8> v_9f;
-};
-
-struct CollisionBody_plusheader {
-    u32;
-    u32;
-    CollisionBody CollisionBody;
 };
 
 struct CollisionCompensator {
@@ -249,6 +245,26 @@ struct OnCol_param2_substruct {
     //CollisionBody collisionBody @ v_1c_collisionbody;
     Hex<u32> v_20_collisionbody;
 };
+
+/**
+    size = 0xA0 (?)
+ */
+struct Class_020f7eec {
+    CollisionBody CollisionBody;
+};
+
+/**
+    size = 0xB0
+ */
+struct Class_020f7edc {
+    Hex<u32> vptr;
+    Hex<u32> var_04; // ptr
+    Class_020f7eec Class_020f7eec;
+    Hex<u32> var_a8; // ptr
+    Hex<u32> var_ac; // ptr
+};
+
+Class_020f7edc Class_020f7edc @ 0x0226073c;
 
 //Hex<u32> function_table_1[6] @ 0x020F80C8;
 
