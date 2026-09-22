@@ -69,3 +69,16 @@ namespace CollisionBody {
 		return;
 	}
 }
+
+namespace Class_020f7f5c { // extends CollisionBody_Base(?) class
+	
+	void FUN_0207e36c(CollisionBody* this) {
+		Class_0208c524::FUN_0208c524(this); /* todo */
+		this->vptr = 0x020f7f5c;
+		this->var_a0 = 0; // u32
+		this->var_a4 = 0; // u32
+		this->var_98 = 0; // u8
+		return;
+	}
+	
+}
