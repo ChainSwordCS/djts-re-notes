@@ -1,0 +1,122 @@
+
+// pseudocode
+
+void FUN_02018130_dtor(void* this, undefined4 param_2, uint* param_3, undefined* param_4) {
+	SaboteurEffect* saboEff = (void*)((uint)this - 16);
+	FUN_02018090_dtor(saboEff, param_2, param_3, param_4);
+}
+
+void* FUN_02018160(void* this) {
+	return (void*)((uint)this - 20);
+}
+
+void FUN_02030f4c(undefined4* this) {
+	this[0] = 0x020ed428; // vptr
+	this[3] = 0;
+	return;
+}
+
+namespace SaboteurEffect {
+	
+	/* SaboteurEffect_vtable
+		FUN_020180e4
+		FUN_02018090
+		NULLPTR
+		FUN_return_void_02018088
+		FUN_return_void_0201808c
+		FUN_return_void_020180e0
+		FUN_return_void_0201812c
+		NULLPTR
+	*/
+
+	/* vtable_020ed950:
+		FUN_02018150
+		FUN_02018130
+		CollisionCompensator_2::getParent?_FUN_02018140
+	*/
+
+	/* vtable_020ed964:
+		FUN_02018160
+	*/
+
+	/* vtable_020f0c98:
+		FUN_02035f08
+		FUN_02035ef8
+		CollisionCompensator_2::getParent?_FUN_02018140
+	*/
+
+	/* vtable_020f0cac:
+		FUN_02018160
+	*/
+
+	/* vtable?_020f6ad4:
+		FUN_02073f88 // Messenger_ctor?
+		FUN_02073f60 // Messenger_dtor?
+	*/
+	
+	void SaboteurEffect_02035d48(SaboteurEffect* this, void* owner, undefined4 param_2, uint param_3) {
+		// example input:
+		// this		= 0x0236FBF0;
+		// owner	= 0x0231812C;
+		// param_2	= 0x6000001F; // unused?
+		// param_3	= 0x80000000; // unused?
+		// retaddr	= 0x020280C4; // r14
+		
+		FUN_02030f4c(this); // SaboteurEffect extends this class (?)
+		
+		this->field_0x10	= 0x020f6ad4; // why???
+		this->field_0x14	= 0x020ed970; // why???
+		this->vptr			= 0x020ed928; // why???
+		this->field_0x10	= 0x020ed950; // why???
+		this->field_0x14	= 0x020ed964; // why???
+		this->vptr			= 0x020f0c70;
+		this->field_0x10	= 0x020f0c98;
+		this->field_0x14	= 0x020f0cac;
+		this->owner = owner;
+		this->field_0x1c = 0;
+		this->field_0x24 = 1;
+		
+		if (this->owner == NULL) {
+			OS_VSNPrintf_wrapper_020bc870(0x02035edc, 0x300, "Invalid Owner!");
+			iVar3 = debug_FUN_0200664c();
+			print_assert_error_02075850(iVar3, "SaboteurEffect.cpp", 17, 0x02035edc);
+		}
+		
+		/* todo; incoherent */
+		local_48 = *(undefined4 *)PTR_DAT_02035ee8;
+		local_50 = 0;
+		local_4e = 0;
+		local_4c = 0;
+		local_4a = 0x1000;
+		local_18 = 0x1000;
+		local_14 = 0x1000;
+		local_10 = 0x1000;
+		local_24 = 0;
+		local_20 = 0;
+		local_1c = 0;
+		puVar4 = (undefined4 *)FUN_02010770();
+		FUN_02010754(auStack_44,puVar4);
+		puVar4 = (undefined4 *)FUN_02010770();
+		FUN_02010754(auStack_38,puVar4);
+		FUN_02010718(auStack_2c,&local_50);
+		
+		this->field_0x1c = createAgent?_0207bc54(*(uint*)0x020fc8d0, &local_48, 0);
+		if (this->field_0x1c == NULL) {
+			OS_VSNPrintf_wrapper_020bc870(0x02035edc, 0x300, "Failed to instantiate Saboteur Effect!");
+			iVar3 = debug_FUN_0200664c();
+			print_assert_error_02075850(iVar3, "SaboteurEffect.cpp", 20, 0x02035edc);
+		}
+		
+		// what
+		FUN_020105f0(*(int*)(*(int*)0x02102f3c + 4) + 0x44, this->field_0x1c);
+		
+		return;
+	}
+	
+	
+	void FUN_02018090_dtor(SaboteurEffect* this, undefined4 param_1, uint* param_2, undefined* param_3) {
+		this->vptr = SaboteurEffect_vtable; // 0x020ed928
+		this->field_0x10 = 0x020ed950;
+		this->field_0x14 = 0x020ed964;
+	}
+}

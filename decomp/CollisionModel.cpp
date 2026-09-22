@@ -1,4 +1,11 @@
 
+// pseudocode
+
+void* ParseCMDFile_FUN_0207bf70(u32* param_1, s32* param_2, s16* param_3) {
+	// ?
+}
+
+
 //example values:
 //param_1 = 0x021EE950
 //param_2 = 0x021EF218
