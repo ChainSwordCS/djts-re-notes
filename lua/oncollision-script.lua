@@ -9,6 +9,7 @@ csv_style_logging=1
 cb_x3y3z3=true -- todo: bugfix
 cb_vptr=true
 cb_ptr=true
+cb_tri58tri78=true
 
 
 -- 3d viewport constants
@@ -74,6 +75,13 @@ unique_contacts = {
 contact_points = { {0, 0} }
 contact_points_arrlen = 128 -- maximum number of entries
 cur_contact_point = 0 -- current index
+
+-- { {x,z}, {x,z}, {x,z} }, (...)
+contact_tris = {
+	{ {0, 0}, {0, 0}, {0, 0} }
+}
+contact_tris_arrlen = 32 -- max
+cur_contact_tri = 0 -- current index
 
 
 
@@ -148,6 +156,7 @@ const_vp_x_fac = 256.0 / const_vp_w
 const_vp_z_fac = 192.0 / const_vp_h
 
 _drawCollision_prevFrameContactPointList = { {0,0} }
+_drawCollision_prevFrameTriList = { { {0, 0}, {0, 0}, {0, 0}, "#FF00FF" }, }
 _drawCollision_prevFrameRectList = { {0,0,0,0}, {0,0,0,0} }
 -- simple and hacky. only designed to work with certain camera hacks in play.
 function drawOverlay()
@@ -182,6 +191,29 @@ function drawOverlay()
 				red = "#FF0000"
 				gui.drawpixel(x, z-192, red)
 				table.insert(_drawCollision_prevFrameContactPointList,{x,z,red})
+			end
+		end
+		
+		_drawCollision_prevFrameTriList = {}
+		if cb_tri58tri78 then
+			for _, tri in pairs(contact_tris) do
+				-- keep it simple, only check that the first point is in view
+				if (tri[1][1] > vp_topleft[1] and tri[1][2] < vp_botright[1]) then
+					-- map onto new coord plane
+					x1 = (tri[1][1] * const_vp_x_fac) - (vp_topleft[1] * const_vp_x_fac)
+					z1 = (tri[1][2] * const_vp_x_fac) - (vp_topleft[2] * const_vp_x_fac)
+					x2 = (tri[2][1] * const_vp_x_fac) - (vp_topleft[1] * const_vp_x_fac)
+					z2 = (tri[2][2] * const_vp_x_fac) - (vp_topleft[2] * const_vp_x_fac)
+					x3 = (tri[3][1] * const_vp_x_fac) - (vp_topleft[1] * const_vp_x_fac)
+					z3 = (tri[3][2] * const_vp_x_fac) - (vp_topleft[2] * const_vp_x_fac)
+					-- draw
+					magenta = "#FF00FF"
+					gui.drawline(x1, z1-192, x2, z2-192, magenta)
+					gui.drawline(x2, z2-192, x3, z3-192, magenta)
+					gui.drawline(x3, z3-192, x1, z1-192, magenta)
+					-- add to draw list
+					table.insert(_drawCollision_prevFrameTriList,{{x1,z1},{x2,z2},{x3,z3},magenta})
+				end
 			end
 		end
 		
@@ -234,6 +266,18 @@ function drawOverlay()
 				gui.drawpixel(c[1], c[2]-192)
 			end
 		end
+		for _, t in pairs(_drawCollision_prevFrameTriList) do
+			if (#t == 4) then
+				color = t[4]
+				gui.drawline(t[1][1], t[1][2]-192, t[2][1], t[2][2]-192, color)
+				gui.drawline(t[2][1], t[2][2]-192, t[3][1], t[3][2]-192, color)
+				gui.drawline(t[3][1], t[3][2]-192, t[1][1], t[1][2]-192, color)
+			else
+				gui.drawline(t[1][1], t[1][2]-192, t[2][1], t[2][2]-192)
+				gui.drawline(t[2][1], t[2][2]-192, t[3][1], t[3][2]-192)
+				gui.drawline(t[3][1], t[3][2]-192, t[1][1], t[1][2]-192)
+			end
+		end
 	end
 	gui.opacity(1.0) -- return to normal afterwards
 	return
@@ -268,6 +312,73 @@ function onCollisionCallback()
 					vtx_B_x = readfixedpoint2012(locCollisionBody2 + 0x10)
 					vtx_B_y = readfixedpoint2012(locCollisionBody2 + 0x14)
 					vtx_B_z = readfixedpoint2012(locCollisionBody2 + 0x18)
+					
+					if cb_tri58tri78 then
+						-- collision_substruct_58
+						a = 4096 -- ?
+						tri_58 = {
+							{
+								memory.readwordsigned(locCollisionBody2 + 0x58) / a,
+								memory.readwordsigned(locCollisionBody2 + 0x5c) / a
+							},
+							{
+								memory.readwordsigned(locCollisionBody2 + 0x5e) / a,
+								memory.readwordsigned(locCollisionBody2 + 0x62) / a
+							},
+							{
+								memory.readwordsigned(locCollisionBody2 + 0x64) / a,
+								memory.readwordsigned(locCollisionBody2 + 0x68) / a
+							}
+						}
+						tri_58_pos = {
+							readfixedpoint2012(locCollisionBody2 + 0x6c),
+							readfixedpoint2012(locCollisionBody2 + 0x74)
+						}
+						tri_78 = {
+							{
+								memory.readwordsigned(locCollisionBody2 + 0x78) / a,
+								memory.readwordsigned(locCollisionBody2 + 0x7c) / a
+							},
+							{
+								memory.readwordsigned(locCollisionBody2 + 0x7e) / a,
+								memory.readwordsigned(locCollisionBody2 + 0x82) / a
+							},
+							{
+								memory.readwordsigned(locCollisionBody2 + 0x84) / a,
+								memory.readwordsigned(locCollisionBody2 + 0x88) / a
+							}
+						}
+						tri_78_pos = {
+							readfixedpoint2012(locCollisionBody2 + 0x8c),
+							readfixedpoint2012(locCollisionBody2 + 0x94)
+						}
+						if (csv_style_logging == 0) then
+							-- obnoxious logging
+							print("tri_58 = {")
+							print("(" .. tri_58[1][1] .. ", " .. tri_58[1][2] .. "),")
+							print("(" .. tri_58[2][1] .. ", " .. tri_58[2][2] .. "),")
+							print("(" .. tri_58[3][1] .. ", " .. tri_58[3][2] .. "),")
+							print("}")
+							print("tri_58_pos = (" .. tri_58_pos[1] .. ", " .. tri_58_pos[2] .. ")")
+							
+							print("tri_78 = {")
+							print("(" .. tri_78[1][1] .. ", " .. tri_78[1][2] .. "),")
+							print("(" .. tri_78[2][1] .. ", " .. tri_78[2][2] .. "),")
+							print("(" .. tri_78[3][1] .. ", " .. tri_78[3][2] .. "),")
+							print("}")
+							print("tri_78_pos = (" .. tri_78_pos[1] .. ", " .. tri_78_pos[2] .. ")")
+						end
+						-- apply transformation
+						tri_78[1][1] = tri_78[1][1] + tri_78_pos[1]
+						tri_78[1][2] = tri_78[1][2] + tri_78_pos[2]
+						tri_78[2][1] = tri_78[2][1] + tri_78_pos[1]
+						tri_78[2][2] = tri_78[2][2] + tri_78_pos[2]
+						tri_78[3][1] = tri_78[3][1] + tri_78_pos[1]
+						tri_78[3][2] = tri_78[3][2] + tri_78_pos[2]
+						
+						contact_tris[cur_contact_tri+1] = tri_78
+						cur_contact_tri = (cur_contact_tri + 1) % contact_tris_arrlen
+					end
 					
 					x3 = readfixedpoint2012(locCollisionBody2 + 0x8C)
 					y3 = readfixedpoint2012(locCollisionBody2 + 0x90)
