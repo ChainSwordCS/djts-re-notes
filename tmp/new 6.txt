@@ -1,0 +1,10 @@
+
+breakpoint: [027E081C]? ( oncol_param2_substruct[0]->contact_depth )
+triggers:
+	0207EFB0 (lr = 0207EC64)
+		subreturn to: 0207EC64
+			subreturn to: 0208F184
+				subreturn to: 020320EC
+	020320EC (lr = 020320E3)
+	0203214C (lr = 0203213C)
+		subreturn to: 0202EB78
