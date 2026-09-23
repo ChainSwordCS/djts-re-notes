@@ -10,6 +10,19 @@ typedef undefined2 u16;
 typedef undefined1 u8;
 typedef func void;
 
+struct vec16 {
+	s16 x;
+	s16 y;
+	s16 z;
+};
+
+struct vec32 {
+	// 20.12 fixed-point 32-bit numbers
+	s32 x;
+	s32 y;
+	s32 z;
+};
+
 /** all of these structs are a work in progress.
 	most of their fields/variables, i don't know what they're used for.
 */
@@ -58,40 +71,40 @@ struct CollisionBody_vtable {
  */
 struct CollisionBody {
 	CollisionBody_vtable* vptr; // like 0x020f80c8
-	undefined4	var_04;
-	undefined4	var_08;
-	undefined4	var_0c;
-	undefined4	var_10;
-	undefined4	var_14;
-	void*		var_18; // like 0x021dbe9c
-	undefined4	var_1c;
+	vec32 boundingBox[2]; // two points; corners
+	void*		var_1c;
 	undefined4	var_20;
-	void*		var_24; // like 0x02361644
+	undefined4	var_24;
 	u32			var_28;
-	void*		var_2c; // like 0x021dbe9c
+	void*		var_2c;
 	undefined4	var_30;
 	void*		var_34;
 	undefined4	var_38;
 	undefined4	var_3c;
-	Agent*		var_40_agent_parent; // like 0x021dbbf0
-	u32			var_44;
-	Agent*		var_48_agent; // sort of backref to parent ? (like 0x021dbcc0)
-	void*		var_4c;
-	u16*		var_50; // ptr to parent Avatar's var_d0 (like 0x021DBC30)
-	s32*		var_54; // ptr to parent Avatar's var_b8 (like 0x021DBC18)
+	void*		var_40; // backref to parent Agent maybe? (like 0x021dbbf0)
+	CollisionBody* var_44_collisionbody; // ?
+	void*		var_48; // backref to parent Agent maybe? (like 0x021dbcc0)
+	undefined4	var_4c;
+	s16*		var_50_collisionbody_v78_ptr; // ptr to parent's collisionbody's var_78 (?) (like 0x021DBC30)
+	s32*		var_54_collisionbody_posnew_ptr; // ptr to parent's collisionbody's posnew (?) (like 0x021DBC18)
 	collision_substruct_58 var_58;
 	collision_substruct_58 var_78;
-	undefined1	var_98;
+	u8			var_98;
 	u8			var_99;
 	s16			var_9a;
-	undefined1	var_9c;
+	u8			var_9c;
 	u8			var_9d;
 	u8			var_9e;
 	u8			var_9f;
 };
 
+/**
+ *	size = 0x20
+ */
 struct collision_substruct_58 {
-	u16 var_00[10]; // 3 vectors and an extra u16...
+	// 3 vectors and an extra u16...
+	vec16 points[3];
+	u16 var_12;
 	u32 pos_new[3];
 };
 

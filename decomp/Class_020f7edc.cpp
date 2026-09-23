@@ -92,3 +92,52 @@ namespace Class_020f7edc {
 		return;
 	}
 }
+
+/**
+ *	extends CollisionBody_Base or whatever
+ *	only ever exists in the context of Class_020f7edc, i think.
+ *	(should this be moved somewhere else?)
+ */
+namespace Class_020f7eec {
+	
+	/**
+	 *	vtable[0]
+	 */
+	//todo
+	
+	/**
+	 *	vtable[1]
+	 */
+	//todo
+	
+	/**
+	 *	vtable[2]
+	 */
+	void FUN_0207df74(Class_020f7eec* this) {
+		Class_0208c524_Base:FUN_0208c1b0(this); // todo
+		int local_30[7];
+		local_30[0] = 0x7fffffff;
+		local_30[1] = 0x7fffffff;
+		local_30[2] = 0x7fffffff;
+		local_30[3] = 0x80000000;
+		local_30[4] = 0x80000000;
+		local_30[5] = 0x80000000;
+		//local_30[6] is undefined
+		
+		/* unsure what way of writing this makes most sense.
+			cuz really doesn't this variable belong to the parent struct, Class_020f7edc??
+		*/
+		//void* piVar1 = (this->var_a0);
+		//void* piVar1 = (parent->var_a8);
+		void* piVar1 = (Class_020f7edc*)((uint)this - 8)->field3_0xa8;
+		
+		while (piVar1 != NULL) {
+			if () {
+				
+			}
+			piVar1 = 
+		}
+		FUN_020d9c4c(this->boundingBox, local_30, &(local_30[3]));
+		return;
+	}
+}
