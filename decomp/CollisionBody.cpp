@@ -1,6 +1,8 @@
 
 // pseudocode
 
+#import "CollisionBody.hpp"
+
 void* DAT_020fe018; // at 0x020fe018
 
 // sometimes i call this "CollisionBody_Base"
@@ -136,12 +138,103 @@ namespace Class_020f8058_Base {
 namespace Class_020f8038 : Class_020f8058_Base {
 	
 	/**
+	 *	vtable[0]
+	 */
+	void FUN_0208c000(Class_020f8038* this) {
+		this->Base.vptr = 0x020f8038;
+		Class_020f8058_Base::Class_020f8058_Base(this);
+		return;
+	}
+	
+	/**
+	 *	vtable[1]
+	 */
+	void FUN_0208bfd8(Class_020f8038* this) {
+		this->Base.vptr = 0x020f8038;
+		Class_020f8058_Base::Class_020f8058_Base(this);
+		operator.delete[](this);
+		return;
+	}
+	
+	/**
 	 *	vtable[2]
 	 */
 	void FUN_0208bbac(Class_020f8038* this) {
 		Class_020f8058_Base::FUN_0208c1b0(this);
-		// (...)
-		// todo
+		vec32 local_e8;
+		local_e8.x = ((int)(short)(this->var_ac.x - this->var_a8.x) >> 1) << 2;
+		local_e8.y = ((int)(short)(this->var_ac.y - this->var_a8.y) >> 1) << 2;
+		local_e8.z = ((int)(short)(this->var_ac.z - this->var_a8.z) >> 1) << 2;
+		longlong lVar1;
+		vec32 local_dc;
+		lVar1 = (longlong)(int)(this->Base).var_78.point[0].x * (longlong)local_e8.x;
+		local_dc.x = (uint)lVar1 >> 12 | (int)((ulonglong)lVar1 >> 32) << 20;
+		lVar1 = (longlong)(int)(this->Base).var_78.point[0].y * (longlong)local_e8.x;
+		local_dc.y = (uint)lVar1 >> 12 | (int)((ulonglong)lVar1 >> 32) << 20;
+		lVar1 = (longlong)(int)(this->Base).var_78.point[0].z * (longlong)local_e8.x;
+		local_dc.z = (uint)lVar1 >> 12 | (int)((ulonglong)lVar1 >> 32) << 20;
+		vec32 local_d0;
+		lVar1 = (longlong)(int)(this->Base).var_78.point[1].x * (longlong)local_e8.y;
+		local_d0.x = (uint)lVar1 >> 12 | (int)((ulonglong)lVar1 >> 32) << 20;
+		lVar1 = (longlong)(int)(this->Base).var_78.point[1].y * (longlong)local_e8.y;
+		local_d0.y = (uint)lVar1 >> 12 | (int)((ulonglong)lVar1 >> 32) << 20;
+		lVar1 = (longlong)(int)(this->Base).var_78.point[1].z * (longlong)local_e8.y;
+		local_d0.z = (uint)lVar1 >> 12 | (int)((ulonglong)lVar1 >> 32) << 20;
+		vec32 local_c4;
+		lVar1 = (longlong)(int)(this->Base).var_78.point[2].x * (longlong)local_e8.z;
+		local_c4.x = (uint)lVar1 >> 12 | (int)((ulonglong)lVar1 >> 32) << 20;
+		lVar1 = (longlong)(int)(this->Base).var_78.point[2].y * (longlong)local_e8.z;
+		local_c4.y = (uint)lVar1 >> 12 | (int)((ulonglong)lVar1 >> 32) << 20;
+		lVar1 = (longlong)(int)(this->Base).var_78.point[2].z * (longlong)local_e8.z;
+		local_c4.z = (uint)lVar1 >> 12 | (int)((ulonglong)lVar1 >> 32) << 20;
+		vec32 local_88;
+		local_88.x = local_dc.x;
+		local_88.y = local_dc.y;
+		local_88.z = local_dc.z;
+		vec32 iStack_10c;
+		FUN_0207b368(&iStack_10c.x,&local_dc.x);
+		FUN_0207b35c(&local_dc.x,&iStack_10c.x);
+		FUN_0207b368(&iStack_10c.y,&local_dc.y);
+		FUN_0207b35c(&local_dc.y,&iStack_10c.y);
+		FUN_0207b368(&iStack_10c.z,&local_dc.z);
+		FUN_0207b35c(&local_dc.z,&iStack_10c.z);
+		vec32 iStack_100;
+		FUN_0207b368(&iStack_100.x,&local_d0.x);
+		FUN_0207b35c(&local_d0.x,&iStack_100.x);
+		FUN_0207b368(&iStack_100.y,&local_d0.y);
+		FUN_0207b35c(&local_d0.y,&iStack_100.y);
+		FUN_0207b368(&iStack_100.z,&local_d0.z);
+		FUN_0207b35c(&local_d0.z,&iStack_100.z);
+		vec32 iStack_f4;
+		FUN_0207b368(&iStack_f4.x,&local_c4.x);
+		FUN_0207b35c(&local_c4.x,&iStack_f4.x);
+		FUN_0207b368(&iStack_f4.y,&local_c4.y);
+		FUN_0207b35c(&local_c4.y,&iStack_f4.y);
+		FUN_0207b368(&iStack_f4.z,&local_c4.z);
+		FUN_0207b35c(&local_c4.z,&iStack_f4.z);
+		local_b8.x = ((int)(short)((this->var_ac).x + (this->var_a8).x) >> 1) << 2;
+		local_b8.y = ((int)(short)((this->var_ac).y + (this->var_a8).y) >> 1) << 2;
+		local_b8.z = ((int)(short)((this->var_ac).z + (this->var_a8).z) >> 1) << 2;
+		local_dc.x = local_dc.x + local_d0.x + local_c4.x;
+		local_dc.y = local_dc.y + local_d0.y + local_c4.y;
+		local_dc.z = local_dc.z + local_d0.z + local_c4.z;
+		if (((this->Base).var_78.var_12 & 1) == 0) {
+			FUN_0207cde8();
+			srcB = FUN_0207cd98((short *)&(this->Base).var_78,aiStack_4c);
+			FUN_020b68e4(&local_b8.x,srcB,auStack_58);
+			FUN_0207cdec(&local_a0.x,auStack_58);
+		}
+		else {
+			FUN_0207cdec(&local_a0.x,&local_b8.x);
+		}
+		local_ac.x = (this->Base).var_78.pos.x + local_a0.x;
+		local_ac.y = (this->Base).var_78.pos.y + local_a0.y;
+		local_ac.z = (this->Base).var_78.pos.z + local_a0.z;
+		local_94.x = local_dc.x << 1;
+		local_94.y = local_dc.y << 1;
+		local_94.z = local_dc.z << 1;
+		FUN_020d9c84(&(this->Base).boundingBox[0].x,&local_ac,&local_94);
+		return;
 	}
 	
 }
@@ -231,6 +324,21 @@ namespace Class_020f7f5c { // extends CollisionBody_Base(?) class
 	
 }
 
+// why
+void FUN_0207b35c(int* a, int* b) {
+	a[0] = b[0];
+	return;
+}
+
+void FUN_0207b368(int* a, int* b) {
+	int local_8[2];
+	if (b[0] < 0) {
+		local_8[0] = -param_2[0];
+		param_2 = local_8; // ??
+	}
+	a[0] = b[0];
+	return;
+}
 
 void FUN_020d9d50(void* param_1) {
 	// unsure how best to write this
