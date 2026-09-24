@@ -375,3 +375,15 @@ CollisionBody CB_door_1 @ 0x022EEFC0;
 // vptr = 020f80c8
 CollisionBody CB_girl_npc_amber_1 @ 0x022D3680;
 
+struct cb_substruct_2c {
+    u32 x1;
+    u32 y1;
+    u32 z1;
+    u32 x2;
+    u32 y2;
+    u32 z2;
+    Hex<u32> var_18;
+    u32 a @ var_18;
+};
+
+cb_substruct_2c CB_girl_npc_amber_1_var_2c_ptr @ 0x023710F0;

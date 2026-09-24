@@ -109,6 +109,28 @@ struct collision_substruct_58 {
 };
 
 /**
+ *	size = 0x4C?
+ */
+struct cb_substruct_2c {
+	vec32		var_00;
+	vec32		var_0c;
+	void*		var_18;
+	// not sure if these are part of this struct
+	undefined4	var_1c;
+	void*		var_20;
+	void*		var_24;
+	void*		var_28;
+	undefined4	var_2c;
+	undefined4	var_30;
+	void*		var_34;
+	void*		var_38;
+	undefined4	var_3c;
+	undefined4	var_40;
+	void*		var_44;
+	void*		var_48;
+};
+
+/**
 	size = 0xA0 (?)
  */
 struct Class_020f7eec {

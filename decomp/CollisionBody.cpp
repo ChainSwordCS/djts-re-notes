@@ -104,6 +104,33 @@ namespace Class_020f8058_Base {
 		return;
 	}
 	
+	/**
+	 *	vtable[4]
+	 */
+	void FUN_0208c174(Class_020f8058_Base* this) {
+		if (this->var_44 == 0) {
+			FUN_020d9d50(this->boundingBox);
+		}
+		(*this->vptr->vtable[5])(this);
+		this->var_9d = this->var_9d | 1;
+		return;
+	}
+	
+	/**
+	 *	vtable[5]
+	 */
+	void FUN_0208c128(Class_020f8058_Base* this) {
+		this->var_9d = this->var_9d | 2;
+		CollisionBody* pcvar1 = this->var_44;
+		if (pcvar1 == nullptr) {
+			return;
+		}
+		if ((pcvar1->var_9d & 2) != 2) {
+			(*pcvar1->vptr->vtable[5])();
+			return;
+		}
+		return;
+	}
 }
 
 namespace Class_020f8038 : Class_020f8058_Base {
@@ -203,3 +230,20 @@ namespace Class_020f7f5c { // extends CollisionBody_Base(?) class
 	}
 	
 }
+
+
+void FUN_020d9d50(void* param_1) {
+	// unsure how best to write this
+	Class_020f8058_Base* cb = (int)param_1 - 4;
+	if (cb->var_2c != nullptr) {
+		int iVar1 = (cb->var_2c)->var_18;
+		// whatever
+		if (cb->var_30 != *(int *)(iVar1 + 8)) {
+			cb->var_30 = *(int *)(iVar1 + 8);
+			cb->var_34 = *(undefined4 *)(iVar1 + 0x5c);
+			*(int *)(iVar1 + 0x5c) = param_1;
+		}
+	}
+	return;
+}
+
