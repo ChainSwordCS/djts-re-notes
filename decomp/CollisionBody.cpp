@@ -191,6 +191,8 @@ namespace Class_020f8038 : Class_020f8058_Base {
 		local_88.x = local_dc.x;
 		local_88.y = local_dc.y;
 		local_88.z = local_dc.z;
+		
+		/* original code:
 		vec32 iStack_10c;
 		FUN_0207b368(&iStack_10c.x,&local_dc.x);
 		FUN_0207b35c(&local_dc.x,&iStack_10c.x);
@@ -212,24 +214,43 @@ namespace Class_020f8038 : Class_020f8058_Base {
 		FUN_0207b35c(&local_c4.y,&iStack_f4.y);
 		FUN_0207b368(&iStack_f4.z,&local_c4.z);
 		FUN_0207b35c(&local_c4.z,&iStack_f4.z);
+		*/
+		/* translation: */
+		local_dc.x = abs(local_dc.x);
+		local_dc.y = abs(local_dc.y);
+		local_dc.z = abs(local_dc.z);
+		local_d0.x = abs(local_d0.x);
+		local_d0.y = abs(local_d0.y);
+		local_d0.z = abs(local_d0.z);
+		local_c4.x = abs(local_c4.x);
+		local_c4.y = abs(local_c4.y);
+		local_c4.z = abs(local_c4.z);
+		/* anyways... */
+		
+		vec32 local_b8;
 		local_b8.x = ((int)(short)((this->var_ac).x + (this->var_a8).x) >> 1) << 2;
 		local_b8.y = ((int)(short)((this->var_ac).y + (this->var_a8).y) >> 1) << 2;
 		local_b8.z = ((int)(short)((this->var_ac).z + (this->var_a8).z) >> 1) << 2;
 		local_dc.x = local_dc.x + local_d0.x + local_c4.x;
 		local_dc.y = local_dc.y + local_d0.y + local_c4.y;
 		local_dc.z = local_dc.z + local_d0.z + local_c4.z;
+		vec32 local_a0;
 		if (((this->Base).var_78.var_12 & 1) == 0) {
 			FUN_0207cde8();
-			srcB = FUN_0207cd98((short *)&(this->Base).var_78,aiStack_4c);
-			FUN_020b68e4(&local_b8.x,srcB,auStack_58);
+			int aiStack_4c[10];
+			aiStack_4c = FUN_0207cd98((short *)&(this->Base).var_78,aiStack_4c);
+			int auStack_58[3];
+			FUN_020b68e4(&local_b8.x,aiStack_4c,auStack_58);
 			FUN_0207cdec(&local_a0.x,auStack_58);
 		}
 		else {
 			FUN_0207cdec(&local_a0.x,&local_b8.x);
 		}
+		vec32 local_ac;
 		local_ac.x = (this->Base).var_78.pos.x + local_a0.x;
 		local_ac.y = (this->Base).var_78.pos.y + local_a0.y;
 		local_ac.z = (this->Base).var_78.pos.z + local_a0.z;
+		vec32 local_94;
 		local_94.x = local_dc.x << 1;
 		local_94.y = local_dc.y << 1;
 		local_94.z = local_dc.z << 1;
@@ -333,10 +354,31 @@ void FUN_0207b35c(int* a, int* b) {
 void FUN_0207b368(int* a, int* b) {
 	int local_8[2];
 	if (b[0] < 0) {
-		local_8[0] = -param_2[0];
-		param_2 = local_8; // ??
+		local_8[0] = -b[0];
+		b = local_8; // ??
 	}
 	a[0] = b[0];
+	return;
+}
+
+/**
+ *	new simplified function, written by me
+ */
+int abs(int a) {
+	if (a < 0)
+		return -a;
+	else
+		return a;
+}
+
+void FUN_020d9c84(vec32* bounding_box, vec32* param_2, vec32 param_3) {
+	bounding_box[0].x = param_2->x - (param_3->x / 2);
+	bounding_box[0].y = param_2->y - (param_3->y / 2);
+	bounding_box[0].z = param_2->z - (param_3->z / 2);
+	bounding_box[1].x = param_2->x + (param_3->x / 2);
+	bounding_box[1].y = param_2->y + (param_3->y / 2);
+	bounding_box[1].z = param_2->z + (param_3->z / 2);
+	bounding_box[1].z = bounding_box[1].z | 1;
 	return;
 }
 
