@@ -1,6 +1,127 @@
 
 // pseudocode
 
+void* DAT_020fe018; // at 0x020fe018
+
+// sometimes i call this "CollisionBody_Base"
+namespace Class_020f8058_Base {
+	
+	/**
+	 *	vtable[0]
+	 */
+	void FUN_0208c454(Class_020f8058_Base* this) {
+		this->vptr = 0x020f8058;
+		if (this->var_4c != 0) {
+			FUN_020c97d8(this->var_4c);
+		}
+		if (this->var_44 != 0) {
+			FUN_0207e124(this->var_44, this);
+		}
+		FUN_0208b68c(DAT_020fe018 - 0x2C, this);
+		//FUN_020d9d80(); // does nothing
+		return;
+	}
+	
+	/**
+	 *	vtable[1]
+	 */
+	void FUN_0208c3ec(Class_020f8058_Base* this) {
+		this->vptr = 0x020f8058;
+		if (this->var_4c != 0) {
+			FUN_020c97d8(this->var_4c);
+		}
+		if (this->var_44 != 0) {
+			FUN_0207e124(this->var_44, this);
+		}
+		FUN_0208b68c(DAT_020fe018 - 0x2C, this);
+		//FUN_020d9d80(); // does nothing
+		operator.delete[](this);
+		return;
+	}
+	
+	/**
+	 *	vtable[2]
+	 */
+	void FUN_0208c1b0(Class_020f8058_Base* this) {
+		if ((this->var_9d & 1) == 1) {
+			this->vptr->vtable[3]();
+		}
+		this->var_9d = this->var_9d & 0xFD;
+		return;
+	}
+	
+	/**
+	 *	vtable[3]
+	 */
+	void FUN_0208c1ec(Class_020f8058_Base* this) {
+		short local_70[10];
+		int local_50[3];
+		short* psVar4 = (short *)(this->var_50);
+		if ((psVar4 == NULL) || (this->var_54 == 0)) {
+			(this->var_78).point[2].x = (this->var_58).point[2].x;
+			(this->var_78).point[2].y = (this->var_58).point[2].y;
+			(this->var_78).point[2].z = (this->var_58).point[2].z;
+			(this->var_78).point[0].x = (this->var_58).point[0].x;
+			(this->var_78).point[0].y = (this->var_58).point[0].y;
+			(this->var_78).point[0].z = (this->var_58).point[0].z;
+			(this->var_78).point[1].x = (this->var_58).point[1].x;
+			(this->var_78).point[1].y = (this->var_58).point[1].y;
+			(this->var_78).point[1].z = (this->var_58).point[1].z;
+			(this->var_78).var_12 = (this->var_58).var_12;
+			(this->var_78_.pos.x = (this->var_58).pos.x;
+			(this->var_78_.pos.y = (this->var_58).pos.y;
+			(this->var_78_.pos.z = (this->var_58).pos.z;
+		} else {
+			arraycopy_u16_x10_FUN_0207ccd4(local_70, &this->var_58);
+			FUN_020a5974(local_70, psVar4);
+			(this->var_78).point[2].x = local_70[6];
+			(this->var_78).point[2].y = local_70[7];
+			(this->var_78).point[2].z = local_70[8];
+			(this->var_78).point[0].x = local_70[0];
+			(this->var_78).point[0].y = local_70[1];
+			(this->var_78).point[0].z = local_70[2];
+			(this->var_78).point[1].x = local_70[3];
+			(this->var_78).point[1].y = local_70[4];
+			(this->var_78).point[1].z = local_70[5];
+			(this->var_78).var_12 = local_70[9];
+			psVar4 = (short *)this->var_50;
+			piVar5 = this->var_54;
+			if ((psVar4[9] & 1) == 0) {
+				//FUN_0207cde8(); // does nothing
+				int aiStack_38[10];
+				uint auStack_44[3];
+				int* srcB = FUN_0207cd98(psVar4, aiStack_38);
+				FUN_020b68e4(&(this->var_58.pos), srcB, auStack_44);
+				FUN_0207cdec(local_50, auStack_44);
+			} else {
+				FUN_0207cdec(local_50, &(this->var_58.pos));
+			}
+			(this->var_78).pos.x = local_50[0] + piVar5[0];
+			(this->var_78).pos.y = local_50[1] + piVar5[1];
+			(this->var_78).pos.z = local_50[2] + piVar5[2];
+		}
+		this->var_9d = this->var_9d & 0xFE;
+		return;
+	}
+	
+}
+
+namespace Class_020f8038 : Class_020f8058_Base {
+	
+	/**
+	 *	vtable[2]
+	 */
+	void FUN_0208bbac(Class_020f8038* this) {
+		Class_020f8058_Base::FUN_0208c1b0(this);
+		// (...)
+		// todo
+	}
+	
+}
+
+
+// TODO: many stupid overlapping classes that extend and act similar to CollisionBody
+
 namespace CollisionBody {
 	
 	void FUN_0208f068(CollisionBody * this, CollisionBody * param_2) {

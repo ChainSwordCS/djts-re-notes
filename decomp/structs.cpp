@@ -103,9 +103,9 @@ struct CollisionBody {
  */
 struct collision_substruct_58 {
 	// 3 vectors and an extra u16...
-	vec16 points[3];
+	vec16 point[3];
 	u16 var_12;
-	u32 pos_new[3];
+	u32 pos[3];
 };
 
 /**
@@ -130,8 +130,8 @@ struct Class_020f7edc {
 	Class_020f7edc_vtable* vptr;
 	Class_020f7edc_04_substruct* var_04;
 	Class_020f7eec Class_020f7eec;
-	u32 var_a8; // ?
-	u32 var_ac; // ?
+	CollisionBody* var_a8; // ?
+	CollisionBody* var_ac; // ?
 };
 
 // unknown purpose

@@ -115,29 +115,34 @@ namespace Class_020f7eec {
 	 */
 	void FUN_0207df74(Class_020f7eec* this) {
 		Class_0208c524_Base:FUN_0208c1b0(this); // todo
-		int local_30[7];
-		local_30[0] = 0x7fffffff;
-		local_30[1] = 0x7fffffff;
-		local_30[2] = 0x7fffffff;
-		local_30[3] = 0x80000000;
-		local_30[4] = 0x80000000;
-		local_30[5] = 0x80000000;
-		//local_30[6] is undefined
+		vec32 local_30;
+		vec32 local_24;
+		local_30.x = 0x7fffffff;
+		local_30.y = 0x7fffffff;
+		local_30.z = 0x7fffffff;
+		local_24.x = 0x80000000;
+		local_24.y = 0x80000000;
+		local_24.z = 0x80000000;
+		//int local_18; // is this decomp correct?
 		
 		/* unsure what way of writing this makes most sense.
 			cuz really doesn't this variable belong to the parent struct, Class_020f7edc??
 		*/
-		//void* piVar1 = (this->var_a0);
-		//void* piVar1 = (parent->var_a8);
-		void* piVar1 = (Class_020f7edc*)((uint)this - 8)->field3_0xa8;
+		//void* cb = (this->var_a0);
+		//void* cb = (parent->var_a8);
+		CollisionBody* cb = (Class_020f7edc*)((uint)this - 8)->field3_0xa8;
 		
-		while (piVar1 != NULL) {
-			if () {
-				
+		while (cb != NULL) {
+			if ((cb->var_9d & 8) != 8) {
+				if ((cb->var_9d & 2) == 2) {
+					// in observed practice, this calls FUN_0208bbac, for example.
+					(cb->vptr->vtable[2])();
+				}
+				FUN_020d959c(cb->boundingBox, &local_30, &local_24);
 			}
-			piVar1 = 
+			cb = (CollisionBody*)(cb->var_38);
 		}
-		FUN_020d9c4c(this->boundingBox, local_30, &(local_30[3]));
+		FUN_020d9c4c(this->boundingBox, &local_30, &local_24);
 		return;
 	}
 }
