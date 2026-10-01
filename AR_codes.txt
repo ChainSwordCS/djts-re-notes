@@ -135,15 +135,18 @@ B2383DDC 00000000
 00000000 00064000
 D2000000 00000000
 
+// on Desmume, game gets really laggy when you switch to Drake lol
 [Turbospeed Josh (walking) (buggy)]
 623613E0 00000000
 B23613E0 00000000
 00000024 00000C00
 D2000000 00000000
 
+// only affects 3D rendering, may not work as intended
 [60 FPS(?)]
 2210EE5C 0000003C
 
+// only affects 3D rendering
 [16:10 Widescreen]
 221CBDEC 00001999
 
@@ -216,4 +219,66 @@ D2000000 00000000
 
 [(TEST) force error to test debug logging hack (1)]
 02007670 E1A00000
+
+// usually doesn't work(?), seems broken on console, try using in Desmume. (i won't be updating this lol)
+[Big Head Mode v1 (broken)]
+620E98BC 00000000
+B20E98BC 00000000
+DC000000 000003D8
+50000000 00000001
+D3000000 00000000
+B20E98BC 00000000
+20000E05 0000003C
+20000DF5 0000003C
+20000DE5 0000003C
+D0000000 00000000
+D3000000 00000000
+B20E98BC 00000000
+DC000000 000003D8
+50000000 00000000
+D3000000 00000000
+B20E98BC 00000000
+20000DED 0000003C
+20000DFD 0000003C
+20000E0D 0000003C
+D0000000 00000000
+D0000000 00000000
+D2000000 00000000
+
+
+
+
+
+
+
+========== NOTES ==========
+
+Camera struct pointer can be found at 0x0210EE88 on Retail, or 0x0212118C on Debug
+
+Camera struct variables:
+offs (hex)	var
+90			Target X pos
+94			Target Y pos
+98			Target Z pos
+9C			?
+A0			?
+A4			?
+A8			?
+AC			?
+B0			?
+B4			?
+B8			?
+BC			?
+C0			Self X pos
+C4			?
+C8			Self Z pos
+CC			?
+D0			?
+D4			?
+D8			?
+DC			?
+E0			?
+E4			?
+E8			Self Y pos
+EC			Self Pitch(?)
 
