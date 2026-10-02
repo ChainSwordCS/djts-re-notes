@@ -64,18 +64,38 @@ AR Codes for Drake & Josh - Talent Showdown (Beta)
 0207D5B0 E1A00000
 0207D5C0 E1A00000
 
-[High Camera (recommended for orthographic view)]
+// recommended for orthographic view
+[High Camera (y=24.414)]
 6212118C 00000000
 B212118C 00000000
 000000E8 000186A0
 D2000000 00000000
 
-[not as high camera]
+[Not as high Camera (y=12.414)]
 6212118C 00000000
 B212118C 00000000
 000000E8 0000C6A0
 D2000000 00000000
 
+[Higher Camera (y=32.000)]
+6212118C 00000000
+B212118C 00000000
+000000E8 00020000
+D2000000 00000000
+
+[Higher Camera (y=64.000)]
+6212118C 00000000
+B212118C 00000000
+000000E8 00040000
+D2000000 00000000
+
+[Higher Camera (y=128.000)]
+6212118C 00000000
+B212118C 00000000
+000000E8 00080000
+D2000000 00000000
+
+// recommended for orthographic view
 [Camera pointed straight down (recommended for orthographic view)]
 6212118C 00000000
 B212118C 00000000
@@ -150,18 +170,39 @@ D2000000 00000000
 [16:10 Widescreen]
 221CBDEC 00001999
 
-[High Camera (recommended for orthographic view)]
+// recommended for orthographic view
+[High Camera (y=24.414)]
 6210EE88 00000000
 B210EE88 00000000
 000000E8 000186A0
 D2000000 00000000
 
-[not as high camera]
+// recommended for orthographic view
+[not as high camera (y=12.414)]
 6210EE88 00000000
 B210EE88 00000000
 000000E8 0000C6A0
 D2000000 00000000
 
+[Higher Camera (y=32.000)]
+6210EE88 00000000
+B210EE88 00000000
+000000E8 00020000
+D2000000 00000000
+
+[Higher Camera (y=64.000)]
+6210EE88 00000000
+B210EE88 00000000
+000000E8 00040000
+D2000000 00000000
+
+[Higher Camera (y=128.000)]
+6210EE88 00000000
+B210EE88 00000000
+000000E8 00080000
+D2000000 00000000
+
+// recommended for orthographic view
 [Camera pointed straight down (recommended for orthographic view)]
 6210EE88 00000000
 B210EE88 00000000
@@ -252,6 +293,49 @@ D2000000 00000000
 
 
 ========== NOTES ==========
+
+
+List of levels for level select code(s)
+
+#(hex)	#(dec)	level
+00		 0		1-1 "Where's the band?"
+01		 1		1-2 "Where's the band?"
+02		 2		1-3 "Where's the band?"
+03		 3		1-4 "Where's the band?"
+04		 4		2-1 "Fair Play"
+05		 5		2-2 "Fair Play"
+06		 6		2-3 "Fair Play"
+07		 7		2-4 "Fair Play"
+08		 8		3-1 "Get to the show on time!"
+09		 9		3-2 "Get to the show on time!"
+0A		10		3-3 "Get to the show on time!"
+0B		11		4-1 "Protect Drake!"
+0C		12		5-1 "Believe in magic!"
+0D		13		6-1 "Stepbrothers in disguise"
+0E		14		6-2 "Stepbrothers in disguise"
+0F		15		7-1 "Room service!"
+10		16		7-2 "Room service!"
+11		17		8-1 "Lost and found"
+12		18		8-2 "Lost and found"
+13		19		9-1 "Oh my! It's Drew and Jerry!"
+14		20		9-2 "Oh my! It's Drew and Jerry!"
+15		21		10-1 "Giddy up!"
+16		22		10-2 "Giddy up!"
+17		23		11-1 "Under pressure"
+18		24		11-2 "Under pressure"
+19		25		11-3 "Under pressure"
+1A		26		12-1 "Get back to the stage on time!"
+1B		27		12-2 "Get back to the stage on time!"
+1C		28		13-1 "Josh is just magic!"
+1D		29		"A few last words..."
+1E		30		Guitar 1 - "Rehearsal"
+1F		31		Guitar 2 - "Qualifying performance"
+20		32		Guitar 3 - "Practice before show"
+21		33		Guitar 4 - "Cowboy song"
+22		34		Guitar 5 - "The finale"
+23		35		prototype_school_floor
+24+		36+		None / invalid (game crash)
+
 
 Camera struct pointer can be found at 0x0210EE88 on Retail, or 0x0212118C on Debug
 
