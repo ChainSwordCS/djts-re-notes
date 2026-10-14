@@ -159,7 +159,7 @@ _drawCollision_prevFrameContactPointList = { {0,0} }
 _drawCollision_prevFrameTriList = { { {0, 0}, {0, 0}, {0, 0}, "#FF00FF" }, }
 _drawCollision_prevFrameRectList = { {0,0,0,0}, {0,0,0,0} }
 -- simple and hacky. only designed to work with certain camera hacks in play.
-function drawOverlay()
+function drawCollision()
 	cam_ptr = memory.readdword(ptr_camPtr)
 	if cam_ptr == 0 then
 		-- probably not in-game; abort!
@@ -283,6 +283,28 @@ function drawOverlay()
 	return
 end
 
+collision_info_text_lines = 0
+collision_info_text = { "", "", "", "", "", "", "", "", "" }
+function drawCollisionInfoText()
+	i = 0
+	while (i < collision_info_text_lines) do
+		-- idea (todo): track how many frames since this was changed, and adjust font color accordingly?
+		-- like, if it just updated, make this text bright red, then have it fade to white or whatever
+		-- with each gui redraw, until the text is updated again.
+		gui.text(0, i*8+2, collision_info_text[i+1])
+		i = i + 1
+	end
+end
+
+function drawOverlay()
+	if(info_overlay == 1) then
+		drawCollisionInfoText()
+	end
+	if(draw_collision_overlay == 1) then
+		drawCollision()
+	end
+end
+
 function update()
 	checkIsNew3dEngineFrame()
 end
@@ -291,6 +313,7 @@ function onCollisionCallback()
 	if (panic == 1) then
 		return
 	end
+	collision_info_text_lines = 0
 	param_2_ptr = memory.getregister("r1")
 	numContacts = memory.readbyte(param_2_ptr + 1)
 	if(numContacts >= 1) then
@@ -477,9 +500,10 @@ function onCollisionCallback()
 					
 					-- todo: this part has some kinks to work out still. (flickering, mainly.)
 					if(info_overlay == 1) then
-						gui.text(0,24*i+2,string.format("contact %i; collisionkey=%08X", i, collisionKey))
-						gui.text(0,24*i+10,string.format("vtx_A=(% 8.3f, % 8.3f, % 8.3f)",vtx_A_x,vtx_A_y,vtx_A_z))
-						gui.text(0,24*i+18,string.format("vtx_B=(% 8.3f, % 8.3f, % 8.3f)",vtx_B_x,vtx_B_y,vtx_B_z))
+						collision_info_text[collision_info_text_lines+1] = string.format("contact %i; collisionkey=%08X", i, collisionKey)
+						collision_info_text[collision_info_text_lines+2] = string.format("vtx_A=(% 8.3f, % 8.3f, % 8.3f)",vtx_A_x,vtx_A_y,vtx_A_z)
+						collision_info_text[collision_info_text_lines+3] = string.format("vtx_B=(% 8.3f, % 8.3f, % 8.3f)",vtx_B_x,vtx_B_y,vtx_B_z)
+						collision_info_text_lines = collision_info_text_lines + 3
 					end
 				else
 					panic=1
@@ -494,9 +518,7 @@ function onCollisionCallback()
 	end
 end
 
-memory.registerexec(ptr_onCollision, onCollisionCallback)
-if(draw_collision_overlay == 1) then
-	gui.register(drawOverlay)
-end
+memory.registerexec(ptr_onCollision, onCollisionCallback) -- hook into game code
 
-emu.registerafter(update)
+gui.register(drawOverlay) -- hook at GUI draw/update
+emu.registerafter(update) -- hook at emulator frame advance
