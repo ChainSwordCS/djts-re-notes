@@ -284,7 +284,7 @@ function drawOverlay()
 end
 
 function update()
-	-- todo
+	checkIsNew3dEngineFrame()
 end
 
 function onCollisionCallback()
@@ -499,9 +499,4 @@ if(draw_collision_overlay == 1) then
 	gui.register(drawOverlay)
 end
 
--- Main loop ----------------------------------------------------------------------------------------------------------
-while true do
-	checkIsNew3dEngineFrame()
-	update()
-	emu.frameadvance()
-end
+emu.registerafter(update)
