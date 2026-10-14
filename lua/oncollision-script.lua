@@ -237,7 +237,7 @@ function drawCollision()
 				--print(string.format("debug: drawrect(%.1f, %.1f, %.1f, %.1f)",x1,z1-192,x2,z2-192))
 				table.insert(_drawCollision_prevFrameRectList, {x1, z1, x2, z2})
 				
-				if (cb_x3y3z3) then
+				if (cb_x3y3z3) and (c[8]) and (c[10]) then
 					-- map onto new coord plane
 					x3 = (c[8] * const_vp_x_fac) - (vp_topleft[1] * const_vp_x_fac)
 					z3 = (c[10] * const_vp_z_fac) - (vp_topleft[2] * const_vp_z_fac)
