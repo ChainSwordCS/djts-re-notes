@@ -175,3 +175,24 @@ struct SaboteurEffect {
 	undefined4	var_20;
 };
 
+struct TriggerOnMagicTrick_vtable {
+	func vtable[8];
+};
+
+/* size = 0x28 */
+struct TriggerOnMagicTrick {
+	TriggerOnMagicTrick_vtable* vptr;
+	undefined4	var_04;
+	undefined4	var_08;
+	undefined4	var_0c;
+	void*		var_10;
+	void*		var_14;
+	void*		var_18; // owner?
+	undefined4	var_1c;
+	u8			var_20;
+	u8			var_21;
+	u8			var_22;
+	u8			var_23;
+	undefined4	var_24;
+};
+
