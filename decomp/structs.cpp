@@ -32,7 +32,12 @@ struct Agent {
 	void*		var_04;
 	undefined4	var_08;
 	void*		var_0c;
-	undefined1 padding_10[24]; // todo
+	void*		var_10;
+	undefined4	var_14;
+	undefined4	var_18;
+	undefined4	var_1c;
+	void*		var_20;
+	void*		var_24;
 	void*		var_28;
 	void*		var_2c;
 	undefined4	var_30;
